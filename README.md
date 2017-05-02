@@ -2,8 +2,14 @@
 ## A WordPress plugin
 Multisite Taxonomies brings the ability to register custom taxonomies, accessible on an entire multisite network, to WordPress.
 
+Master branch: [![CircleCI](https://circleci.com/gh/HarvardChanSchool/multisite-taxonomies.svg?style=svg)](https://circleci.com/gh/HarvardChanSchool/multisite-taxonomies)
+
 ## Coding standards
 We follow (WordPress Coding Standards)[https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards] and enforce them using PHP Code Sniffer.
+
+To test localy simply run:
+- `$ composer install` (if you haven't already)
+- `$ ./vendor/bin/phpcs ./`
 
 ## Local dev environement
 The plugin comes with a "ready to code in 5 minutes" local dev environement. This is totally optional and you can use you own environement.
