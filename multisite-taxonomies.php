@@ -26,5 +26,5 @@ define( 'MULTITAXO_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'MULTITAXO_ASSETS_URL', plugins_url( '/assets', __FILE__ ) );
 
 // Plugin init.
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class.multisite-taxonomies.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisitetaxonomies.php' );
 $multitaxo = new MultisiteTaxonomies();
