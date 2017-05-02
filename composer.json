@@ -1,0 +1,21 @@
+{
+  "name": "Multisite Taxonomies",
+  "type": "wordpress-plugin",
+  "description": "",
+  "homepage": "https://github.com/HarvardChanSchool/multisite-taxonomies",
+  "authors": [{
+      "name": "HSPH Webteam",
+      "email": "webteam@hsph.harvard.edu",
+      "homepage": "http://www.hsph.harvard.edu/information-technology/"
+  }],
+  "repositories": [{
+      "type": "vcs",
+      "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards"
+  }],
+  "require": {
+  	"composer/installers": "~1.0"
+  },
+  "require-dev": {
+    "wp-coding-standards/wpcs": "dev-master"
+  }
+}
