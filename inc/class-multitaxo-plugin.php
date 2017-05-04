@@ -1,6 +1,6 @@
 <?php
 /**
- * Multisite Taxonomies
+ * Multisite Taxonomies Plugin init class
  *
  * @package multitaxo
  */
@@ -8,7 +8,7 @@
 /**
  * Plugin Init class.
  */
-class MultisiteTaxonomies {
+class Multitaxo_Plugin {
 	/**
 	 * __construct function.
 	 *
