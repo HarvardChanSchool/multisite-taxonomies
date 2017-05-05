@@ -115,56 +115,30 @@ class Multitaxo_Plugin {
 
 		dbDelta( $termmeta_sql );
 
+		/*
+			--
+			-- Indexes for table `grjn2wkfr_termmeta`
+			--
+			ALTER TABLE `grjn2wkfr_termmeta`
+			  ADD PRIMARY KEY (`meta_id`), ADD KEY `term_id` (`term_id`), ADD KEY `meta_key` (`meta_key`(191));
 
+			--
+			-- Indexes for table `grjn2wkfr_terms`
+			--
+			ALTER TABLE `grjn2wkfr_terms`
+			  ADD PRIMARY KEY (`term_id`), ADD KEY `slug` (`slug`(191)), ADD KEY `name` (`name`(191));
 
+			--
+			-- Indexes for table `grjn2wkfr_term_relationships`
+			--
+			ALTER TABLE `grjn2wkfr_term_relationships`
+			  ADD PRIMARY KEY (`object_id`,`term_taxonomy_id`), ADD KEY `term_taxonomy_id` (`term_taxonomy_id`);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-	--
-	-- Indexes for table `grjn2wkfr_termmeta`
-	--
-	ALTER TABLE `grjn2wkfr_termmeta`
-	  ADD PRIMARY KEY (`meta_id`), ADD KEY `term_id` (`term_id`), ADD KEY `meta_key` (`meta_key`(191));
-
-	--
-	-- Indexes for table `grjn2wkfr_terms`
-	--
-	ALTER TABLE `grjn2wkfr_terms`
-	  ADD PRIMARY KEY (`term_id`), ADD KEY `slug` (`slug`(191)), ADD KEY `name` (`name`(191));
-
-	--
-	-- Indexes for table `grjn2wkfr_term_relationships`
-	--
-	ALTER TABLE `grjn2wkfr_term_relationships`
-	  ADD PRIMARY KEY (`object_id`,`term_taxonomy_id`), ADD KEY `term_taxonomy_id` (`term_taxonomy_id`);
-
-	--
-	-- Indexes for table `grjn2wkfr_term_taxonomy`
-	--
-	ALTER TABLE `grjn2wkfr_term_taxonomy`
-	  ADD PRIMARY KEY (`term_taxonomy_id`), ADD UNIQUE KEY `term_id_taxonomy` (`term_id`,`taxonomy`), ADD KEY `taxonomy` (`taxonomy`);
-
-
-
-
-
-
-
-
-
-
-
-
+			--
+			-- Indexes for table `grjn2wkfr_term_taxonomy`
+			--
+			ALTER TABLE `grjn2wkfr_term_taxonomy`
+			  ADD PRIMARY KEY (`term_taxonomy_id`), ADD UNIQUE KEY `term_id_taxonomy` (`term_id`,`taxonomy`), ADD KEY `taxonomy` (`taxonomy`);
+		*/
 	}
 }
