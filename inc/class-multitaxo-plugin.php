@@ -60,10 +60,10 @@ class Multitaxo_Plugin {
 	 */
 	public function deactivation_hook() {
 		global $wpdb;
-		// load the db delta scripts
+		// Load the db delta scripts.
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-		// get characterset of the server
+		// Get characterset of the server.
 		$charset_collate = $wpdb->get_charset_collate();
 
 		/*
