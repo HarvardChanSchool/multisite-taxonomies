@@ -66,14 +66,25 @@ class Multitaxo_Plugin {
 		// get characterset of the server
 		$charset_collate = $wpdb->get_charset_collate();
 
+		/*
+         * Indexes have a maximum size of 767 bytes. Historically, we haven't need to be concerned about that.
+         * As of 4.2, however, we moved to utf8mb4, which uses 4 bytes per character. This means that an index which
+         * used to have room for floor(767/3) = 255 characters, now only has room for floor(767/4) = 191 characters.
+         */
+
+        $max_index_length = 191;
+
 		// Table structure for table `wp_termmeta`.
 		$termmeta_table = $wpdb->prefix . 'termmeta';
 
 		$termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $termmeta_table . '` (
-			`meta_id` bigint(20) unsigned NOT NULL,
-			`term_id` bigint(20) unsigned NOT NULL DEFAULT "0",
-			`meta_key` varchar(255) DEFAULT NULL,
-			`meta_value` longtext
+			meta_id bigint(20) unsigned NOT NULL auto_increment,
+			term_id bigint(20) unsigned NOT NULL default "0",
+			meta_key varchar(255) default NULL,
+			meta_value longtext,
+			PRIMARY KEY  (meta_id),
+			KEY term_id (term_id),
+			KEY meta_key (meta_key(' . $max_index_length . '))
 		) ' . $charset_collate . ';';
 
 		dbDelta( $termmeta_sql );
@@ -82,10 +93,13 @@ class Multitaxo_Plugin {
 		$terms_table = $wpdb->prefix . 'terms';
 
 		$terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $terms_table . '` (
-			`term_id` bigint(20) unsigned NOT NULL,
-			`name` varchar(200) NOT NULL DEFAULT "",
-			`slug` varchar(200) NOT NULL DEFAULT "",
-			`term_group` bigint(10) NOT NULL DEFAULT "0"
+			term_id bigint(20) unsigned NOT NULL auto_increment,
+			name varchar(200) NOT NULL default '',
+			slug varchar(200) NOT NULL default '',
+			term_group bigint(10) NOT NULL default 0,
+			PRIMARY KEY  (term_id),
+			KEY slug (slug(' . $max_index_length . ')),
+			KEY name (name(' . $max_index_length . '))
 		) ' . $charset_collate . ';';
 
 		dbDelta( $terms_sql );
@@ -94,9 +108,11 @@ class Multitaxo_Plugin {
 		$term_relationships_table = $wpdb->prefix . 'term_relationships';
 
 		$termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $term_relationships_table . '` (
-			`object_id` bigint(20) unsigned NOT NULL DEFAULT "0",
-			`term_taxonomy_id` bigint(20) unsigned NOT NULL DEFAULT "0",
-			`term_order` int(11) NOT NULL DEFAULT "0"
+			object_id bigint(20) unsigned NOT NULL default 0,
+			term_taxonomy_id bigint(20) unsigned NOT NULL default 0,
+			term_order int(11) NOT NULL default 0,
+			PRIMARY KEY  (object_id,term_taxonomy_id),
+			KEY term_taxonomy_id (term_taxonomy_id)
 		) ' . $charset_collate . ';';
 
 		dbDelta( $term_relationships_sql );
@@ -105,40 +121,18 @@ class Multitaxo_Plugin {
 		$term_taxonomy_table = $wpdb->prefix . 'term_taxonomy';
 
 		$term_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $term_taxonomy_table . '` (
-			`term_taxonomy_id` bigint(20) unsigned NOT NULL,
-			`term_id` bigint(20) unsigned NOT NULL DEFAULT "0",
-			`taxonomy` varchar(32) NOT NULL DEFAULT '',
-			`description` longtext NOT NULL,
-			`parent` bigint(20) unsigned NOT NULL DEFAULT "0",
-			`count` bigint(20) NOT NULL DEFAULT "0"
+			term_taxonomy_id bigint(20) unsigned NOT NULL auto_increment,
+			term_id bigint(20) unsigned NOT NULL default 0,
+			taxonomy varchar(32) NOT NULL default '',
+			description longtext NOT NULL,
+			parent bigint(20) unsigned NOT NULL default 0,
+			count bigint(20) NOT NULL default 0,
+			PRIMARY KEY  (term_taxonomy_id),
+			UNIQUE KEY term_id_taxonomy (term_id,taxonomy),
+			KEY taxonomy (taxonomy)
 		) ' . $charset_collate . ';';
 
 		dbDelta( $termmeta_sql );
 
-		/*
-			--
-			-- Indexes for table `grjn2wkfr_termmeta`
-			--
-			ALTER TABLE `grjn2wkfr_termmeta`
-			  ADD PRIMARY KEY (`meta_id`), ADD KEY `term_id` (`term_id`), ADD KEY `meta_key` (`meta_key`(191));
-
-			--
-			-- Indexes for table `grjn2wkfr_terms`
-			--
-			ALTER TABLE `grjn2wkfr_terms`
-			  ADD PRIMARY KEY (`term_id`), ADD KEY `slug` (`slug`(191)), ADD KEY `name` (`name`(191));
-
-			--
-			-- Indexes for table `grjn2wkfr_term_relationships`
-			--
-			ALTER TABLE `grjn2wkfr_term_relationships`
-			  ADD PRIMARY KEY (`object_id`,`term_taxonomy_id`), ADD KEY `term_taxonomy_id` (`term_taxonomy_id`);
-
-			--
-			-- Indexes for table `grjn2wkfr_term_taxonomy`
-			--
-			ALTER TABLE `grjn2wkfr_term_taxonomy`
-			  ADD PRIMARY KEY (`term_taxonomy_id`), ADD UNIQUE KEY `term_id_taxonomy` (`term_id`,`taxonomy`), ADD KEY `taxonomy` (`taxonomy`);
-		*/
 	}
 }
