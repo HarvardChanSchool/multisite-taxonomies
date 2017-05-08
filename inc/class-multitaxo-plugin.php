@@ -108,10 +108,11 @@ class Multitaxo_Plugin {
 		$term_relationships_table = $wpdb->prefix . 'term_relationships';
 
 		$termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $term_relationships_table . '` (
+			blog_id bigint(20) unsigned NOT NULL default 0,
 			object_id bigint(20) unsigned NOT NULL default 0,
 			term_taxonomy_id bigint(20) unsigned NOT NULL default 0,
 			term_order int(11) NOT NULL default 0,
-			PRIMARY KEY  (object_id,term_taxonomy_id),
+			PRIMARY KEY  (blog_id,object_id,term_taxonomy_id),
 			KEY term_taxonomy_id (term_taxonomy_id)
 		) ' . $charset_collate . ';';
 
