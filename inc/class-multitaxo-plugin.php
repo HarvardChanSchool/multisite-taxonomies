@@ -72,7 +72,7 @@ class Multitaxo_Plugin {
          * used to have room for floor(767/3) = 255 characters, now only has room for floor(767/4) = 191 characters.
          */
 
-        $max_index_length = 191;
+		$max_index_length = 191;
 
 		// Table structure for table `wp_termmeta`.
 		$termmeta_table = $wpdb->prefix . 'termmeta';
@@ -94,8 +94,8 @@ class Multitaxo_Plugin {
 
 		$terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $terms_table . '` (
 			term_id bigint(20) unsigned NOT NULL auto_increment,
-			name varchar(200) NOT NULL default '',
-			slug varchar(200) NOT NULL default '',
+			name varchar(200) NOT NULL default "",
+			slug varchar(200) NOT NULL default "",
 			term_group bigint(10) NOT NULL default 0,
 			PRIMARY KEY  (term_id),
 			KEY slug (slug(' . $max_index_length . ')),
@@ -123,7 +123,7 @@ class Multitaxo_Plugin {
 		$term_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $term_taxonomy_table . '` (
 			term_taxonomy_id bigint(20) unsigned NOT NULL auto_increment,
 			term_id bigint(20) unsigned NOT NULL default 0,
-			taxonomy varchar(32) NOT NULL default '',
+			taxonomy varchar(32) NOT NULL default "",
 			description longtext NOT NULL,
 			parent bigint(20) unsigned NOT NULL default 0,
 			count bigint(20) NOT NULL default 0,
