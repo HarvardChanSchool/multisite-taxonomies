@@ -121,7 +121,6 @@ class Multisite_Term {
 		// If there isn't a cached version, hit the database.
 		if ( ! $_multisite_term || ( $multisite_taxonomy && $multisite_taxonomy !== $_multisite_term->multisite_taxonomy ) ) {
 			// Grab all matching multisite terms, in case any are shared between multisite taxonomies.
-			// @codingStandardsIgnoreLine - We need DB access for our plugin
 			$multisite_terms = $wpdb->get_results( $wpdb->prepare( "SELECT t.*, tt.* FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id = %d", $multisite_term_id ) );
 			if ( ! $multisite_terms ) {
 				return false;
