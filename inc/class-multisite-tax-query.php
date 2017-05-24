@@ -113,7 +113,7 @@ class Multisite_Tax_Query {
 	 *         @type string           $operator         MySQL operator to be used with $multisite_terms in the WHERE clause.
 	 *                                                  Accepts 'AND', 'IN', 'NOT IN', 'EXISTS', 'NOT EXISTS'.
 	 *                                                  Default: 'IN'.
-	 *         @type bool             $include_children Optional. Whether to include child terms.
+	 *         @type bool             $include_children Optional. Whether to include child multisite terms.
 	 *                                                  Requires a $multisite_taxonomy. Default: true.
 	 *     }
 	 * }
@@ -469,7 +469,7 @@ class Multisite_Tax_Query {
 			$where = "(
 				SELECT COUNT(1)
 				FROM $wpdb->multisite_term_relationships
-				WHERE multisite_term_taxonomy_id IN ($multisite_terms)
+				WHERE multisite_term_multisite_taxonomy_id IN ($multisite_terms)
 				AND object_id = $this->primary_table.$this->primary_id_column
 			) = $num_terms";
 
@@ -560,7 +560,7 @@ class Multisite_Tax_Query {
 				return;
 			}
 
-			// So long as there are shared terms, include_children requires that a multisite taxonomy is set.
+			// So long as there are shared multisite terms, include_children requires that a multisite taxonomy is set.
 			$query['include_children'] = false;
 		} elseif ( ! multisite_taxonomy_exists( $query['multisite_taxonomy'] ) ) {
 			$query = new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid taxonomy.', 'multitaxo' ) );
@@ -578,7 +578,7 @@ class Multisite_Tax_Query {
 
 			$children = array();
 			foreach ( $query['multisite_terms'] as $multisite_term ) {
-				$children = array_merge( $children, get_term_children( $multisite_term, $query['multisite_taxonomy'] ) );
+				$children = array_merge( $children, get_multisite_term_children( $multisite_term, $query['multisite_taxonomy'] ) );
 				$children[] = $multisite_term;
 			}
 			$query['multisite_terms'] = $children;

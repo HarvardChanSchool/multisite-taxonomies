@@ -78,12 +78,12 @@ class Multisite_Term_Query {
 	/**
 	 * Constructor.
 	 *
-	 * Sets up the term query, based on the query vars passed.
+	 * Sets up the multisite term query, based on the query vars passed.
 	 *
 	 * @access public
 	 *
 	 * @param string|array $query {
-	 *     Optional. Array or query string of term query parameters. Default empty.
+	 *     Optional. Array or query string of multisite term query parameters. Default empty.
 	 *
 	 *     @type string|array $multisite_taxonomy     Multsite taxonomy name, or array of multisite taxonomies, to which results should
 	 *                                                be limited.
@@ -115,7 +115,7 @@ class Multisite_Term_Query {
 	 *                                                complete multisite term objects), 'all_with_object_id' (returns an
 	 *                                                array of multisite term objects with the 'object_id' param; only works
 	 *                                                when the `$fields` parameter is 'object_ids' ), 'ids'
-	 *                                                (returns an array of ids), 'tt_ids' (returns an array of
+	 *                                                (returns an array of ids), 'mtmt_ids' (returns an array of
 	 *                                                multisite term multisite taxonomy ids), 'id=>parent' (returns an associative
 	 *                                                array with ids as keys, parent multisite term IDs as values), 'names'
 	 *                                                (returns an array of multisite term names), 'count' (returns the number
@@ -136,7 +136,7 @@ class Multisite_Term_Query {
 	 *                                                if $hide_empty is set to true). Default true.
 	 *     @type string       $search                 Search criteria to match multisite terms. Will be SQL-formatted with
 	 *                                                wildcards before and after. Default empty.
-	 *     @type string       $name__like             Retrieve multisite terms with criteria by which a term is LIKE
+	 *     @type string       $name__like             Retrieve multisite terms with criteria by which a multisite term is LIKE
 	 *                                                `$name__like`. Default empty.
 	 *     @type string       $description__like      Retrieve multisite terms where the description is LIKE
 	 *                                                `$description__like`. Default empty.
@@ -219,11 +219,11 @@ class Multisite_Term_Query {
 		$multisite_taxonomies = isset( $query['multisite_taxonomy'] ) ? (array) $query['multisite_taxonomy'] : null;
 
 		/**
-		 * Filters the terms query default arguments.
+		 * Filters the multisite terms query default arguments.
 		 *
-		 * Use {@see 'get_terms_args'} to filter the passed arguments.
+		 * Use {@see 'get_multisite_terms_args'} to filter the passed arguments.
 		 *
-		 * @param array $defaults   An array of default get_terms() arguments.
+		 * @param array $defaults   An array of default get_multisite_terms() arguments.
 		 * @param array $multisite_taxonomies An array of taxonomies.
 		 */
 		$this->query_var_defaults = apply_filters( 'get_multisite_terms_defaults', $this->query_var_defaults, $multisite_taxonomies );
@@ -415,7 +415,7 @@ class Multisite_Term_Query {
 			$exclusions = array_merge( wp_parse_id_list( $exclude ), $exclusions );
 		}
 
-		// 'childless' terms are those without an entry in the flattened term hierarchy.
+		// 'childless' terms are those without an entry in the flattened multisite term hierarchy.
 		$childless = (bool) $args['childless'];
 		if ( $childless ) {
 			foreach ( $multisite_taxonomies as $_tax ) {
@@ -466,8 +466,8 @@ class Multisite_Term_Query {
 
 		if ( ! empty( $args['multisite_term_multisite_taxonomy_id'] ) ) {
 			if ( is_array( $args['multisite_term_multisite_taxonomy_id'] ) ) {
-				$tt_ids = implode( ',', array_map( 'intval', $args['multisite_term_multisite_taxonomy_id'] ) );
-				$this->sql_clauses['where']['multisite_term_multisite_taxonomy_id'] = "tt.multisite_term_multisite_taxonomy_id IN ({$tt_ids})";
+				$mtmt_ids = implode( ',', array_map( 'intval', $args['multisite_term_multisite_taxonomy_id'] ) );
+				$this->sql_clauses['where']['multisite_term_multisite_taxonomy_id'] = "tt.multisite_term_multisite_taxonomy_id IN ({$mtmt_ids})";
 			} else {
 				$this->sql_clauses['where']['multisite_term_multisite_taxonomy_id'] = $wpdb->prepare( 'tt.multisite_term_multisite_taxonomy_id = %d', $args['multisite_term_multisite_taxonomy_id'] );
 			}
@@ -534,23 +534,22 @@ class Multisite_Term_Query {
 		$join = '';
 		$distinct = '';
 
-		// Reparse meta_query query_vars, in case they were modified in a 'pre_get_terms' callback.
+		// Reparse meta_query query_vars, in case they were modified in a 'pre_get_multisite_terms' callback.
 		$this->meta_query->parse_query_vars( $this->query_vars );
-		$mq_sql = $this->meta_query->get_sql( 'term', 't', 'term_id' );
+		$mq_sql = $this->meta_query->get_sql( 'multisite_term', 't', 'multisite_term_id' );
 		$meta_clauses = $this->meta_query->get_clauses();
 
 		if ( ! empty( $meta_clauses ) ) {
 			$join .= $mq_sql['join'];
 			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] ); // WPCS: tax_query ok.
 			$distinct .= 'DISTINCT';
-
 		}
 
 		$selects = array();
 		switch ( $args['fields'] ) {
 			case 'all':
 			case 'all_with_object_id' :
-			case 'tt_ids' :
+			case 'mtmt_ids' :
 			case 'slugs' :
 				$selects = array( 't.*', 'tt.*' );
 				if ( 'all_with_object_id' === $args['fields'] && ! empty( $args['object_ids'] ) ) {
@@ -559,10 +558,10 @@ class Multisite_Term_Query {
 				break;
 			case 'ids':
 			case 'id=>parent':
-				$selects = array( 't.term_id', 'tt.parent', 'tt.count', 'tt.taxonomy' );
+				$selects = array( 't.multisite_term_id', 'tt.parent', 'tt.count', 'tt.multisite_taxonomy' );
 				break;
 			case 'names':
-				$selects = array( 't.term_id', 'tt.parent', 'tt.count', 't.name', 'tt.taxonomy' );
+				$selects = array( 't.multisite_term_id', 'tt.parent', 'tt.count', 't.name', 'tt.multisite_taxonomy' );
 				break;
 			case 'count':
 				$orderby = '';
@@ -570,45 +569,45 @@ class Multisite_Term_Query {
 				$selects = array( 'COUNT(*)' );
 				break;
 			case 'id=>name':
-				$selects = array( 't.term_id', 't.name', 'tt.count', 'tt.taxonomy' );
+				$selects = array( 't.multisite_term_id', 't.name', 'tt.count', 'tt.multisite_taxonomy' );
 				break;
 			case 'id=>slug':
-				$selects = array( 't.term_id', 't.slug', 'tt.count', 'tt.taxonomy' );
+				$selects = array( 't.multisite_term_id', 't.slug', 'tt.count', 'tt.multisite_taxonomy' );
 				break;
 		}
 
 		$_fields = $args['fields'];
 
 		/**
-		 * Filters the fields to select in the terms query.
+		 * Filters the fields to select in the multisite terms query.
 		 *
-		 * Field lists modified using this filter will only modify the term fields returned
+		 * Field lists modified using this filter will only modify the multisite term fields returned
 		 * by the function when the `$fields` parameter set to 'count' or 'all'. In all other
-		 * cases, the term fields in the results array will be determined by the `$fields`
+		 * cases, the multisite term fields in the results array will be determined by the `$fields`
 		 * parameter alone.
 		 *
 		 * Use of this filter can result in unpredictable behavior, and is not recommended.
 		 *
-		 * @param array $selects    An array of fields to select for the terms query.
-		 * @param array $args       An array of term query arguments.
+		 * @param array $selects    An array of fields to select for the multisite terms query.
+		 * @param array $args       An array of multisite term query arguments.
 		 * @param array $multisite_taxonomies An array of taxonomies.
 		 */
-		$fields = implode( ', ', apply_filters( 'get_terms_fields', $selects, $args, $multisite_taxonomies ) );
+		$fields = implode( ', ', apply_filters( 'get_multisite_terms_fields', $selects, $args, $multisite_taxonomies ) );
 
-		$join .= " INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id";
+		$join .= " INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id";
 
 		if ( ! empty( $this->query_vars['object_ids'] ) ) {
-			$join .= " INNER JOIN {$wpdb->term_relationships} AS tr ON tr.multisite_term_multisite_taxonomy_id = tt.multisite_term_multisite_taxonomy_id";
+			$join .= " INNER JOIN {$wpdb->multisite_term_relationships} AS tr ON tr.multisite_term_multisite_taxonomy_id = tt.multisite_term_multisite_taxonomy_id";
 		}
 
 		$where = implode( ' AND ', $this->sql_clauses['where'] );
 
 		/**
-		 * Filters the terms query SQL clauses.
+		 * Filters the multisite terms query SQL clauses.
 		 *
 		 * @param array $pieces     Terms query SQL clauses.
 		 * @param array $multisite_taxonomies An array of taxonomies.
-		 * @param array $args       An array of terms query arguments.
+		 * @param array $args       An array of multisite terms query arguments.
 		 */
 		$clauses = apply_filters( 'terms_clauses', compact( 'fields', 'join', 'where', 'distinct', 'orderby', 'order', 'limits' ), $multisite_taxonomies, $args );
 
@@ -710,14 +709,14 @@ class Multisite_Term_Query {
 		 * removed.
 		 */
 		if ( ! empty( $args['object_ids'] ) && 'all_with_object_id' !== $_fields ) {
-			$_multisite_tt_ids = array();
+			$_multisite_mtmt_ids = array();
 			$_multisite_terms = array();
 			foreach ( $multisite_terms as $multisite_term ) {
-				if ( isset( $_multisite_tt_ids[ $multisite_term->multisite_term_id ] ) ) {
+				if ( isset( $_multisite_mtmt_ids[ $multisite_term->multisite_term_id ] ) ) {
 					continue;
 				}
 
-				$_multisite_tt_ids[ $multisite_term->multisite_term_id ] = 1;
+				$_multisite_mtmt_ids[ $multisite_term->multisite_term_id ] = 1;
 				$_multisite_terms[] = $multisite_term;
 			}
 
@@ -733,7 +732,7 @@ class Multisite_Term_Query {
 			foreach ( $multisite_terms as $multisite_term ) {
 				$_multisite_terms[] = (int) $multisite_term->multisite_term_id;
 			}
-		} elseif ( 'tt_ids' === $_fields ) {
+		} elseif ( 'mtmt_ids' === $_fields ) {
 			foreach ( $multisite_terms as $multisite_terms ) {
 				$_multisite_terms[] = (int) $multisite_terms->multisite_term_multisite_taxonomy_id;
 			}

@@ -12,7 +12,7 @@
 class Multisite_Term {
 
 	/**
-	 * Multisite Term ID.
+	 * Multisite term ID.
 	 *
 	 * @access public
 	 * @var int
@@ -101,9 +101,9 @@ class Multisite_Term {
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
-	 * @param int    $multisite_term_id  Multisite Term ID.
-	 * @param string $multisite_taxonomy Optional. Limit matched terms to those matching `$multisite_taxonomy`. Only used for
-	 *                         disambiguating potentially shared terms.
+	 * @param int    $multisite_term_id  Multisite term ID.
+	 * @param string $multisite_taxonomy Optional. Limit matched multisite terms to those matching `$multisite_taxonomy`. Only used for
+	 *                         disambiguating potentially shared multisite terms.
 	 * @return Multisite_Term|WP_Error|false Term object, if found. WP_Error if `$multisite_term_id` is shared between multiste taxonomies and
 	 *                                there's insufficient data to distinguish which multisite term is intended.
 	 *                                False for other failures.
@@ -136,14 +136,14 @@ class Multisite_Term {
 				}
 			} elseif ( 1 === count( $multisite_terms ) ) { // If only one match was found, it's the one we want.
 				$_multisite_term = reset( $multisite_terms );
-			} else { // Otherwise, the term must be shared between taxonomies.
-				// If the term is shared only with invalid taxonomies, return the one valid term.
+			} else { // Otherwise, the multisite term must be shared between taxonomies.
+				// If the multisite term is shared only with invalid taxonomies, return the one valid multisite term.
 				foreach ( $multisite_terms as $t ) {
 					if ( ! multisite_taxonomy_exists( $t->multisite_taxonomy ) ) {
 						continue;
 					}
 
-					// Only hit if we've already identified a term in a valid taxonomy.
+					// Only hit if we've already identified a multisite term in a valid taxonomy.
 					if ( $_multisite_term ) {
 						return new WP_Error( 'ambiguous_multisite_term_id', __( 'Term ID is shared between multiple multisite taxonomies', 'multitaxo' ), $multisite_term_id );
 					}
