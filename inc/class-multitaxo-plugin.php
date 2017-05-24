@@ -50,6 +50,8 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function activation_hook() {
+		// We first create our custom database tables.
+		$this->create_database_tables();
 	}
 
 	/**
@@ -59,6 +61,16 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function deactivation_hook() {
+		$this->delete_database_tables();
+	}
+
+	/**
+	 * Create our custom database tables.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function create_database_tables() {
 		global $wpdb;
 		// Load the db delta scripts.
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -134,6 +146,14 @@ class Multitaxo_Plugin {
 		) ' . $charset_collate . ';';
 
 		dbDelta( $termmeta_sql );
+	}
 
+	/**
+	 * Remove our custom database tables on plugin deactivation.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function delete_database_tables() {
 	}
 }
