@@ -86,66 +86,66 @@ class Multitaxo_Plugin {
 
 		$max_index_length = 191;
 
-		// Table structure for table `wp_termmeta`.
-		$termmeta_table = $wpdb->prefix . 'termmeta';
+		// Table structure for table `wp_multisite_termmeta`.
+		$multisite_termmeta_table = $wpdb->prefix . 'multisite_termmeta';
 
-		$termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $termmeta_table . '` (
+		$multisite_termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_termmeta_table . '` (
 			meta_id bigint(20) unsigned NOT NULL auto_increment,
-			term_id bigint(20) unsigned NOT NULL default "0",
+			multisite_term_id bigint(20) unsigned NOT NULL default "0",
 			meta_key varchar(255) default NULL,
 			meta_value longtext,
 			PRIMARY KEY  (meta_id),
-			KEY term_id (term_id),
+			KEY multisite_term_id (multisite_term_id),
 			KEY meta_key (meta_key(' . $max_index_length . '))
 		) ' . $charset_collate . ';';
 
-		dbDelta( $termmeta_sql );
+		dbDelta( $multisite_termmeta_sql );
 
-		// Table structure for table `wp_terms`.
-		$terms_table = $wpdb->prefix . 'terms';
+		// Table structure for table `wp_multisite_terms`.
+		$multisite_terms_table = $wpdb->prefix . 'multisite_terms';
 
-		$terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $terms_table . '` (
-			term_id bigint(20) unsigned NOT NULL auto_increment,
+		$multisite_terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_terms_table . '` (
+			multisite_term_id bigint(20) unsigned NOT NULL auto_increment,
 			name varchar(200) NOT NULL default "",
 			slug varchar(200) NOT NULL default "",
-			term_group bigint(10) NOT NULL default 0,
-			PRIMARY KEY  (term_id),
+			multisite_term_group bigint(10) NOT NULL default 0,
+			PRIMARY KEY  (multisite_term_id),
 			KEY slug (slug(' . $max_index_length . ')),
 			KEY name (name(' . $max_index_length . '))
 		) ' . $charset_collate . ';';
 
-		dbDelta( $terms_sql );
+		dbDelta( $multisite_terms_sql );
 
-		// Table structure for table `wp_term_relationships`.
-		$term_relationships_table = $wpdb->prefix . 'term_relationships';
+		// Table structure for table `wp_multisite_term_relationships`.
+		$multisite_term_relationships_table = $wpdb->prefix . 'multisite_term_relationships';
 
-		$termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $term_relationships_table . '` (
+		$multisite_term_relationships_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_term_relationships_table . '` (
 			blog_id bigint(20) unsigned NOT NULL default 0,
 			object_id bigint(20) unsigned NOT NULL default 0,
-			term_taxonomy_id bigint(20) unsigned NOT NULL default 0,
-			term_order int(11) NOT NULL default 0,
-			PRIMARY KEY  (blog_id,object_id,term_taxonomy_id),
-			KEY term_taxonomy_id (term_taxonomy_id)
+			multisite_term_multisite_taxonomy_id bigint(20) unsigned NOT NULL default 0,
+			multisite_term_order int(11) NOT NULL default 0,
+			PRIMARY KEY (blog_id,object_id,multisite_term_multisite_taxonomy_id),
+			KEY multisite_term_multisite_taxonomy_id (multisite_term_multisite_taxonomy_id)
 		) ' . $charset_collate . ';';
 
-		dbDelta( $term_relationships_sql );
+		dbDelta( $multisite_term_relationships_sql );
 
-		// Table structure for table `wp_termmeta`.
-		$term_taxonomy_table = $wpdb->prefix . 'term_taxonomy';
+		// Table structure for table `wp_multisite_term_multisite_taxonomy`.
+		$multisite_term_multisite_taxonomy_table = $wpdb->prefix . 'multisite_term_multisite_taxonomy';
 
-		$term_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $term_taxonomy_table . '` (
-			term_taxonomy_id bigint(20) unsigned NOT NULL auto_increment,
-			term_id bigint(20) unsigned NOT NULL default 0,
-			taxonomy varchar(32) NOT NULL default "",
+		$multisite_term_multisite_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_term_multisite_taxonomy_table . '` (
+			multisite_term_multisite_taxonomy_id bigint(20) unsigned NOT NULL auto_increment,
+			multisite_term_id bigint(20) unsigned NOT NULL default 0,
+			multisite_taxonomy varchar(32) NOT NULL default "",
 			description longtext NOT NULL,
 			parent bigint(20) unsigned NOT NULL default 0,
 			count bigint(20) NOT NULL default 0,
-			PRIMARY KEY  (term_taxonomy_id),
-			UNIQUE KEY term_id_taxonomy (term_id,taxonomy),
-			KEY taxonomy (taxonomy)
+			PRIMARY KEY  (multisite_term_multisite_taxonomy_id),
+			UNIQUE KEY multisite_term_id_multisite_taxonomy (multisite_term_id,multisite_taxonomy),
+			KEY multisite_taxonomy (multisite_taxonomy)
 		) ' . $charset_collate . ';';
 
-		dbDelta( $termmeta_sql );
+		dbDelta( $multisite_term_multisite_taxonomy_sql );
 	}
 
 	/**
