@@ -25,6 +25,11 @@ define( 'MULTITAXO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MULTITAXO_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'MULTITAXO_ASSETS_URL', plugins_url( '/assets', __FILE__ ) );
 
-// Plugin init.
+// Loading Classes
 require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multitaxo-plugin.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-taxonomy.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php' );
+// Plugin init.
 $multitaxo = new Multitaxo_Plugin();
