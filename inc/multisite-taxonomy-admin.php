@@ -1,71 +1,66 @@
 <?php
 /**
- * WordPress Taxonomy Administration API.
+ * Multisite Taxonomy Administration API.
  *
- * @package WordPress
- * @subpackage Administration
+ * @package multitaxo
  */
 
 /**
- * Get comma-separated list of terms available to edit for the given post ID.
+ * Get comma-separated list of multisite terms available to edit for the given post ID.
  *
- * @since 2.8.0
- *
- * @param int    $post_id
- * @param string $taxonomy Optional. The taxonomy for which to retrieve terms. Default 'post_tag'.
+ * @param int    $post_id The post ID.
+ * @param string $multisite_taxonomy Optional. The taxonomy for which to retrieve terms. Default 'post_tag'.
  * @return string|bool|WP_Error
  */
-function get_terms_to_edit( $post_id, $taxonomy ) {
+function get_multisite_terms_to_edit( $post_id, $multisite_taxonomy ) {
 	$post_id = (int) $post_id;
-	if ( !$post_id )
-		return false;
-
-	$terms = get_object_term_cache( $post_id, $taxonomy );
-	if ( false === $terms ) {
-		$terms = wp_get_object_terms( $post_id, $taxonomy );
-		wp_cache_add( $post_id, wp_list_pluck( $terms, 'term_id' ), $taxonomy . '_relationships' );
-	}
-
-	if ( ! $terms ) {
+	if ( ! $post_id ) {
 		return false;
 	}
-	if ( is_wp_error( $terms ) ) {
-		return $terms;
-	}
-	$term_names = array();
-	foreach ( $terms as $term ) {
-		$term_names[] = $term->name;
+
+	$multisite_terms = get_object_multisite_term_cache( $post_id, $multisite_taxonomy );
+	if ( false === $multisite_terms ) {
+		$multisite_terms = wp_get_object_multisite_terms( $post_id, $multisite_taxonomy );
+		wp_cache_add( $post_id, wp_list_pluck( $multisite_terms, 'multisite_term_id' ), $multisite_taxonomy . '_relationships' );
 	}
 
-	$terms_to_edit = esc_attr( join( ',', $term_names ) );
+	if ( ! $multisite_terms ) {
+		return false;
+	}
+	if ( is_wp_error( $multisite_terms ) ) {
+		return $multisite_terms;
+	}
+	$multisite_term_names = array();
+	foreach ( $multisite_terms as $multisite_term ) {
+		$multisite_term_names[] = $multisite_term->name;
+	}
+
+	$multisite_terms_to_edit = esc_attr( join( ',', $multisite_term_names ) );
 
 	/**
-	 * Filters the comma-separated list of terms available to edit.
+	 * Filters the comma-separated list of multisite terms available to edit.
 	 *
-	 * @since 2.8.0
+	 * @see get_multisite_terms_to_edit()
 	 *
-	 * @see get_terms_to_edit()
-	 *
-	 * @param array  $terms_to_edit An array of terms.
-	 * @param string $taxonomy     The taxonomy for which to retrieve terms. Default 'post_tag'.
+	 * @param array  $multisite_terms_to_edit An array of multisite terms.
+	 * @param string $multisite_taxonomy     The multisite taxonomy for which to retrieve multisite terms.
 	 */
-	$terms_to_edit = apply_filters( 'terms_to_edit', $terms_to_edit, $taxonomy );
+	$multisite_terms_to_edit = apply_filters( 'multisite_terms_to_edit', $multisite_terms_to_edit, $multisite_taxonomy );
 
-	return $terms_to_edit;
+	return $multisite_terms_to_edit;
 }
 
 /**
- * Add a new term to the database if it does not already exist.
+ * Add a new multsite term to the database if it does not already exist.
  *
- * @since 2.8.0
- *
- * @param int|string $tag_name
- * @param string $taxonomy Optional. The taxonomy for which to retrieve terms. Default 'post_tag'.
+ * @param int|string $multisite_term_name Multisite term name.
+ * @param string     $multisite_taxonomy Optional. The multisite taxonomy for which to retrieve multisite terms.
  * @return array|WP_Error
  */
-function wp_create_term($tag_name, $taxonomy = 'post_tag') {
-	if ( $id = term_exists($tag_name, $taxonomy) )
+function wp_create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
+	$id = multisite_term_exists( $multisite_term_name, $multisite_taxonomy );
+	if ( is_numeric( $id ) ) {
 		return $id;
-
-	return wp_insert_term($tag_name, $taxonomy);
+	}
+	return wp_insert_multisite_term( $multisite_term_name, $multisite_taxonomy );
 }
