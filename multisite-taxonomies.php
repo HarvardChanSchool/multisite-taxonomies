@@ -31,6 +31,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-taxonomy.php' )
 require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php' );
 // Loading multisite taxonomy and multisite term API.
 require_once( plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php' );
 // Plugin init.
