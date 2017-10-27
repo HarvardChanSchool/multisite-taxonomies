@@ -192,9 +192,9 @@ class Multisite_Term_Query {
 			'childless'              => false,
 			'cache_domain'           => 'core',
 			'update_multisite_term_meta_cache' => true,
-			'meta_query'             => '', // WPCS: slow_query ok.
-			'meta_key'               => '', // WPCS: slow_query ok.
-			'meta_value'             => '', // WPCS: slow_query ok.
+			'meta_query'             => '', // WPCS: slow query ok.
+			'meta_key'               => '', // WPCS: slow query ok.
+			'meta_value'             => '', // WPCS: slow query ok.
 			'meta_type'              => '',
 			'meta_compare'           => '',
 		);
@@ -543,7 +543,7 @@ class Multisite_Term_Query {
 
 		if ( ! empty( $meta_clauses ) ) {
 			$join .= $mq_sql['join'];
-			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] ); // WPCS: slow_query ok.
+			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] ); // WPCS: slow query ok.
 			$distinct .= 'DISTINCT';
 		}
 
