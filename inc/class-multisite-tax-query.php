@@ -475,14 +475,16 @@ class Multisite_Tax_Query {
 
 		} elseif ( 'NOT EXISTS' === $operator || 'EXISTS' === $operator ) {
 
-			$where = $wpdb->prepare( "%s (
+			$where = $wpdb->prepare(
+				"%s (
 				SELECT 1
 				FROM $wpdb->multisite_term_relationships
 				INNER JOIN $wpdb->multisite_term_multisite_taxonomy
 				ON $wpdb->multisite_term_multisite_taxonomy.multisite_term_multisite_taxonomy_id = $wpdb->multisite_term_relationships.multisite_term_multisite_taxonomy_id
 				WHERE $wpdb->multisite_term_multisite_taxonomy.multisite_taxonomy = %s
 				AND $wpdb->multisite_term_relationships.object_id = %d
-			)", $operator, $clause['multisite_taxonomy'], $this->primary_table . $this->primary_id_column );
+			)", $operator, $clause['multisite_taxonomy'], $this->primary_table . $this->primary_id_column
+			);
 
 		} // End if().
 
@@ -623,30 +625,42 @@ class Multisite_Tax_Query {
 
 				$multisite_terms = implode( ',', $query['multisite_terms'] );
 
-				$multisite_terms = $wpdb->get_col( $wpdb->prepare( "
+				$multisite_terms = $wpdb->get_col(
+					$wpdb->prepare(
+						"
 					SELECT %s
 					FROM $wpdb->multisite_term_multisite_taxonomy
 					INNER JOIN $wpdb->multisite_terms USING (multisite_term_id)
 					WHERE multisite_taxonomy = '{%s}'
 					AND $wpdb->multisite_terms.{%s} IN (%s)
-				", $wpdb->multisite_term_multisite_taxonomy . $resulting_field,$query['multisite_taxonomy'],$query['field'],$multisite_terms));
+				", $wpdb->multisite_term_multisite_taxonomy . $resulting_field,$query['multisite_taxonomy'],$query['field'],$multisite_terms
+					)
+				);
 				break;
 			case 'multisite_term_multisite_taxonomy_id':
 				$multisite_terms = implode( ',', array_map( 'intval', $query['multisite_terms'] ) );
-				$multisite_terms = $wpdb->get_col( $wpdb->prepare( "
+				$multisite_terms = $wpdb->get_col(
+					$wpdb->prepare(
+						"
 					SELECT %s
 					FROM $wpdb->multisite_term_multisite_taxonomy
 					WHERE multisite_term_multisite_taxonomy_id IN (%s)
-				" ), $resulting_field, $multisite_terms);
+				"
+					), $resulting_field, $multisite_terms
+				);
 				break;
 			default:
 				$multisite_terms = implode( ',', array_map( 'intval', $query['multisite_terms'] ) );
-				$multisite_terms = $wpdb->get_col( $wpdb->prepare( "
+				$multisite_terms = $wpdb->get_col(
+					$wpdb->prepare(
+						"
 					SELECT %s
 					FROM $wpdb->multisite_term_multisite_taxonomy
 					WHERE multisite_taxonomy = '{%s}'
 					AND multisite_term_id IN (%s)
-				", $resulting_field, $query['multisite_taxonomy'], $multisite_terms ));
+				", $resulting_field, $query['multisite_taxonomy'], $multisite_terms
+					)
+				);
 		} // End switch().
 
 		if ( 'AND' === $query['operator'] && count( $multisite_terms ) < count( $query['multisite_terms'] ) ) {

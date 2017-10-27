@@ -44,11 +44,13 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	public function __construct( $args = array() ) {
 		global $post_type, $multisite_taxonomy, $action, $mu_tax;
 
-		parent::__construct( array(
-			'plural' => 'multisite terms',
-			'singular' => 'multisite term',
-			'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
-		) );
+		parent::__construct(
+			array(
+				'plural' => 'multisite terms',
+				'singular' => 'multisite term',
+				'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
+			)
+		);
 
 		$action = $this->screen->action; // WPCS: override ok.
 		$post_type = $this->screen->post_type; // WPCS: override ok.
@@ -61,9 +63,13 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // WPCS: override ok.
 
 		// @todo Still needed? Maybe just the show_ui part.
-		if ( empty( $post_type ) || ! in_array( $post_type, get_post_types( array(
-				'show_ui' => true,
-		) ), true ) ) {
+		if ( empty( $post_type ) || ! in_array(
+			$post_type, get_post_types(
+				array(
+					'show_ui' => true,
+				)
+			), true
+		) ) {
 			$post_type = 'post'; // WPCS: override ok.
 		}
 	}
@@ -106,10 +112,12 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$this->callback_args = $args;
 
-		$this->set_pagination_args( array(
-			'total_items' => wp_count_terms( $this->screen->multisite_taxonomy, compact( 'search' ) ),
-			'per_page' => $tags_per_page,
-		) );
+		$this->set_pagination_args(
+			array(
+				'total_items' => wp_count_terms( $this->screen->multisite_taxonomy, compact( 'search' ) ),
+				'per_page' => $tags_per_page,
+			)
+		);
 	}
 
 	/**
@@ -193,12 +201,14 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	public function display_rows_or_placeholder() {
 		$multisite_taxonomy = $this->screen->multisite_taxonomy;
 
-		$args = wp_parse_args( $this->callback_args, array(
-			'page' => 1,
-			'number' => 20,
-			'search' => '',
-			'hide_empty' => 0,
-		) );
+		$args = wp_parse_args(
+			$this->callback_args, array(
+				'page' => 1,
+				'number' => 20,
+				'search' => '',
+				'hide_empty' => 0,
+			)
+		);
 
 		$page = $args['page'];
 

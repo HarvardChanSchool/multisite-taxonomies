@@ -401,11 +401,13 @@ class Multisite_Term_Query {
 			foreach ( $exclude_tree as $extrunk ) {
 				$excluded_children = array_merge(
 					$excluded_children,
-					(array) get_multisite_terms( $multisite_taxonomies[0], array(
-						'child_of' => intval( $extrunk ),
-						'fields' => 'ids',
-						'hide_empty' => 0,
-					) )
+					(array) get_multisite_terms(
+						$multisite_taxonomies[0], array(
+							'child_of' => intval( $extrunk ),
+							'fields' => 'ids',
+							'hide_empty' => 0,
+						)
+					)
 				);
 			}
 			$exclusions = array_merge( $excluded_children, $exclusions );
@@ -548,9 +550,9 @@ class Multisite_Term_Query {
 		$selects = array();
 		switch ( $args['fields'] ) {
 			case 'all':
-			case 'all_with_object_id' :
-			case 'mtmt_ids' :
-			case 'slugs' :
+			case 'all_with_object_id':
+			case 'mtmt_ids':
+			case 'slugs':
 				$selects = array( 't.*', 'tt.*' );
 				if ( 'all_with_object_id' === $args['fields'] && ! empty( $args['object_ids'] ) ) {
 					$selects[] = 'tr.object_id';

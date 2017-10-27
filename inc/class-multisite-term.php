@@ -220,7 +220,7 @@ class Multisite_Term {
 	 */
 	public function __get( $key ) {
 		switch ( $key ) {
-			case 'data' :
+			case 'data':
 				$data = new stdClass();
 				$columns = array( 'multisite_term_id', 'name', 'slug', 'multisite_term_group', 'multisite_term_multisite_taxonomy_id', 'multisite_taxonomy', 'description', 'parent', 'count' );
 				foreach ( $columns as $column ) {
