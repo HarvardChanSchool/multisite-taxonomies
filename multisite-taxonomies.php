@@ -13,6 +13,7 @@
  * Author:      Harvard Chan Webteam
  * Author URI:  http://www.hsph.harvard.edu/information-technology/
  * Text Domain: multitaxo
+ * Network:     true
  */
 
 // If this file is called directly, abort.
