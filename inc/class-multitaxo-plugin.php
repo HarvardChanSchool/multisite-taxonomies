@@ -23,6 +23,9 @@ class Multitaxo_Plugin {
 		// Register an activation/deactivation hooks.
 		add_action( 'activate_multisite-taxonomies/multisite-taxonomies.php', array( $this, 'activation_hook' ) );
 		add_action( 'deactivate_multisite-taxonomies/multisite-taxonomies.php', array( $this, 'deactivation_hook' ) );
+
+		// Add the editing tags screen.
+		add_action( 'network_admin_menu', array( $this, 'add_network_menu_terms' ) );
 	}
 
 	/**
@@ -155,5 +158,48 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function delete_database_tables() {
+	}
+
+	/**
+	 * Add the metowrk admin menu to the terms page.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function add_network_menu_terms() {
+		$screen = add_menu_page( esc_html__( 'Multisite Tags', 'multitaxo' ), esc_html__( 'Multisite Tags', 'multitaxo' ), 'manage_network_options', 'multisite_tags_list', array( $this, 'display_multisite_network_tax' ), 'dashicons-tag', 22 );
+	}
+
+	/**
+	 * Display the list table screen in the network.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function display_multisite_network_tax() {
+
+		// Create an instance of our package class.
+		$list_table = new Multisite_Terms_List_Table( get_current_screen() );
+
+		// Fetch, prepare, sort, and filter our data.
+		$list_table->prepare_items();
+
+		?>
+		<div class="wrap">
+			<h2>Taxonomies</h2>
+			<?php $list_table->views(); ?>
+			<form id="taxonomies" action="" method="post">
+				<?php
+					// Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions.
+					$list_table->search_box( 'Search Tax', 'application' );
+				?>
+				<input type="hidden" name="page" value="<?php echo $_REQUEST['page']; // For plugins, we also need to ensure that the form posts back to our current page. ?>" />
+				<?php
+					// Now we can render the completed list table.
+					$list_table->display();
+				?>
+			</form>
+		</div>
+		<?php
 	}
 }
