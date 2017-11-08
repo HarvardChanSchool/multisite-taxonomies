@@ -48,7 +48,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			array(
 				'plural' => 'multisite terms',
 				'singular' => 'multisite term',
-				'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
+				'screen' => isset( $args['screen'] ) ? $args['screen'] : get_current_screen(),
 			)
 		);
 
