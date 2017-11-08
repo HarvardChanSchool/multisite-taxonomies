@@ -46,18 +46,18 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		parent::__construct(
 			array(
-				'plural' => 'multisite terms',
+				'plural'   => 'multisite terms',
 				'singular' => 'multisite term',
-				'screen' => isset( $args['screen'] ) ? $args['screen'] : get_current_screen(),
+				'screen'   => isset( $args['screen'] ) ? $args['screen'] : get_current_screen(),
 			)
 		);
 
-		$action = $this->screen->action; // WPCS: override ok.
-		$post_type = $this->screen->post_type; // WPCS: override ok.
-		$multisite_taxonomy  = $this->screen->taxonomy;
+		$action             = $this->screen->action; // WPCS: override ok.
+		$post_type          = $this->screen->post_type; // WPCS: override ok.
+		$multisite_taxonomy = $this->screen->taxonomy;
 
 		if ( empty( $multisite_taxonomy ) || ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
-			//wp_die( esc_html__( 'Invalid multisite taxonomy.','multitaxo' ) );
+			// wp_die( esc_html__( 'Invalid multisite taxonomy.','multitaxo' ) );
 		}
 
 		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // WPCS: override ok.
@@ -98,7 +98,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$args = array(
 			'search' => $search,
-			'page' => $this->get_pagenum(),
+			'page'   => $this->get_pagenum(),
 			'number' => $tags_per_page,
 		);
 
@@ -115,7 +115,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$this->set_pagination_args(
 			array(
 				'total_items' => wp_count_terms( $this->screen->taxonomy, compact( 'search' ) ),
-				'per_page' => $tags_per_page,
+				'per_page'    => $tags_per_page,
 			)
 		);
 	}
@@ -203,9 +203,9 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$args = wp_parse_args(
 			$this->callback_args, array(
-				'page' => 1,
-				'number' => 20,
-				'search' => '',
+				'page'       => 1,
+				'number'     => 20,
+				'search'     => '',
 				'hide_empty' => 0,
 			)
 		);
@@ -216,7 +216,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$number = $args['number'];
 
 		$args['offset'] = ( $page - 1 ) * $number;
-		$offset = $args['offset'];
+		$offset         = $args['offset'];
 		// Convert it to table rows.
 		$count = 0;
 
@@ -279,11 +279,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			if ( (int) $count === (int) $start && $multisite_term->parent > 0 && empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
 				$my_parents = array();
 				$parent_ids = array();
-				$p = $multisite_term->parent;
+				$p          = $multisite_term->parent;
 				while ( $p ) {
-					$my_parent = get_multisite_term( $p, $multisite_taxonomy );
+					$my_parent    = get_multisite_term( $p, $multisite_taxonomy );
 					$my_parents[] = $my_parent;
-					$p = $my_parent->parent;
+					$p            = $my_parent->parent;
 					if ( in_array( $p, $parent_ids, true ) ) { // Prevent parent loops.
 						break;
 					}
@@ -325,7 +325,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	public function single_row( $multisite_term, $level = 0 ) {
 		global $multisite_taxonomy;
 		$multisite_term = sanitize_multisite_term( $term, $multisite_taxonomy );
-		$this->level = $level;
+		$this->level    = $level;
 		echo '<tr id="tag-' . esc_attr( $term->multisite_term_id ) . '">';
 		$this->single_row_columns( $tag );
 		echo '</tr>';
@@ -432,7 +432,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		}
 
 		$multisite_taxonomy = $this->screen->taxonomy;
-		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy );
+		$mu_tax             = get_multisite_taxonomy( $multisite_taxonomy );
 		if ( wp_doing_ajax() ) {
 			$uri = wp_get_referer();
 		} else {
@@ -537,7 +537,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		} else {
 			$args = array(
 				'multisite_taxonomy' => $mu_tax->name,
-				'multisite_term' => $multisite_term->slug,
+				'multisite_term'     => $multisite_term->slug,
 			);
 		}
 
@@ -615,11 +615,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		<?php
 
 		$core_columns = array(
-			'cb' => true,
+			'cb'          => true,
 			'description' => true,
-			'name' => true,
-			'slug' => true,
-			'posts' => true,
+			'name'        => true,
+			'slug'        => true,
+			'posts'       => true,
 		);
 
 		list( $columns ) = $this->get_column_info();
@@ -633,7 +633,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		?>
 
 		<p class="inline-edit-save submit">
-			<button type="button" class="cancel button alignleft"><?php esc_html_e( 'Cancel' , 'multitaxo' ); ?></button>
+			<button type="button" class="cancel button alignleft"><?php esc_html_e( 'Cancel', 'multitaxo' ); ?></button>
 			<button type="button" class="save button button-primary alignright"><?php echo esc_html( $mu_tax->labels->update_item ); ?></button>
 			<span class="spinner"></span>
 			<span class="error" style="display:none;"></span>

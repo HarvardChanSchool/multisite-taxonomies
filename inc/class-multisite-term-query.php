@@ -180,7 +180,7 @@ class Multisite_Term_Query {
 			'count'                  => false,
 			'name'                   => '',
 			'slug'                   => '',
-			'multisite_term_multisite_multisite_taxonomy_id'       => '',
+			'term_taxonomy_id'       => '',
 			'hierarchical'           => true,
 			'search'                 => '',
 			'name__like'             => '',
@@ -191,7 +191,7 @@ class Multisite_Term_Query {
 			'parent'                 => '',
 			'childless'              => false,
 			'cache_domain'           => 'core',
-			'update_multisite_term_meta_cache' => true,
+			'update_term_meta_cache' => true,
 			'meta_query'             => '', // WPCS: slow query ok.
 			'meta_key'               => '', // WPCS: slow query ok.
 			'meta_value'             => '', // WPCS: slow query ok.
@@ -239,11 +239,11 @@ class Multisite_Term_Query {
 		}
 
 		if ( 'all' === $query['get'] ) {
-			$query['childless'] = false;
-			$query['child_of'] = 0;
-			$query['hide_empty'] = 0;
+			$query['childless']    = false;
+			$query['child_of']     = 0;
+			$query['hide_empty']   = 0;
 			$query['hierarchical'] = false;
-			$query['pad_counts'] = false;
+			$query['pad_counts']   = false;
 		}
 
 		$query['multisite_taxonomy'] = $multisite_taxonomies;
@@ -311,7 +311,7 @@ class Multisite_Term_Query {
 
 		if ( ! $has_hierarchical_multisite_tax ) {
 			$args['hierarchical'] = false;
-			$args['pad_counts'] = false;
+			$args['pad_counts']   = false;
 		}
 
 		// 'parent' overrides 'child_of'.
@@ -320,11 +320,11 @@ class Multisite_Term_Query {
 		}
 
 		if ( 'all' === $args['get'] ) {
-			$args['childless'] = false;
-			$args['child_of'] = 0;
-			$args['hide_empty'] = 0;
+			$args['childless']    = false;
+			$args['child_of']     = 0;
+			$args['hide_empty']   = 0;
 			$args['hierarchical'] = false;
-			$args['pad_counts'] = false;
+			$args['pad_counts']   = false;
 		}
 
 		/**
@@ -385,9 +385,9 @@ class Multisite_Term_Query {
 
 		$inclusions = '';
 		if ( ! empty( $include ) ) {
-			$exclude = '';
+			$exclude      = '';
 			$exclude_tree = '';
-			$inclusions = implode( ',', wp_parse_id_list( $include ) );
+			$inclusions   = implode( ',', wp_parse_id_list( $include ) );
 		}
 
 		if ( ! empty( $inclusions ) ) {
@@ -396,15 +396,15 @@ class Multisite_Term_Query {
 
 		$exclusions = array();
 		if ( ! empty( $exclude_tree ) ) {
-			$exclude_tree = wp_parse_id_list( $exclude_tree );
+			$exclude_tree      = wp_parse_id_list( $exclude_tree );
 			$excluded_children = $exclude_tree;
 			foreach ( $exclude_tree as $extrunk ) {
 				$excluded_children = array_merge(
 					$excluded_children,
 					(array) get_multisite_terms(
 						$multisite_taxonomies[0], array(
-							'child_of' => intval( $extrunk ),
-							'fields' => 'ids',
+							'child_of'   => intval( $extrunk ),
+							'fields'     => 'ids',
 							'hide_empty' => 0,
 						)
 					)
@@ -422,7 +422,7 @@ class Multisite_Term_Query {
 		if ( $childless ) {
 			foreach ( $multisite_taxonomies as $_tax ) {
 				$multisite_term_hierarchy = _get_multisite_term_hierarchy( $_tax );
-				$exclusions = array_merge( array_keys( $multisite_term_hierarchy ), $exclusions );
+				$exclusions               = array_merge( array_keys( $multisite_term_hierarchy ), $exclusions );
 			}
 		}
 
@@ -458,10 +458,10 @@ class Multisite_Term_Query {
 
 		if ( ! empty( $args['slug'] ) ) {
 			if ( is_array( $args['slug'] ) ) {
-				$slug = array_map( 'sanitize_title', $args['slug'] );
+				$slug                               = array_map( 'sanitize_title', $args['slug'] );
 				$this->sql_clauses['where']['slug'] = "t.slug IN ('" . implode( "', '", $slug ) . "')";
 			} else {
-				$slug = sanitize_title( $args['slug'] );
+				$slug                               = sanitize_title( $args['slug'] );
 				$this->sql_clauses['where']['slug'] = "t.slug = '$slug'";
 			}
 		}
@@ -489,7 +489,7 @@ class Multisite_Term_Query {
 				$object_ids = array( $object_ids );
 			}
 
-			$object_ids = implode( ', ', array_map( 'intval', $object_ids ) );
+			$object_ids                               = implode( ', ', array_map( 'intval', $object_ids ) );
 			$this->sql_clauses['where']['object_ids'] = "tr.object_id IN ($object_ids)";
 		}
 
@@ -502,7 +502,7 @@ class Multisite_Term_Query {
 		}
 
 		if ( '' !== $parent ) {
-			$parent = (int) $parent;
+			$parent                               = (int) $parent;
 			$this->sql_clauses['where']['parent'] = "tt.parent = '$parent'";
 		}
 
@@ -533,18 +533,18 @@ class Multisite_Term_Query {
 		}
 
 		// Meta query support.
-		$join = '';
+		$join     = '';
 		$distinct = '';
 
 		// Reparse meta_query query_vars, in case they were modified in a 'pre_get_multisite_terms' callback.
 		$this->meta_query->parse_query_vars( $this->query_vars );
-		$mq_sql = $this->meta_query->get_sql( 'multisite_term', 't', 'multisite_term_id' );
+		$mq_sql       = $this->meta_query->get_sql( 'multisite_term', 't', 'multisite_term_id' );
 		$meta_clauses = $this->meta_query->get_clauses();
 
 		if ( ! empty( $meta_clauses ) ) {
-			$join .= $mq_sql['join'];
+			$join                                    .= $mq_sql['join'];
 			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] ); // WPCS: slow query ok.
-			$distinct .= 'DISTINCT';
+			$distinct                                .= 'DISTINCT';
 		}
 
 		$selects = array();
@@ -567,7 +567,7 @@ class Multisite_Term_Query {
 				break;
 			case 'count':
 				$orderby = '';
-				$order = '';
+				$order   = '';
 				$selects = array( 'COUNT(*)' );
 				break;
 			case 'id=>name':
@@ -613,13 +613,13 @@ class Multisite_Term_Query {
 		 */
 		$clauses = apply_filters( 'terms_clauses', compact( 'fields', 'join', 'where', 'distinct', 'orderby', 'order', 'limits' ), $multisite_taxonomies, $args );
 
-		$fields = isset( $clauses['fields'] ) ? $clauses['fields'] : '';
-		$join = isset( $clauses['join'] ) ? $clauses['join'] : '';
-		$where = isset( $clauses['where'] ) ? $clauses['where'] : '';
+		$fields   = isset( $clauses['fields'] ) ? $clauses['fields'] : '';
+		$join     = isset( $clauses['join'] ) ? $clauses['join'] : '';
+		$where    = isset( $clauses['where'] ) ? $clauses['where'] : '';
 		$distinct = isset( $clauses['distinct'] ) ? $clauses['distinct'] : '';
-		$orderby = isset( $clauses['orderby'] ) ? $clauses['orderby'] : '';
-		$order = isset( $clauses['order'] ) ? $clauses['order'] : '';
-		$limits = isset( $clauses['limits'] ) ? $clauses['limits'] : '';
+		$orderby  = isset( $clauses['orderby'] ) ? $clauses['orderby'] : '';
+		$order    = isset( $clauses['order'] ) ? $clauses['order'] : '';
+		$limits   = isset( $clauses['limits'] ) ? $clauses['limits'] : '';
 
 		if ( $where ) {
 			$where = "WHERE $where";
@@ -635,8 +635,8 @@ class Multisite_Term_Query {
 		// $args can be anything. Only use the args defined in defaults to compute the key.
 		$key = md5( serialize( wp_array_slice_assoc( $args, array_keys( $this->query_var_defaults ) ) ) . serialize( $multisite_taxonomies ) . $this->request ); // @codingStandardsIgnoreLine - serialize is safe in this context.
 		$last_changed = wp_cache_get_last_changed( 'multisite_terms' );
-		$cache_key = "get_multisite_terms:$key:$last_changed";
-		$cache = wp_cache_get( $cache_key, 'multisite_terms' );
+		$cache_key    = "get_multisite_terms:$key:$last_changed";
+		$cache        = wp_cache_get( $cache_key, 'multisite_terms' );
 		if ( false !== $cache ) {
 			if ( 'all' === $_fields ) {
 				$cache = array_map( 'get_multisite_term', $cache );
@@ -712,14 +712,14 @@ class Multisite_Term_Query {
 		 */
 		if ( ! empty( $args['object_ids'] ) && 'all_with_object_id' !== $_fields ) {
 			$_multisite_mtmt_ids = array();
-			$_multisite_terms = array();
+			$_multisite_terms    = array();
 			foreach ( $multisite_terms as $multisite_term ) {
 				if ( isset( $_multisite_mtmt_ids[ $multisite_term->multisite_term_id ] ) ) {
 					continue;
 				}
 
 				$_multisite_mtmt_ids[ $multisite_term->multisite_term_id ] = 1;
-				$_multisite_terms[] = $multisite_term;
+				$_multisite_terms[]                                        = $multisite_term;
 			}
 
 			$multisite_terms = $_multisite_terms;
@@ -790,7 +790,7 @@ class Multisite_Term_Query {
 	 * @return string|false Value to used in the ORDER clause. False otherwise.
 	 */
 	protected function parse_orderby( $orderby_raw ) {
-		$_orderby = strtolower( $orderby_raw );
+		$_orderby           = strtolower( $orderby_raw );
 		$maybe_orderby_meta = false;
 
 		if ( in_array( $_orderby, array( 'multisite_term_id', 'name', 'slug', 'multisite_term_group' ), true ) ) {
@@ -851,12 +851,12 @@ class Multisite_Term_Query {
 			return $orderby;
 		}
 
-		$allowed_keys = array();
-		$primary_meta_key = null;
+		$allowed_keys       = array();
+		$primary_meta_key   = null;
 		$primary_meta_query = reset( $meta_clauses );
 		if ( ! empty( $primary_meta_query['key'] ) ) {
 			$primary_meta_key = $primary_meta_query['key'];
-			$allowed_keys[] = $primary_meta_key;
+			$allowed_keys[]   = $primary_meta_key;
 		}
 		$allowed_keys[] = 'meta_value';
 		$allowed_keys[] = 'meta_value_num';
@@ -884,7 +884,7 @@ class Multisite_Term_Query {
 				if ( array_key_exists( $orderby_raw, $meta_clauses ) ) {
 					// $orderby corresponds to a meta_query clause.
 					$meta_clause = $meta_clauses[ $orderby_raw ];
-					$orderby = "CAST({$meta_clause['alias']}.meta_value AS {$meta_clause['cast']})";
+					$orderby     = "CAST({$meta_clause['alias']}.meta_value AS {$meta_clause['cast']})";
 				}
 				break;
 		}

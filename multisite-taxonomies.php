@@ -27,19 +27,19 @@ define( 'MULTITAXO_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'MULTITAXO_ASSETS_URL', plugins_url( '/assets', __FILE__ ) );
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
 // Loading Classes.
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multitaxo-plugin.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-taxonomy.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php' );
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multitaxo-plugin.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-taxonomy.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php';
 // Loading multisite taxonomy and multisite term API.
-require_once( plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php' );
+require_once plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php';
 
 // Plugin init.
 $multitaxo = new Multitaxo_Plugin();
