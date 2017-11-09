@@ -9,6 +9,15 @@
  * Plugin Init class.
  */
 class Multitaxo_Plugin {
+
+	/**
+	 * List table class.
+	 *
+	 * @access private
+	 * @var object
+	 */
+	private $list_table;
+
 	/**
 	 * __construct function.
 	 *
@@ -170,10 +179,10 @@ class Multitaxo_Plugin {
 		$screen = add_menu_page( esc_html__( 'Multisite Tags', 'multitaxo' ), esc_html__( 'Multisite Tags', 'multitaxo' ), 'manage_network_options', 'multisite_tags_list', array( $this, 'display_multisite_network_tax' ), 'dashicons-tag', 22 );
 		add_action( 'load-' . $screen, array( $this, 'load_multisite_network_tax' ) );
 
-		$taxonomies = get_multisite_taxonomies();
+		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
-		foreach ( $taxonomies as $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax['label'], $tax['label'], 'manage_network_options', 'multisite_tags_list&mtax=' . $tax['name'], '__return_null' );
+		foreach ( $taxonomies as $tax_slug => $tax ) {
+			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_tags_list&mtax=' . $tax_slug, '__return_null' );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_network_tax' ) );
 		}
 	}
@@ -185,6 +194,40 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function load_multisite_network_tax() {
+		$taxnow = ( isset( $_GET['mtax'] ) ) ? sanitize_key( wp_unslash( $_GET['mtax'] ) ) : null;
+
+		if ( empty( $taxnow ) ) {
+			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+		}
+
+		$tax = get_multisite_taxonomy( $taxnow );
+
+		if ( ! $tax ) {
+			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+		}
+
+		if ( ! in_array( $tax->name, get_multisite_taxonomies( array( 'show_ui' => true ) ) ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to edit terms in this taxonomy.', 'multitaxo' ) );
+		}
+
+		if ( ! current_user_can( $tax->cap->manage_multisite_terms ) ) {
+			wp_die(
+				'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
+				'<p>' . esc_html__( 'Sorry, you are not allowed to manage terms in this taxonomy.', 'multitaxo' ) . '</p>',
+				403
+			);
+		}
+
+		/**
+		 * $post_type is set when the WP_Terms_List_Table instance is created
+		 *
+		 * @global string $post_type
+		 */
+		$this->list_table = new Multisite_Terms_List_Table();
+
+		$pagenum          = $this->list_table->get_pagenum();
+		$title            = $tax->labels->name;
+
 		$location = false;
 
 		$referer = wp_get_referer();
@@ -195,7 +238,7 @@ class Multitaxo_Plugin {
 
 		$referer = remove_query_arg( array( '_wp_http_referer', '_wpnonce', 'error', 'message', 'paged' ), $referer );
 
-		switch ( $list_table->current_action() ) {
+		switch ( $this->list_table->current_action() ) {
 
 			case 'add-tag':
 				check_admin_referer( 'add-tag', '_wpnonce_add-tag' );
@@ -207,7 +250,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				$ret = wp_insert_multisite_term( $_POST['tag-name'], $taxonomy, $_POST );
+				$ret = wp_insert_multisite_term( $_POST['tag-name'], $tax->name, $_POST );
 
 				if ( $ret && ! is_wp_error( $ret ) ) {
 					$location = add_query_arg( 'message', 1, $referer );
@@ -238,7 +281,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				wp_delete_multisite_term( $tag_ID, $taxonomy );
+				wp_delete_multisite_term( $tag_ID, $tax->name );
 
 				$location = add_query_arg( 'message', 2, $referer );
 
@@ -260,7 +303,7 @@ class Multitaxo_Plugin {
 				$tags = (array) $_REQUEST['delete_tags'];
 
 				foreach ( $tags as $tag_ID ) {
-					wp_delete_multisite_term( $tag_ID, $taxonomy );
+					wp_delete_multisite_term( $tag_ID, $tax->name );
 				}
 
 				$location = add_query_arg( 'message', 6, $referer );
@@ -278,7 +321,7 @@ class Multitaxo_Plugin {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $term_id, $taxonomy, $post_type ) ) );
+				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $term_id, $tax->name, $post_type ) ) );
 
 				exit;
 			case 'editedtag':
@@ -294,13 +337,13 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				$tag = get_term( $tag_ID, $taxonomy );
+				$tag = get_term( $tag_ID, $tax->name );
 
 				if ( ! $tag ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				$ret = wp_update_multisite_term( $tag_ID, $taxonomy, $_POST );
+				$ret = wp_update_multisite_term( $tag_ID, $tax->name, $_POST );
 
 				if ( $ret && ! is_wp_error( $ret ) ) {
 					$location = add_query_arg( 'message', 3, $referer );
@@ -315,7 +358,7 @@ class Multitaxo_Plugin {
 
 				break;
 			default:
-				if ( ! $list_table->current_action() || ! isset( $_REQUEST['delete_tags'] ) ) {
+				if ( ! $this->list_table->current_action() || ! isset( $_REQUEST['delete_tags'] ) ) {
 					break;
 				}
 
@@ -323,7 +366,7 @@ class Multitaxo_Plugin {
 				$tags = (array) $_REQUEST['delete_tags'];
 
 				/** This action is documented in wp-admin/edit-comments.php */
-				$location = apply_filters( 'handle_bulk_actions-' . get_current_screen()->id, $location, $list_table->current_action(), $tags );
+				$location = apply_filters( 'handle_bulk_actions-' . get_current_screen()->id, $location, $this->list_table->current_action(), $tags );
 				break;
 		}
 
@@ -347,9 +390,9 @@ class Multitaxo_Plugin {
 			exit;
 		}
 
-		$list_table->prepare_items();
+		$this->list_table->prepare_items();
 
-		$total_pages = $list_table->get_pagination_arg( 'total_pages' );
+		$total_pages = $this->list_table->get_pagination_arg( 'total_pages' );
 
 		if ( $pagenum > $total_pages && $total_pages > 0 ) {
 			wp_redirect( add_query_arg( 'paged', $total_pages ) );
@@ -357,7 +400,7 @@ class Multitaxo_Plugin {
 		}
 
 		wp_enqueue_script( 'admin-tags' );
-		if ( current_user_can( $tax->cap->edit_terms ) ) {
+		if ( current_user_can( $tax->cap->edit_multisite_terms ) ) {
 			wp_enqueue_script( 'inline-edit-tax' );
 		}
 	}
@@ -385,7 +428,7 @@ class Multitaxo_Plugin {
 			wp_die( esc_html__( 'Sorry, you are not allowed to edit terms in this taxonomy.', 'multitaxo' ) );
 		}
 
-		if ( ! current_user_can( $tax->cap->manage_terms ) ) {
+		if ( ! current_user_can( $tax->cap->manage_multisite_terms ) ) {
 			wp_die(
 				'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 				'<p>' . esc_html__( 'Sorry, you are not allowed to manage terms in this taxonomy.', 'multitaxo' ) . '</p>',
@@ -398,12 +441,8 @@ class Multitaxo_Plugin {
 		 *
 		 * @global string $post_type
 		 */
-		$list_table = new Multisite_Terms_List_Table();
-		$pagenum    = $list_table->get_pagenum();
-		$title      = $tax->labels->name;
-
-		$parent_file  = 'admin.php?page=multisite_tags_list';
-		$submenu_file = 'admin.php?page=multisite_tags_list&mtaxo=' . $taxnow;
+		$pagenum          = $this->list_table->get_pagenum();
+		$title            = $tax->labels->name;
 
 		add_screen_option(
 			'per_page', array(
@@ -423,11 +462,6 @@ class Multitaxo_Plugin {
 		require_once ABSPATH . 'wp-admin/includes/edit-tag-messages.php';
 
 		$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
-		if ( is_plugin_active( 'wpcat2tag-importer/wpcat2tag-importer.php' ) ) {
-			$import_link = admin_url( 'admin.php?import=wpcat2tag' );
-		} else {
-			$import_link = admin_url( 'import.php' );
-		}
 		?>
 
 		<div class="wrap nosubsub">
@@ -451,10 +485,10 @@ class Multitaxo_Plugin {
 		<div id="ajax-response"></div>
 
 		<form class="search-form wp-clearfix" method="get">
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $taxonomy ); ?>" />
+		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
 
-		<?php $list_table->search_box( $tax->labels->search_items, 'tag' ); ?>
+		<?php $this->list_table->search_box( $tax->labels->search_items, 'tag' ); ?>
 
 		</form>
 
@@ -464,17 +498,17 @@ class Multitaxo_Plugin {
 		<div class="col-wrap">
 
 		<?php
-		if ( current_user_can( $tax->cap->edit_terms ) ) {
+		if ( current_user_can( $tax->cap->edit_multisite_terms ) ) {
 			/**
 			 * Fires before the Add Term form for all taxonomies.
 			 *
-			 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+			 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
 			 *
 			 * @since 3.0.0
 			 *
-			 * @param string $taxonomy The taxonomy slug.
+			 * @param string $tax->name The taxonomy slug.
 			 */
-			do_action( "{$taxonomy}_pre_add_form", $taxonomy );
+			do_action( "{$tax->name}_pre_add_form", $tax->name );
 		?>
 
 		<div class="form-wrap">
@@ -484,16 +518,16 @@ class Multitaxo_Plugin {
 		/**
 		 * Fires inside the Add Tag form tag.
 		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
 		 *
 		 * @since 3.7.0
 		 */
-		do_action( "{$taxonomy}_term_new_form_tag" );
+		do_action( "{$tax->name}_term_new_form_tag" );
 		?>
 		>
 		<input type="hidden" name="action" value="add-tag" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $taxonomy ); ?>" />
+		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
 		<?php wp_nonce_field( 'add-tag', '_wpnonce_add-tag' ); ?>
 
@@ -509,14 +543,14 @@ class Multitaxo_Plugin {
 			<p><?php _e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.' ); ?></p>
 		</div>
 		<?php endif; // global_terms_enabled() ?>
-		<?php if ( is_multisite_taxonomy_hierarchical( $taxonomy ) ) : ?>
+		<?php if ( is_multisite_taxonomy_hierarchical( $tax->name ) ) : ?>
 		<div class="form-field term-parent-wrap">
 			<label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label>
 			<?php
 			$dropdown_args = array(
 				'hide_empty'       => 0,
 				'hide_if_empty'    => false,
-				'taxonomy'         => $taxonomy,
+				'taxonomy'         => $tax->name,
 				'name'             => 'parent',
 				'orderby'          => 'name',
 				'hierarchical'     => true,
@@ -533,20 +567,20 @@ class Multitaxo_Plugin {
 			 *
 			 *     @type int|bool $hide_empty       Whether to hide terms not attached to any posts. Default 0|false.
 			 *     @type bool     $hide_if_empty    Whether to hide the drop-down if no terms exist. Default false.
-			 *     @type string   $taxonomy         The taxonomy slug.
+			 *     @type string   $tax->name         The taxonomy slug.
 			 *     @type string   $name             Value of the name attribute to use for the drop-down select element.
 			 *                                      Default 'parent'.
 			 *     @type string   $orderby          The field to order by. Default 'name'.
 			 *     @type bool     $hierarchical     Whether the taxonomy is hierarchical. Default true.
 			 *     @type string   $show_option_none Label to display if there are no terms. Default 'None'.
 			 * }
-			 * @param string $taxonomy The taxonomy slug.
+			 * @param string $tax->name The taxonomy slug.
 			 * @param string $context  Filter context. Accepts 'new' or 'edit'.
 			 */
-			$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $taxonomy, 'new' );
+			$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $tax->name, 'new' );
 			wp_dropdown_categories( $dropdown_args );
 			?>
-			<?php if ( 'category' == $taxonomy ) : ?>
+			<?php if ( 'category' == $tax->name ) : ?>
 				<p><?php _e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.' ); ?></p>
 			<?php else : ?>
 				<p><?php _e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.' ); ?></p>
@@ -560,38 +594,38 @@ class Multitaxo_Plugin {
 		</div>
 
 		<?php
-		if ( ! is_multisite_taxonomy_hierarchical( $taxonomy ) ) {
+		if ( ! is_multisite_taxonomy_hierarchical( $tax->name ) ) {
 			/**
 			 * Fires after the Add Tag form fields for non-hierarchical taxonomies.
 			 *
 			 * @since 3.0.0
 			 *
-			 * @param string $taxonomy The taxonomy slug.
+			 * @param string $tax->name The taxonomy slug.
 			 */
-			do_action( 'add_tag_form_fields', $taxonomy );
+			do_action( 'add_tag_form_fields', $tax->name );
 		}
 		/**
 		 * Fires after the Add Term form fields.
 		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param string $taxonomy The taxonomy slug.
+		 * @param string $tax->name The taxonomy slug.
 		 */
-		do_action( "{$taxonomy}_add_form_fields", $taxonomy );
+		do_action( "{$tax->name}_add_form_fields", $tax->name );
 		submit_button( $tax->labels->add_new_item );
 
 		/**
 		 * Fires at the end of the Add Term form for all taxonomies.
 		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param string $taxonomy The taxonomy slug.
+		 * @param string $tax->name The taxonomy slug.
 		 */
-		do_action( "{$taxonomy}_add_form", $taxonomy );
+		do_action( "{$tax->name}_add_form", $tax->name );
 		?>
 		</form></div>
 		<?php } ?>
@@ -602,13 +636,13 @@ class Multitaxo_Plugin {
 		<div id="col-right">
 		<div class="col-wrap">
 
-		<?php $list_table->views(); ?>
+		<?php $this->list_table->views(); ?>
 
 		<form id="posts-filter" method="post">
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $taxonomy ); ?>" />
+		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
 
-		<?php $list_table->display(); ?>
+		<?php $this->list_table->display(); ?>
 
 		</form>
 
@@ -616,13 +650,13 @@ class Multitaxo_Plugin {
 		/**
 		 * Fires after the taxonomy list table.
 		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param string $taxonomy The taxonomy name.
+		 * @param string $tax->name The taxonomy name.
 		 */
-		do_action( "after-{$taxonomy}-table", $taxonomy );
+		do_action( "after-{$tax->name}-table", $tax->name );
 		?>
 
 		</div>
@@ -638,6 +672,6 @@ class Multitaxo_Plugin {
 		<?php
 		endif;
 
-		$list_table->inline_edit();
+		$this->list_table->inline_edit();
 	}
 }
