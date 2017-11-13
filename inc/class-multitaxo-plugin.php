@@ -35,6 +35,26 @@ class Multitaxo_Plugin {
 
 		// Add the editing tags screen.
 		add_action( 'network_admin_menu', array( $this, 'add_network_menu_terms' ) );
+
+		// register our tables to WPDB.
+		add_action( 'init', array( $this, 'register_multisite_tax_tables' ), 1 );
+		add_action( 'switch_blog', array( $this, 'register_multisite_tax_tables' ) );
+
+	}
+
+	/**
+	 * Register the taxonomy Db tables for use with WPDB.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function register_multisite_tax_tables() {
+		global $wpdb;
+
+		$wpdb->multisite_termmeta = $wpdb->prefix . 'multisite_termmeta';
+		$wpdb->multisite_terms = $wpdb->prefix . 'multisite_terms';
+		$wpdb->multisite_term_relationships = $wpdb->prefix . 'multisite_term_relationships';
+		$wpdb->multisite_term_multisite_taxonomy = $wpdb->prefix . 'multisite_term_multisite_taxonomy';
 	}
 
 	/**
@@ -182,7 +202,7 @@ class Multitaxo_Plugin {
 		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
 		foreach ( $taxonomies as $tax_slug => $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_tags_list&mtax=' . $tax_slug, '__return_null' );
+			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_tags_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_network_tax' ) );
 		}
 	}
@@ -194,7 +214,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function load_multisite_network_tax() {
-		$taxnow = ( isset( $_GET['mtax'] ) ) ? sanitize_key( wp_unslash( $_GET['mtax'] ) ) : null;
+		$taxnow = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null;
 
 		if ( empty( $taxnow ) ) {
 			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
@@ -217,6 +237,11 @@ class Multitaxo_Plugin {
 				403
 			);
 		}
+
+		$screen = get_current_screen();
+
+		// well this is dumb we are setting the multisite tex only to get it again.
+		$screen->taxonomy = $taxnow;
 
 		/**
 		 * $post_type is set when the WP_Terms_List_Table instance is created
@@ -412,13 +437,13 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function display_multisite_network_tax() {
-		$taxnow = ( isset( $_GET['mtax'] ) ) ? sanitize_key( wp_unslash( $_GET['mtax'] ) ) : null;
+		$current_screen = get_current_screen();
 
-		if ( empty( $taxnow ) ) {
+		if ( empty( $current_screen->taxonomy ) ) {
 			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
 		}
 
-		$tax = get_multisite_taxonomy( $taxnow );
+		$tax = get_multisite_taxonomy( $current_screen->taxonomy );
 
 		if ( ! $tax ) {
 			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
@@ -486,7 +511,6 @@ class Multitaxo_Plugin {
 
 		<form class="search-form wp-clearfix" method="get">
 		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-		<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
 
 		<?php $this->list_table->search_box( $tax->labels->search_items, 'tag' ); ?>
 
@@ -513,7 +537,7 @@ class Multitaxo_Plugin {
 
 		<div class="form-wrap">
 		<h2><?php echo $tax->labels->add_new_item; ?></h2>
-		<form id="addtag" method="post" action="edit-tags.php" class="validate"
+		<form id="addtag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $tax->name ); ?>" class="validate"
 		<?php
 		/**
 		 * Fires inside the Add Tag form tag.
@@ -528,7 +552,6 @@ class Multitaxo_Plugin {
 		<input type="hidden" name="action" value="add-tag" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-		<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
 		<?php wp_nonce_field( 'add-tag', '_wpnonce_add-tag' ); ?>
 
 		<div class="form-field form-required term-name-wrap">

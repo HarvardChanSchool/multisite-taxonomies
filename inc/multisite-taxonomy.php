@@ -1275,11 +1275,12 @@ function wp_count_multisite_terms( $multisite_taxonomy, $args = array() ) {
 	$defaults = array(
 		'hide_empty' => false,
 	);
-	$args     = wp_parse_args( $args, $defaults );
+
+	$args = wp_parse_args( $args, $defaults );
 
 	$args['fields'] = 'count';
 
-	return get_multisite_terms( $multisite_taxonomy, $args );
+	return count( get_multisite_terms( $multisite_taxonomy, $args ) );
 }
 
 /**

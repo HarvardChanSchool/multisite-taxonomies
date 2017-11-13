@@ -56,10 +56,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$post_type          = $this->screen->post_type; // WPCS: override ok.
 		$multisite_taxonomy = $this->screen->taxonomy;
 
-		var_dump( $this->screen );
-
 		if ( empty( $multisite_taxonomy ) || ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
-			// wp_die( esc_html__( 'Invalid multisite taxonomy.','multitaxo' ) );
+			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 		}
 
 		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // WPCS: override ok.
@@ -116,7 +114,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$this->set_pagination_args(
 			array(
-				'total_items' => wp_count_terms( $this->screen->taxonomy, compact( 'search' ) ),
+				'total_items' => wp_count_multisite_terms( $this->screen->taxonomy, compact( 'search' ) ),
 				'per_page'    => $tags_per_page,
 			)
 		);
