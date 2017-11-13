@@ -51,9 +51,9 @@ class Multitaxo_Plugin {
 	public function register_multisite_tax_tables() {
 		global $wpdb;
 
-		$wpdb->multisite_termmeta = $wpdb->prefix . 'multisite_termmeta';
-		$wpdb->multisite_terms = $wpdb->prefix . 'multisite_terms';
-		$wpdb->multisite_term_relationships = $wpdb->prefix . 'multisite_term_relationships';
+		$wpdb->multisite_termmeta                = $wpdb->prefix . 'multisite_termmeta';
+		$wpdb->multisite_terms                   = $wpdb->prefix . 'multisite_terms';
+		$wpdb->multisite_term_relationships      = $wpdb->prefix . 'multisite_term_relationships';
 		$wpdb->multisite_term_multisite_taxonomy = $wpdb->prefix . 'multisite_term_multisite_taxonomy';
 	}
 
@@ -250,8 +250,8 @@ class Multitaxo_Plugin {
 		 */
 		$this->list_table = new Multisite_Terms_List_Table();
 
-		$pagenum          = $this->list_table->get_pagenum();
-		$title            = $tax->labels->name;
+		$pagenum = $this->list_table->get_pagenum();
+		$title   = $tax->labels->name;
 
 		$location = false;
 
@@ -466,8 +466,8 @@ class Multitaxo_Plugin {
 		 *
 		 * @global string $post_type
 		 */
-		$pagenum          = $this->list_table->get_pagenum();
-		$title            = $tax->labels->name;
+		$pagenum = $this->list_table->get_pagenum();
+		$title   = $tax->labels->name;
 
 		add_screen_option(
 			'per_page', array(
@@ -537,7 +537,7 @@ class Multitaxo_Plugin {
 
 		<div class="form-wrap">
 		<h2><?php echo $tax->labels->add_new_item; ?></h2>
-		<form id="addtag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $tax->name ); ?>" class="validate"
+		<form id="addmultitag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $tax->name ); ?>" class="validate"
 		<?php
 		/**
 		 * Fires inside the Add Tag form tag.
@@ -549,7 +549,7 @@ class Multitaxo_Plugin {
 		do_action( "{$tax->name}_term_new_form_tag" );
 		?>
 		>
-		<input type="hidden" name="action" value="add-tag" />
+		<input type="hidden" name="action" value="add-multi-tag" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<?php wp_nonce_field( 'add-tag', '_wpnonce_add-tag' ); ?>
@@ -559,13 +559,6 @@ class Multitaxo_Plugin {
 			<input name="tag-name" id="tag-name" type="text" value="" size="40" aria-required="true" />
 			<p><?php _e( 'The name is how it appears on your site.' ); ?></p>
 		</div>
-		<?php if ( ! global_terms_enabled() ) : ?>
-		<div class="form-field term-slug-wrap">
-			<label for="tag-slug"><?php _e( 'Slug' ); ?></label>
-			<input name="slug" id="tag-slug" type="text" value="" size="40" />
-			<p><?php _e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.' ); ?></p>
-		</div>
-		<?php endif; // global_terms_enabled() ?>
 		<?php if ( is_multisite_taxonomy_hierarchical( $tax->name ) ) : ?>
 		<div class="form-field term-parent-wrap">
 			<label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label>

@@ -69,14 +69,14 @@ function testing_custom_taxonomy() {
 		'items_list'                 => __( 'Items list', 'multitaxo' ),
 		'items_list_navigation'      => __( 'Items list navigation', 'multitaxo' ),
 	);
-	$args = array(
-		'labels'                     => $labels,
-		'hierarchical'               => false,
-		'public'                     => true,
-		'show_ui'                    => true,
-		'show_admin_column'          => true,
-		'show_in_nav_menus'          => true,
-		'show_tagcloud'              => true,
+	$args   = array(
+		'labels'            => $labels,
+		'hierarchical'      => false,
+		'public'            => true,
+		'show_ui'           => true,
+		'show_admin_column' => true,
+		'show_in_nav_menus' => true,
+		'show_tagcloud'     => true,
 	);
 	register_multisite_taxonomy( 'taxonomy', array( 'post' ), $args );
 
