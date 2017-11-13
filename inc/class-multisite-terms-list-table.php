@@ -56,6 +56,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$post_type          = $this->screen->post_type; // WPCS: override ok.
 		$multisite_taxonomy = $this->screen->taxonomy;
 
+		var_dump( $this->screen );
+
 		if ( empty( $multisite_taxonomy ) || ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
 			// wp_die( esc_html__( 'Invalid multisite taxonomy.','multitaxo' ) );
 		}

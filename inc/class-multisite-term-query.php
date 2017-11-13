@@ -658,7 +658,7 @@ class Multisite_Term_Query {
 		}
 
 		// Prime termmeta cache.
-		if ( $args['update_multisite_term_meta_cache'] ) {
+		if ( isset( $args['update_multisite_term_meta_cache'] ) && $args['update_multisite_term_meta_cache'] ) {
 			$multisite_term_ids = wp_list_pluck( $multisite_terms, 'multisite_term_id' );
 			update_multisite_termmeta_cache( $multisite_term_ids );
 		}
