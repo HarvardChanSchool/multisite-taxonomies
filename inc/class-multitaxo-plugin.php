@@ -40,6 +40,8 @@ class Multitaxo_Plugin {
 		add_action( 'init', array( $this, 'register_multisite_tax_tables' ), 1 );
 		add_action( 'switch_blog', array( $this, 'register_multisite_tax_tables' ) );
 
+		// register the ajax response for creating new tags.
+		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
 	}
 
 	/**
@@ -431,6 +433,69 @@ class Multitaxo_Plugin {
 	}
 
 	/**
+	 * Add a new multsite term to the database via ajax if it does not already exist.
+	 *
+	 * @return void
+	 */
+	public function ajax_add_multisite_tag() {
+		check_ajax_referer( 'add-multisite-tag', '_wpnonce_add-tag' );
+		$taxonomy = ! empty( $_POST['multisite_taxonomy'] ) ? $_POST['multisite_taxonomy'] : 'post_tag';
+		$tax      = get_multisite_taxonomy( $taxonomy );
+
+		if ( ! current_user_can( $tax->cap->edit_terms ) ) {
+			wp_die( -1 );
+		}
+
+		$x = new WP_Ajax_Response();
+
+		$tag = wp_insert_multisite_term( $_POST['tag-name'], $taxonomy, $_POST );
+
+		if ( ! $tag || is_wp_error( $tag ) || ( ! $tag = get_term( $tag['term_id'], $taxonomy ) ) ) {
+			$message = esc_html__( 'An error has occurred. Please reload the page and try again.', 'multitaxo' );
+			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+				$message = $tag->get_error_message();
+			}
+
+			$x->add(
+				array(
+					'what' => 'taxonomy',
+					'data' => new WP_Error( 'error', $message ),
+				)
+			);
+			$x->send();
+		}
+
+		$wp_list_table = new Multisite_Terms_List_Table();
+
+		$level = 0;
+		if ( is_taxonomy_hierarchical( $taxonomy ) ) {
+			$level = count( get_ancestors( $tag->term_id, $taxonomy, 'taxonomy' ) );
+			ob_start();
+			$wp_list_table->single_row( $tag, $level );
+			$noparents = ob_get_clean();
+		}
+
+		ob_start();
+		$wp_list_table->single_row( $tag );
+		$parents = ob_get_clean();
+
+		$x->add(
+			array(
+				'what'         => 'taxonomy',
+				'supplemental' => compact( 'parents', 'noparents' ),
+			)
+		);
+		$x->add(
+			array(
+				'what'         => 'term',
+				'position'     => $level,
+				'supplemental' => (array) $tag,
+			)
+		);
+		$x->send();
+	}
+
+	/**
 	 * Display the list table screen in the network.
 	 *
 	 * @access public
@@ -549,7 +614,7 @@ class Multitaxo_Plugin {
 		do_action( "{$tax->name}_term_new_form_tag" );
 		?>
 		>
-		<input type="hidden" name="action" value="add-multi-tag" />
+		<input type="hidden" name="action" value="add-multisite-tag" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<?php wp_nonce_field( 'add-tag', '_wpnonce_add-tag' ); ?>
