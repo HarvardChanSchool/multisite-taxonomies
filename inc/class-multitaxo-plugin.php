@@ -438,19 +438,25 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function ajax_add_multisite_tag() {
-		check_ajax_referer( 'add-multisite-tag', '_wpnonce_add-tag' );
-		$taxonomy = ! empty( $_POST['multisite_taxonomy'] ) ? $_POST['multisite_taxonomy'] : 'post_tag';
-		$tax      = get_multisite_taxonomy( $taxonomy );
+		check_ajax_referer( 'add-multisite-tag', '_wpnonce_add-multisite-tag' );
+		$taxonomy = ( ! empty( wp_unslash( $_POST['multisite_taxonomy'] ) ) ) ? sanitize_key( wp_unslash( $_POST['multisite_taxonomy'] ) ) : null;
 
-		if ( ! current_user_can( $tax->cap->edit_terms ) ) {
+		if ( empty( $taxonomy ) ) {
+			esc_html_e( 'Invalid multisite taxonomy. -2', 'multitaxo' );
+			die();
+		}
+
+		$tax = get_multisite_taxonomy( $taxonomy );
+
+		if ( ! current_user_can( $tax->cap->manage_multisite_terms ) ) {
 			wp_die( -1 );
 		}
 
 		$x = new WP_Ajax_Response();
 
-		$tag = wp_insert_multisite_term( $_POST['tag-name'], $taxonomy, $_POST );
+		$tag = wp_insert_multisite_term( sanitize_text_field( wp_unslash( $_POST['tag-name'] ) ), $taxonomy, $_POST );
 
-		if ( ! $tag || is_wp_error( $tag ) || ( ! $tag = get_term( $tag['term_id'], $taxonomy ) ) ) {
+		if ( ! $tag || is_wp_error( $tag ) || ( ! $tag = get_multisite_term( $tag['multisite_term_id'], $taxonomy ) ) ) {
 			$message = esc_html__( 'An error has occurred. Please reload the page and try again.', 'multitaxo' );
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
 				$message = $tag->get_error_message();
@@ -465,10 +471,24 @@ class Multitaxo_Plugin {
 			$x->send();
 		}
 
-		$wp_list_table = new Multisite_Terms_List_Table();
+		$args = array();
+
+		if ( isset( $_POST['screen'] ) ) {
+			$args['screen'] = convert_to_screen( wp_unslash( $_POST['screen'] ) );
+		} elseif ( isset( $GLOBALS['hook_suffix'] ) ) {
+			$args['screen'] = get_current_screen();
+		} else {
+			$args['screen'] = null;
+		}
+
+		if ( null !== $args['screen'] ) {
+			$args['screen']->taxonomy = $taxonomy;
+		}
+
+		$wp_list_table = new Multisite_Terms_List_Table( $args );
 
 		$level = 0;
-		if ( is_taxonomy_hierarchical( $taxonomy ) ) {
+		if ( is_multisite_taxonomy_hierarchical( $taxonomy ) ) {
 			$level = count( get_ancestors( $tag->term_id, $taxonomy, 'taxonomy' ) );
 			ob_start();
 			$wp_list_table->single_row( $tag, $level );
@@ -602,7 +622,7 @@ class Multitaxo_Plugin {
 
 		<div class="form-wrap">
 		<h2><?php echo $tax->labels->add_new_item; ?></h2>
-		<form id="addmultitag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $tax->name ); ?>" class="validate"
+		<form id="addtag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $tax->name ); ?>" class="validate"
 		<?php
 		/**
 		 * Fires inside the Add Tag form tag.
@@ -616,13 +636,18 @@ class Multitaxo_Plugin {
 		>
 		<input type="hidden" name="action" value="add-multisite-tag" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-		<?php wp_nonce_field( 'add-tag', '_wpnonce_add-tag' ); ?>
+		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
+		<?php wp_nonce_field( 'add-multisite-tag', '_wpnonce_add-multisite-tag' ); ?>
 
 		<div class="form-field form-required term-name-wrap">
 			<label for="tag-name"><?php _ex( 'Name', 'term name' ); ?></label>
 			<input name="tag-name" id="tag-name" type="text" value="" size="40" aria-required="true" />
-			<p><?php _e( 'The name is how it appears on your site.' ); ?></p>
+			<p><?php esc_html_e( 'The name is how it appears on your site.', 'multitaxo' ); ?></p>
+		</div>
+		<div class="form-field term-slug-wrap">
+			<label for="tag-slug"><?php _e( 'Slug' ); ?></label>
+			<input name="slug" id="tag-slug" type="text" value="" size="40" />
+			<p><?php esc_html_e('The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'multitaxo' ); ?></p>
 		</div>
 		<?php if ( is_multisite_taxonomy_hierarchical( $tax->name ) ) : ?>
 		<div class="form-field term-parent-wrap">
