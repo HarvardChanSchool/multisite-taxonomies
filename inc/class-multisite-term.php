@@ -170,7 +170,7 @@ class Multisite_Term {
 			}
 		} // End if().
 
-		$multisite_term_obj = new WP_Multisite_Term( $_multisite_term );
+		$multisite_term_obj = new Multisite_Term( $_multisite_term );
 		$multisite_term_obj->filter( $multisite_term_obj->filter );
 
 		return $multisite_term_obj;
@@ -181,7 +181,7 @@ class Multisite_Term {
 	 *
 	 * @access public
 	 *
-	 * @param WP_Multisite_Term|object $multisite_term Multisite Term object.
+	 * @param Multisite_Term|object $multisite_term Multisite Term object.
 	 */
 	public function __construct( $multisite_term ) {
 		foreach ( get_object_vars( $multisite_term ) as $key => $value ) {

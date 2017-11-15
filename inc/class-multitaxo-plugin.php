@@ -255,6 +255,20 @@ class Multitaxo_Plugin {
 		$pagenum = $this->list_table->get_pagenum();
 		$title   = $tax->labels->name;
 
+		add_screen_option(
+			'per_page', array(
+				'default' => 20,
+				'option'  => 'edit_multi_' . $tax->name . '_per_page',
+			)
+		);
+
+		get_current_screen()->set_screen_reader_content(
+			array(
+				'heading_pagination' => $tax->labels->items_list_navigation,
+				'heading_list'       => $tax->labels->items_list,
+			)
+		);
+
 		$location = false;
 
 		$referer = wp_get_referer();
@@ -464,7 +478,7 @@ class Multitaxo_Plugin {
 
 			$x->add(
 				array(
-					'what' => 'taxonomy',
+					'what' => 'multisite_taxonomy',
 					'data' => new WP_Error( 'error', $message ),
 				)
 			);
@@ -485,18 +499,19 @@ class Multitaxo_Plugin {
 			$args['screen']->taxonomy = $taxonomy;
 		}
 
-		$wp_list_table = new Multisite_Terms_List_Table( $args );
+		$tax_list_table = new Multisite_Terms_List_Table( $args );
 
 		$level = 0;
+
 		if ( is_multisite_taxonomy_hierarchical( $taxonomy ) ) {
 			$level = count( get_ancestors( $tag->term_id, $taxonomy, 'taxonomy' ) );
 			ob_start();
-			$wp_list_table->single_row( $tag, $level );
+			$tax_list_table->single_row( $tag, $level );
 			$noparents = ob_get_clean();
 		}
 
 		ob_start();
-		$wp_list_table->single_row( $tag );
+		$tax_list_table->single_row( $tag );
 		$parents = ob_get_clean();
 
 		$x->add(
@@ -553,20 +568,6 @@ class Multitaxo_Plugin {
 		 */
 		$pagenum = $this->list_table->get_pagenum();
 		$title   = $tax->labels->name;
-
-		add_screen_option(
-			'per_page', array(
-				'default' => 20,
-				'option'  => 'edit_multi_' . $tax->name . '_per_page',
-			)
-		);
-
-		get_current_screen()->set_screen_reader_content(
-			array(
-				'heading_pagination' => $tax->labels->items_list_navigation,
-				'heading_list'       => $tax->labels->items_list,
-			)
-		);
 
 		/** Also used by the Edit Tag  form */
 		require_once ABSPATH . 'wp-admin/includes/edit-tag-messages.php';

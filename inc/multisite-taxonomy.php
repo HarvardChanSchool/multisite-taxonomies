@@ -851,18 +851,18 @@ function get_multisite_term_to_edit( $id, $multisite_taxonomy ) {
  * @return array|int|WP_Error List of Multisite_Term instances and their children. Will return WP_Error, if any of $multisite_taxonomies
  *                            do not exist.
  */
-function get_multisite_terms( $args = array() ) {
+function get_multisite_terms( $multisite_taxonomies, $args = array() ) {
 	global $wpdb;
 
 	$multisite_term_query = new Multisite_Term_Query();
 
 	$args = wp_parse_args( $args );
 	if ( isset( $args['multisite_taxonomy'] ) && null !== $args['multisite_taxonomy'] ) {
-		$args['multisite_taxonomy'] = (array) $args['multisite_taxonomy'];
+		$multisite_taxonomies = (array) $args['multisite_taxonomy'];
 	}
 
-	if ( ! empty( $args['multisite_taxonomy'] ) ) {
-		foreach ( $args['multisite_taxonomy'] as $multisite_taxonomy ) {
+	if ( ! empty( $multisite_taxonomies ) ) {
+		foreach ( $multisite_taxonomies as $multisite_taxonomy ) {
 			if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
 				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.', 'multitaxo' ) );
 			}
@@ -1539,7 +1539,7 @@ function wp_get_object_multisite_terms( $object_ids, $multisite_taxonomies, $arg
 	$args['multisite_taxonomy'] = $multisite_taxonomies;
 	$args['object_ids']         = $object_ids;
 
-	$multisite_terms = get_multisite_terms( $args );
+	$multisite_terms = get_multisite_terms( $multisite_taxonomy, $args );
 
 	/**
 	 * Filters the multisite terms for a given object or objects.

@@ -89,7 +89,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @access public
 	 */
 	public function prepare_items() {
-		$tags_per_page = $this->get_items_per_page( 'edit_' . $this->screen->taxonomy . '_per_page' );
+		$tags_per_page = $this->get_items_per_page( 'edit_multi_' . $this->screen->taxonomy . '_per_page' );
+
 		if ( ! empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
 			$search = trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ); // WPCS: CSRF ok. input var okay.
 		} else {
@@ -225,7 +226,12 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['number'] = 0;
 			$args['offset'] = 0;
 		}
+
+
 		$multisite_terms = get_multisite_terms( $multisite_taxonomy, $args );
+
+		var_dump( $multisite_terms );
+
 
 		if ( empty( $multisite_terms ) || ! is_array( $multisite_terms ) ) {
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';
@@ -323,11 +329,12 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function single_row( $multisite_term, $level = 0 ) {
-		global $multisite_taxonomy;
-		$multisite_term = sanitize_multisite_term( $term, $multisite_taxonomy );
-		$this->level    = $level;
-		echo '<tr id="tag-' . esc_attr( $term->multisite_term_id ) . '">';
-		$this->single_row_columns( $tag );
+		$multisite_term = sanitize_multisite_term( $multisite_term, $this->taxonomy );
+
+		$this->level = $level;
+
+		echo '<tr id="tag-' . esc_attr( $multisite_term->multisite_term_id ) . '">';
+		$this->single_row_columns( $multisite_term );
 		echo '</tr>';
 	}
 
