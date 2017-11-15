@@ -561,11 +561,6 @@ class Multitaxo_Plugin {
 			);
 		}
 
-		/**
-		 * $post_type is set when the WP_Terms_List_Table instance is created
-		 *
-		 * @global string $post_type
-		 */
 		$pagenum = $this->list_table->get_pagenum();
 		$title   = $tax->labels->name;
 
@@ -747,7 +742,6 @@ class Multitaxo_Plugin {
 
 		<form id="posts-filter" method="post">
 		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-		<input type="hidden" name="post_type" value="<?php echo esc_attr( $post_type ); ?>" />
 
 		<?php $this->list_table->display(); ?>
 

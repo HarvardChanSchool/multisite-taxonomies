@@ -3156,7 +3156,7 @@ function get_multisite_term_link( $multisite_term, $multisite_taxonomy = '' ) {
  * @param bool   $echo   Optional. Whether or not to echo the return. Default true.
  * @return string|void HTML content.
  */
-function get_multisite_edit_term_link( $term_id, $taxonomy = '', $object_type = '' ) {
+function get_edit_multisite_term_link( $term_id, $taxonomy = '', $object_type = '' ) {
 	$term = get_multisite_term( $term_id, $taxonomy );
 	if ( ! $term || is_wp_error( $term ) ) {
 		return;
@@ -3194,7 +3194,7 @@ function get_multisite_edit_term_link( $term_id, $taxonomy = '', $object_type = 
 	 * @param string $taxonomy    Taxonomy name.
 	 * @param string $object_type The object type (eg. the post type).
 	 */
-	return apply_filters( 'get_multisite_edit_term_link', $location, $term_id, $taxonomy, $object_type );
+	return apply_filters( 'get_edit_multisite_term_link', $location, $term_id, $taxonomy, $object_type );
 }
 
 /**
