@@ -591,7 +591,8 @@ class Multitaxo_Plugin {
 		<div id="ajax-response"></div>
 
 		<form class="search-form wp-clearfix" method="get">
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
+		<input type="hidden" name="page" value="multisite_tags_list" />
+		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 
 		<?php $this->list_table->search_box( $tax->labels->search_items, 'tag' ); ?>
 

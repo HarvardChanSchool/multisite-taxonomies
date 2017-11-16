@@ -133,7 +133,9 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$this->set_pagination_args(
 			array(
-				'total_items' => count_multisite_terms( $this->screen->taxonomy, compact( $search ) ),
+				'total_items' => count_multisite_terms( $this->screen->taxonomy, array(
+					'search'   => $search,
+				) ),
 				'per_page'    => $tags_per_page,
 			)
 		);

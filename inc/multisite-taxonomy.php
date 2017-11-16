@@ -1296,6 +1296,7 @@ function count_multisite_terms( $multisite_taxonomy, $args = array() ) {
 	$args['fields']   = 'count';
 	$args['taxonomy'] = $multisite_taxonomy;
 
+
 	return get_multisite_terms( $args );
 }
 
