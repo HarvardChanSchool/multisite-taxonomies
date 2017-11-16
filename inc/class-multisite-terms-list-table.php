@@ -119,6 +119,34 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				'per_page'    => $tags_per_page,
 			)
 		);
+
+		$args = wp_parse_args(
+			$this->callback_args, array(
+				'page'       => 1,
+				'number'     => 20,
+				'search'     => '',
+				'hide_empty' => 0,
+				'taxonomy'   => $this->screen->taxonomy,
+			)
+		);
+
+		$page = $args['page'];
+
+		// Set variable because $args['number'] can be subsequently overridden.
+		$number = $args['number'];
+
+		$args['offset'] = ( $page - 1 ) * $number;
+		$offset         = $args['offset'];
+		// Convert it to table rows.
+		$count = 0;
+
+		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
+			// We'll need the full set of multiste terms then.
+			$args['number'] = 0;
+			$args['offset'] = 0;
+		}
+
+		$this->items = get_multisite_terms( $args );
 	}
 
 	/**
@@ -208,6 +236,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				'number'     => 20,
 				'search'     => '',
 				'hide_empty' => 0,
+				'taxonomy'   => $multisite_taxonomy,
 			)
 		);
 
@@ -227,7 +256,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['offset'] = 0;
 		}
 
-		$multisite_terms = get_multisite_terms( $multisite_taxonomy, $args );
+		$multisite_terms = get_multisite_terms( $args );
 
 		if ( empty( $multisite_terms ) || ! is_array( $multisite_terms ) ) {
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';
@@ -469,7 +498,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		if ( current_user_can( 'delete_multisite_term', $multisite_term->multisite_term_id ) ) {
 			$actions['delete'] = sprintf(
 				'<a href="%s" class="delete-multisite-term aria-button-if-js" aria-label="%s">%s</a>',
-				wp_nonce_url( "edit-tags.php?action=delete&amp;multisite_taxonomy=$multisite_taxonomy&amp;multisite_term_id=$multisite_term->multisite_term_id", 'delete-multisite_term_' . $tag->multisite_term_id ),
+				wp_nonce_url( "edit-tags.php?action=delete&amp;multisite_taxonomy=$multisite_taxonomy&amp;multisite_term_id=$multisite_term->multisite_term_id", 'delete-multisite_term_' . $multisite_term->multisite_term_id ),
 				/* translators: %s: multisite term name */
 				esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;', 'multitaxo' ), $multisite_term->name ) ),
 				__( 'Delete', 'multitaxo' )
@@ -529,10 +558,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$mu_tax = get_multisite_taxonomy( $this->screen->taxonomy );
 
-		$ptype_object = get_post_type_object( $this->screen->post_type );
-		if ( ! $ptype_object->show_ui ) {
-			return $count;
-		}
 		if ( $mu_tax->query_var ) {
 			$args = array(
 				$mu_tax->query_var => $multisite_term->slug,
@@ -544,12 +569,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			);
 		}
 
-		if ( 'post' !== $this->screen->post_type ) {
-			$args['post_type'] = $this->screen->post_type;
-		}
-		if ( 'attachment' === $this->screen->post_type ) {
-			return "<a href='" . esc_url( add_query_arg( $args, 'upload.php' ) ) . "'>$count</a>";
-		}
 		return "<a href='" . esc_url( add_query_arg( $args, 'edit.php' ) ) . "'>$count</a>";
 	}
 

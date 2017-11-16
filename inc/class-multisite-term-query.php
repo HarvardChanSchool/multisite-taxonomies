@@ -402,10 +402,11 @@ class Multisite_Term_Query {
 				$excluded_children = array_merge(
 					$excluded_children,
 					(array) get_multisite_terms(
-						$multisite_taxonomies[0], array(
+						array(
 							'child_of'   => intval( $extrunk ),
 							'fields'     => 'ids',
 							'hide_empty' => 0,
+							'taxonomy'   => $multisite_taxonomies[0],
 						)
 					)
 				);

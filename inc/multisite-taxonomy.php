@@ -851,23 +851,33 @@ function get_multisite_term_to_edit( $id, $multisite_taxonomy ) {
  * @return array|int|WP_Error List of Multisite_Term instances and their children. Will return WP_Error, if any of $multisite_taxonomies
  *                            do not exist.
  */
-function get_multisite_terms( $multisite_taxonomies, $args = array() ) {
+function get_multisite_terms( $args = array() ) {
 	global $wpdb;
 
 	$multisite_term_query = new Multisite_Term_Query();
 
-	$args = wp_parse_args( $args );
-	if ( isset( $args['multisite_taxonomy'] ) && null !== $args['multisite_taxonomy'] ) {
-		$multisite_taxonomies = (array) $args['multisite_taxonomy'];
+	var_dump( $args );
+
+	$defaults = array(
+		'suppress_filter' => false,
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+	if ( isset( $args['taxonomy'] ) && null !== $args['taxonomy'] ) {
+		$args['taxonomy'] = (array) $args['taxonomy'];
 	}
 
-	if ( ! empty( $multisite_taxonomies ) ) {
-		foreach ( $multisite_taxonomies as $multisite_taxonomy ) {
-			if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
-				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.', 'multitaxo' ) );
+	if ( ! empty( $args['taxonomy'] ) ) {
+		foreach ( $args['taxonomy'] as $taxonomy ) {
+			if ( ! taxonomy_exists( $taxonomy ) ) {
+				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.' ) );
 			}
 		}
 	}
+
+	// Don't pass suppress_filter to WP_Term_Query.
+	$suppress_filter = $args['suppress_filter'];
+	unset( $args['suppress_filter'] );
 
 	$multisite_terms = $multisite_term_query->query( $args );
 
@@ -876,15 +886,22 @@ function get_multisite_terms( $multisite_taxonomies, $args = array() ) {
 		return $multisite_terms;
 	}
 
+	if ( $suppress_filter ) {
+		return $multisite_terms;
+	}
+
 	/**
-	 * Filters the found multisite terms.
+	 * Filters the found terms.
 	 *
-	 * @param array         $multisite_terms      Array of found multisite terms.
-	 * @param array         $multisite_taxonomies An array of multisite taxonomies.
-	 * @param array         $args       An array of get_multisite_terms() arguments.
-	 * @param Multisite_Term_Query $multisite_term_query The Multisite_Term_Query object.
+	 * @since 2.3.0
+	 * @since 4.6.0 Added the `$term_query` parameter.
+	 *
+	 * @param array         $terms      Array of found terms.
+	 * @param array         $taxonomies An array of taxonomies.
+	 * @param array         $args       An array of get_terms() arguments.
+	 * @param WP_Term_Query $term_query The WP_Term_Query object.
 	 */
-	return apply_filters( 'get_multisite_terms', $multisite_terms, $multisite_term_query->query_vars['multisite_taxonomy'], $multisite_term_query->query_vars, $multisite_term_query );
+	return apply_filters( 'get_terms', $multisite_terms, $multisite_term_query->query_vars['taxonomy'], $multisite_term_query->query_vars, $multisite_term_query );
 }
 
 /**
@@ -1278,9 +1295,10 @@ function wp_count_multisite_terms( $multisite_taxonomy, $args = array() ) {
 
 	$args = wp_parse_args( $args, $defaults );
 
-	$args['fields'] = 'count';
+	$args['fields']   = 'count';
+	$args['taxonomy'] = $multisite_taxonomy;
 
-	return count( get_multisite_terms( $multisite_taxonomy, $args ) );
+	return count( get_multisite_terms( $args ) );
 }
 
 /**
@@ -1536,10 +1554,10 @@ function wp_get_object_multisite_terms( $object_ids, $multisite_taxonomies, $arg
 
 	$args = wp_parse_args( $args );
 
-	$args['multisite_taxonomy'] = $multisite_taxonomies;
-	$args['object_ids']         = $object_ids;
+	$args['taxonomy']   = $multisite_taxonomies;
+	$args['object_ids'] = $object_ids;
 
-	$multisite_terms = get_multisite_terms( $multisite_taxonomy, $args );
+	$multisite_terms = get_multisite_terms( $args );
 
 	/**
 	 * Filters the multisite terms for a given object or objects.
@@ -1690,9 +1708,10 @@ function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 	 * unless a unique slug has been explicitly provided.
 	 */
 	$name_matches = get_multisite_terms(
-		$multisite_taxonomy, array(
+		array(
 			'name'       => $name,
 			'hide_empty' => false,
+			'taxonomy'   => $multisite_taxonomy,
 		)
 	);
 
@@ -1715,9 +1734,10 @@ function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 		if ( ! $slug_provided || $name_match->slug === $slug || $slug_match ) {
 			if ( is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) ) {
 				$siblings = get_multisite_terms(
-					$multisite_taxonomy, array(
-						'get'    => 'all',
-						'parent' => $parent,
+					array(
+						'get'      => 'all',
+						'parent'   => $parent,
+						'taxonomy' => $multisite_taxonomy,
 					)
 				);
 
@@ -2818,10 +2838,11 @@ function _get_multisite_term_hierarchy( $multisite_taxonomy ) {
 	}
 	$children        = array();
 	$multisite_terms = get_multisite_terms(
-		$multisite_taxonomy, array(
-			'get'     => 'all',
-			'orderby' => 'id',
-			'fields'  => 'id=>parent',
+		array(
+			'get'      => 'all',
+			'orderby'  => 'id',
+			'fields'   => 'id=>parent',
+			'taxonomy' => $multisite_taxonomy,
 		)
 	);
 	foreach ( $multisite_terms as $multisite_term_id => $parent ) {

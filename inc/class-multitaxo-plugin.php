@@ -643,7 +643,7 @@ class Multitaxo_Plugin {
 		<div class="form-field term-slug-wrap">
 			<label for="tag-slug"><?php _e( 'Slug' ); ?></label>
 			<input name="slug" id="tag-slug" type="text" value="" size="40" />
-			<p><?php esc_html_e('The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'multitaxo' ); ?></p>
+			<p><?php esc_html_e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'multitaxo' ); ?></p>
 		</div>
 		<?php if ( is_multisite_taxonomy_hierarchical( $tax->name ) ) : ?>
 		<div class="form-field term-parent-wrap">
