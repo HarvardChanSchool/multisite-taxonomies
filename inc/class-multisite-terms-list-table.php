@@ -466,7 +466,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$edit_link = add_query_arg(
 			'wp_http_referer',
 			rawurlencode( wp_unslash( $uri ) ),
-			get_edit_term_link( $multisite_term->multisite_term_id, $multisite_taxonomy, $this->screen->post_type )
+			get_edit_multisite_term_link( $multisite_term->multisite_term_id, $multisite_taxonomy, $this->screen->post_type )
 		);
 
 		$actions = array();
@@ -488,21 +488,17 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		if ( current_user_can( 'delete_multisite_term', $multisite_term->multisite_term_id ) ) {
 			$actions['delete'] = sprintf(
 				'<a href="%s" class="delete-multisite-term aria-button-if-js" aria-label="%s">%s</a>',
-				wp_nonce_url( "edit-tags.php?action=delete&amp;multisite_taxonomy=$multisite_taxonomy&amp;multisite_term_id=$multisite_term->multisite_term_id", 'delete-multisite_term_' . $multisite_term->multisite_term_id ),
+				wp_nonce_url( add_query_arg(
+					array(
+						'multisite_term_id' => $multisite_term->multisite_term_id,
+					)
+				), 'delete-multisite_term_' . $multisite_term->multisite_term_id ),
 				/* translators: %s: multisite term name */
 				esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;', 'multitaxo' ), $multisite_term->name ) ),
 				__( 'Delete', 'multitaxo' )
 			);
 		}
-		if ( $mu_tax->public ) {
-			$actions['view'] = sprintf(
-				'<a href="%s" aria-label="%s">%s</a>',
-				get_multisite_term_link( $multisite_term ),
-				/* translators: %s: taxonomy term name */
-				esc_attr( sprintf( __( 'View &#8220;%s&#8221; archive', 'multitaxo' ), $multisite_term->name ) ),
-				__( 'View', 'multitaxo' )
-			);
-		}
+
 		/**
 		 * Filters the action links displayed for each multisite term in the multiste terms list table.
 		 *
@@ -512,7 +508,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		 *                        'Edit', 'Quick Edit', 'Delete', and 'View'.
 		 * @param Multisite_Term $multisite_term    Term object.
 		 */
-		$actions = apply_filters( "{$multisite_taxonomy}_row_actions", $actions, $multisite_term );
+		$actions = apply_filters( "multitiste_taxonomy_{$multisite_taxonomy}_row_actions", $actions, $multisite_term );
 
 		return $this->row_actions( $actions );
 	}

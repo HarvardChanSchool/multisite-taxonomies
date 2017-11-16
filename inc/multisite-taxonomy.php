@@ -3191,14 +3191,8 @@ function get_edit_multisite_term_link( $term_id, $taxonomy = '', $object_type = 
 		'tag_ID'   => $term->term_id,
 	);
 
-	if ( $object_type ) {
-		$args['post_type'] = $object_type;
-	} elseif ( ! empty( $tax->object_type ) ) {
-		$args['post_type'] = reset( $tax->object_type );
-	}
-
 	if ( $tax->show_ui ) {
-		$location = add_query_arg( $args, admin_url( 'term.php' ) );
+		$location = add_query_arg( $args );
 	} else {
 		$location = '';
 	}
