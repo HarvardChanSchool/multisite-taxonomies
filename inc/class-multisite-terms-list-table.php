@@ -61,17 +61,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		}
 
 		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // WPCS: override ok.
-
-		// @todo Still needed? Maybe just the show_ui part.
-		if ( empty( $post_type ) || ! in_array(
-			$post_type, get_post_types(
-				array(
-					'show_ui' => true,
-				)
-			), true
-		) ) {
-			$post_type = 'post'; // WPCS: override ok.
-		}
 	}
 
 	/**
@@ -97,34 +86,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$search = '';
 		}
 
-		$args = array(
-			'search' => $search,
-			'page'   => $this->get_pagenum(),
-			'number' => $tags_per_page,
-		);
-
-		if ( ! empty( $_REQUEST['orderby'] ) ) { // WPCS: CSRF ok. input var okay.
-			$args['orderby'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) ); // WPCS: CSRF ok. input var okay.
-		}
-
-		if ( ! empty( $_REQUEST['order'] ) ) { // WPCS: CSRF ok. input var okay.
-			$args['order'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // WPCS: CSRF ok. input var okay.
-		}
-
-		$this->callback_args = $args;
-
-		$this->set_pagination_args(
-			array(
-				'total_items' => wp_count_multisite_terms( $this->screen->taxonomy, compact( 'search' ) ),
-				'per_page'    => $tags_per_page,
-			)
-		);
-
 		$args = wp_parse_args(
 			$this->callback_args, array(
 				'page'       => 1,
 				'number'     => 20,
-				'search'     => '',
+				'search'     => $search,
 				'hide_empty' => 0,
 				'taxonomy'   => $this->screen->taxonomy,
 			)
@@ -147,6 +113,29 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		}
 
 		$this->items = get_multisite_terms( $args );
+
+		$args = array(
+			'search' => $search,
+			'page'   => $this->get_pagenum(),
+			'number' => $tags_per_page,
+		);
+
+		if ( ! empty( $_REQUEST['orderby'] ) ) { // WPCS: CSRF ok. input var okay.
+			$args['orderby'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) ); // WPCS: CSRF ok. input var okay.
+		}
+
+		if ( ! empty( $_REQUEST['order'] ) ) { // WPCS: CSRF ok. input var okay.
+			$args['order'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // WPCS: CSRF ok. input var okay.
+		}
+
+		$this->callback_args = $args;
+
+		$this->set_pagination_args(
+			array(
+				'total_items' => wp_count_multisite_terms( $this->screen->taxonomy, compact( 'search' ) ),
+				'per_page'    => $tags_per_page,
+			)
+		);
 	}
 
 	/**
@@ -256,7 +245,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['offset'] = 0;
 		}
 
-		$multisite_terms = get_multisite_terms( $args );
+		$multisite_terms = $this->items;
 
 		if ( empty( $multisite_terms ) || ! is_array( $multisite_terms ) ) {
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';

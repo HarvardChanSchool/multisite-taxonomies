@@ -856,8 +856,6 @@ function get_multisite_terms( $args = array() ) {
 
 	$multisite_term_query = new Multisite_Term_Query();
 
-	var_dump( $args );
-
 	$defaults = array(
 		'suppress_filter' => false,
 	);
@@ -869,7 +867,7 @@ function get_multisite_terms( $args = array() ) {
 
 	if ( ! empty( $args['taxonomy'] ) ) {
 		foreach ( $args['taxonomy'] as $taxonomy ) {
-			if ( ! taxonomy_exists( $taxonomy ) ) {
+			if ( ! multisite_taxonomy_exists( $taxonomy ) ) {
 				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.' ) );
 			}
 		}
