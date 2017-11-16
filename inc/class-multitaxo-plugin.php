@@ -306,15 +306,15 @@ class Multitaxo_Plugin {
 
 				break;
 			case 'delete':
-				if ( ! isset( $_REQUEST['tag_ID'] ) ) {
+				if ( ! isset( $_REQUEST['multisite_term_id'] ) ) {
 					break;
 				}
 
-				$tag_ID = (int) $_REQUEST['tag_ID'];
+				$tag_ID = (int) absint( wp_unslash( $_REQUEST['multisite_term_id'] ) );
 
-				check_admin_referer( 'delete-tag_' . $tag_ID );
+				check_admin_referer( 'delete-multisite_term_' . $tag_ID );
 
-				if ( ! current_user_can( 'delete_term', $tag_ID ) ) {
+				if ( ! current_user_can( 'delete_multisite_term', $tag_ID ) ) {
 					wp_die(
 						'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 						'<p>' . esc_html__( 'Sorry, you are not allowed to delete this item.', 'multitaxo' ) . '</p>',
@@ -564,8 +564,26 @@ class Multitaxo_Plugin {
 		$pagenum = $this->list_table->get_pagenum();
 		$title   = $tax->labels->name;
 
-		/** Also used by the Edit Tag  form */
-		require_once ABSPATH . 'wp-admin/includes/edit-tag-messages.php';
+		// 0 = unused. Messages start at index 1.
+		$messages = array(
+			0 => '',
+			1 => esc_html__( 'Multisite tag added.', 'multitaxo' ),
+			2 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
+			3 => esc_html__( 'Multisite tag updated.', 'multitaxo' ),
+			4 => esc_html__( 'Multisite tag not added.', 'multitaxo' ),
+			5 => esc_html__( 'Multisite tag not updated.', 'multitaxo' ),
+			6 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
+		);
+
+		// Filters the messages displayed when a tag is updated.
+		$messages = apply_filters( 'multisite_term_updated_messages', $messages );
+
+		$message = false;
+		if ( isset( $_REQUEST['message'] ) && ( $msg = (int) $_REQUEST['message'] ) ) {
+			if ( isset( $messages[ $msg ] ) ) {
+				$message = $messages[ $msg ];
+			}
+		}
 
 		$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 		?>

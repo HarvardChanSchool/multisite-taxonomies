@@ -492,6 +492,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				'<a href="%s" class="delete-multisite-term aria-button-if-js" aria-label="%s">%s</a>',
 				wp_nonce_url( add_query_arg(
 					array(
+						'action' => 'delete',
 						'multisite_term_id' => $multisite_term->multisite_term_id,
 					)
 				), 'delete-multisite_term_' . $multisite_term->multisite_term_id ),
