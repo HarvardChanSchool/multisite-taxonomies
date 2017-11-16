@@ -1286,7 +1286,7 @@ function sanitize_multisite_term_field( $field, $value, $multisite_term_id, $mul
  *                               Default empty array.
  * @return array|int|WP_Error Number of multisite terms in that multisite taxonomy or WP_Error if the multisite taxonomy does not exist.
  */
-function wp_count_multisite_terms( $multisite_taxonomy, $args = array() ) {
+function count_multisite_terms( $multisite_taxonomy, $args = array() ) {
 	$defaults = array(
 		'hide_empty' => false,
 	);
@@ -1296,7 +1296,7 @@ function wp_count_multisite_terms( $multisite_taxonomy, $args = array() ) {
 	$args['fields']   = 'count';
 	$args['taxonomy'] = $multisite_taxonomy;
 
-	return count( get_multisite_terms( $args ) );
+	return get_multisite_terms( $args );
 }
 
 /**

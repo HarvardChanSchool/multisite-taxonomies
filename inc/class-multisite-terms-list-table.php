@@ -86,14 +86,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$search = '';
 		}
 
-		$args = wp_parse_args(
-			$this->callback_args, array(
-				'page'       => 1,
-				'number'     => 20,
-				'search'     => $search,
-				'hide_empty' => 0,
-				'taxonomy'   => $this->screen->taxonomy,
-			)
+		$args = array(
+			'search'   => $search,
+			'page'     => $this->get_pagenum(),
+			'number'   => $tags_per_page,
+			'taxonomy' => $this->screen->taxonomy,
 		);
 
 		$page = $args['page'];
@@ -106,20 +103,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		// Convert it to table rows.
 		$count = 0;
 
-		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
-			// We'll need the full set of multiste terms then.
-			$args['number'] = 0;
-			$args['offset'] = 0;
-		}
-
-		$this->items = get_multisite_terms( $args );
-
-		$args = array(
-			'search' => $search,
-			'page'   => $this->get_pagenum(),
-			'number' => $tags_per_page,
-		);
-
 		if ( ! empty( $_REQUEST['orderby'] ) ) { // WPCS: CSRF ok. input var okay.
 			$args['orderby'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) ); // WPCS: CSRF ok. input var okay.
 		}
@@ -128,11 +111,29 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['order'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // WPCS: CSRF ok. input var okay.
 		}
 
+		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
+			// We'll need the full set of multiste terms then.
+			$args['number'] = 0;
+			$args['offset'] = 0;
+		}
+
+		$args = wp_parse_args(
+			$args, array(
+				'page'       => 1,
+				'number'     => 20,
+				'search'     => '',
+				'hide_empty' => 0,
+				'taxonomy'   => $this->screen->taxonomy,
+			)
+		);
+
 		$this->callback_args = $args;
+
+		$this->items = get_multisite_terms( $args );
 
 		$this->set_pagination_args(
 			array(
-				'total_items' => wp_count_multisite_terms( $this->screen->taxonomy, compact( 'search' ) ),
+				'total_items' => count_multisite_terms( $this->screen->taxonomy, compact( $search ) ),
 				'per_page'    => $tags_per_page,
 			)
 		);
