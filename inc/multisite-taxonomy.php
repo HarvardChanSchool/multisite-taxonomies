@@ -3176,24 +3176,25 @@ function get_multisite_term_link( $multisite_term, $multisite_taxonomy = '' ) {
  * @param bool   $echo   Optional. Whether or not to echo the return. Default true.
  * @return string|void HTML content.
  */
-function get_edit_multisite_term_link( $term_id, $taxonomy = '', $object_type = '' ) {
+function get_edit_multisite_term_link( $term_id, $taxonomy ) {
+	$tax = get_multisite_taxonomy( $taxonomy );
+	if ( ! $tax || ! current_user_can( 'edit_multisite_term', $term_id ) ) {
+		return;
+	}
+
 	$term = get_multisite_term( $term_id, $taxonomy );
 	if ( ! $term || is_wp_error( $term ) ) {
 		return;
 	}
 
-	$tax = get_multisite_taxonomy( $term->taxonomy );
-	if ( ! $tax || ! current_user_can( 'edit_term', $term->term_id ) ) {
-		return;
-	}
-
 	$args = array(
-		'taxonomy' => $taxonomy,
-		'tag_ID'   => $term->term_id,
+		'page'               => 'multisite_term_edit',
+		'multisite_taxonomy' => $taxonomy,
+		'multisite_term_id'  => $term_id,
 	);
 
 	if ( $tax->show_ui ) {
-		$location = add_query_arg( $args );
+		$location = add_query_arg( $args, get_admin_url( null, 'network/admin.php' ) );
 	} else {
 		$location = '';
 	}
@@ -3208,7 +3209,7 @@ function get_edit_multisite_term_link( $term_id, $taxonomy = '', $object_type = 
 	 * @param string $taxonomy    Taxonomy name.
 	 * @param string $object_type The object type (eg. the post type).
 	 */
-	return apply_filters( 'get_edit_multisite_term_link', $location, $term_id, $taxonomy, $object_type );
+	return apply_filters( 'get_edit_multisite_term_link', $location, $term_id, $taxonomy );
 }
 
 /**

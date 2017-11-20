@@ -465,11 +465,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			}
 		}
 
-		$edit_link = add_query_arg(
-			'wp_http_referer',
-			rawurlencode( wp_unslash( $uri ) ),
-			get_edit_multisite_term_link( $multisite_term->multisite_term_id, $multisite_taxonomy, $this->screen->post_type )
-		);
+		$edit_link = get_edit_multisite_term_link( $multisite_term->multisite_term_id, $multisite_taxonomy );
 
 		$actions = array();
 		if ( current_user_can( 'edit_multisite_term', $multisite_term->multisite_term_id ) ) {

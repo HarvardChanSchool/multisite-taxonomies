@@ -203,6 +203,8 @@ class Multitaxo_Plugin {
 
 		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
+		add_submenu_page( 'multisite_tags_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_network_tax_edit_screen' ) );
+
 		foreach ( $taxonomies as $tax_slug => $tax ) {
 			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_tags_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_network_tax' ) );
@@ -563,245 +565,7 @@ class Multitaxo_Plugin {
 
 		$pagenum = $this->list_table->get_pagenum();
 		$title   = $tax->labels->name;
-
-		// 0 = unused. Messages start at index 1.
-		$messages = array(
-			0 => '',
-			1 => esc_html__( 'Multisite tag added.', 'multitaxo' ),
-			2 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
-			3 => esc_html__( 'Multisite tag updated.', 'multitaxo' ),
-			4 => esc_html__( 'Multisite tag not added.', 'multitaxo' ),
-			5 => esc_html__( 'Multisite tag not updated.', 'multitaxo' ),
-			6 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
-		);
-
-		// Filters the messages displayed when a tag is updated.
-		$messages = apply_filters( 'multisite_term_updated_messages', $messages );
-
-		$message = false;
-		if ( isset( $_REQUEST['message'] ) && ( $msg = (int) $_REQUEST['message'] ) ) {
-			if ( isset( $messages[ $msg ] ) ) {
-				$message = $messages[ $msg ];
-			}
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	/**
-	 * Use with caution, see https://codex.wordpress.org/Function_Reference/wp_reset_vars
-	 */
-	wp_reset_vars( array( 'wp_http_referer' ) );
-
-		$wp_http_referer = remove_query_arg( array( 'action', 'message', 'tag_ID' ), $wp_http_referer );
-
-
-		/**
-		 * Fires before the Edit Term form for all taxonomies.
-		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to
-		 * the taxonomy slug.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param object $tag      Current taxonomy term object.
-		 * @param string $taxonomy Current $taxonomy slug.
-		 */
-		do_action( "{$taxonomy}_pre_edit_form", $tag, $taxonomy ); ?>
-
-		<div class="wrap">
-		<h1><?php echo $tax->labels->edit_item; ?></h1>
-
-		<?php if ( $message ) : ?>
-		<div id="message" class="updated">
-			<p><strong><?php echo $message; ?></strong></p>
-			<?php if ( $wp_http_referer ) { ?>
-			<p><a href="<?php echo esc_url( $wp_http_referer ); ?>"><?php
-				/* translators: %s: taxonomy name */
-				printf( _x( '&larr; Back to %s', 'admin screen' ), $tax->labels->name );
-			?></a></p>
-			<?php } ?>
-		</div>
-		<?php endif; ?>
-
-		<div id="ajax-response"></div>
-
-		<form name="edittag" id="edittag" method="post" action="edit-tags.php" class="validate"<?php
-		/**
-		 * Fires inside the Edit Term form tag.
-		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
-		 *
-		 * @since 3.7.0
-		 */
-		do_action( "{$taxonomy}_term_edit_form_tag" );
-		?>>
-		<input type="hidden" name="action" value="editedtag"/>
-		<input type="hidden" name="tag_ID" value="<?php echo esc_attr( $tag_ID ) ?>"/>
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $taxonomy ) ?>"/>
-		<?php
-		wp_original_referer_field( true, 'previous' );
-		wp_nonce_field( 'update-tag_' . $tag_ID );
-
-		/**
-		 * Fires at the beginning of the Edit Term form.
-		 *
-		 * At this point, the required hidden fields and nonces have already been output.
-		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
-		 *
-		 * @since 4.5.0
-		 *
-		 * @param object $tag      Current taxonomy term object.
-		 * @param string $taxonomy Current $taxonomy slug.
-		 */
-		do_action( "{$taxonomy}_term_edit_form_top", $tag, $taxonomy );
-		?>
-			<table class="form-table">
-				<tr class="form-field form-required term-name-wrap">
-					<th scope="row"><label for="name"><?php _ex( 'Name', 'term name' ); ?></label></th>
-					<td><input name="name" id="name" type="text" value="<?php if ( isset( $tag->name ) ) echo esc_attr($tag->name); ?>" size="40" aria-required="true" />
-					<p class="description"><?php _e('The name is how it appears on your site.'); ?></p></td>
-				</tr>
-				<tr class="form-field term-slug-wrap">
-					<th scope="row"><label for="slug"><?php _e( 'Slug' ); ?></label></th>
-					<?php
-					/**
-					 * Filters the editable slug.
-					 *
-					 * Note: This is a multi-use hook in that it is leveraged both for editable
-					 * post URIs and term slugs.
-					 *
-					 * @since 2.6.0
-					 * @since 4.4.0 The `$tag` parameter was added.
-					 *
-					 * @param string         $slug The editable slug. Will be either a term slug or post URI depending
-					 *                             upon the context in which it is evaluated.
-					 * @param object|WP_Post $tag  Term or WP_Post object.
-					 */
-					$slug = isset( $tag->slug ) ? apply_filters( 'editable_slug', $tag->slug, $tag ) : '';
-					?>
-					<td><input name="slug" id="slug" type="text" value="<?php echo esc_attr( $slug ); ?>" size="40" />
-					<p class="description"><?php _e('The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.'); ?></p></td>
-				</tr>
-		<?php if ( is_taxonomy_hierarchical($taxonomy) ) : ?>
-				<tr class="form-field term-parent-wrap">
-					<th scope="row"><label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label></th>
-					<td>
-						<?php
-						$dropdown_args = array(
-							'hide_empty'       => 0,
-							'hide_if_empty'    => false,
-							'taxonomy'         => $taxonomy,
-							'name'             => 'parent',
-							'orderby'          => 'name',
-							'selected'         => $tag->parent,
-							'exclude_tree'     => $tag->term_id,
-							'hierarchical'     => true,
-							'show_option_none' => __( 'None' ),
-						);
-
-						/** This filter is documented in wp-admin/edit-tags.php */
-						$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $taxonomy, 'edit' );
-						wp_dropdown_categories( $dropdown_args ); ?>
-						<?php if ( 'category' == $taxonomy ) : ?>
-							<p class="description"><?php _e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.' ); ?></p>
-						<?php else : ?>
-							<p class="description"><?php _e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.' ); ?></p>
-						<?php endif; ?>
-					</td>
-				</tr>
-		<?php endif; // is_taxonomy_hierarchical() ?>
-				<tr class="form-field term-description-wrap">
-					<th scope="row"><label for="description"><?php _e( 'Description' ); ?></label></th>
-					<td><textarea name="description" id="description" rows="5" cols="50" class="large-text"><?php echo $tag->description; // textarea_escaped ?></textarea>
-					<p class="description"><?php _e('The description is not prominent by default; however, some themes may show it.'); ?></p></td>
-				</tr>
-				<?php
-				/**
-				 * Fires after the Edit Term form fields are displayed.
-				 *
-				 * The dynamic portion of the hook name, `$taxonomy`, refers to
-				 * the taxonomy slug.
-				 *
-				 * @since 3.0.0
-				 *
-				 * @param object $tag      Current taxonomy term object.
-				 * @param string $taxonomy Current taxonomy slug.
-				 */
-				do_action( "{$taxonomy}_edit_form_fields", $tag, $taxonomy );
-				?>
-			</table>
-		<?php
-
-		/**
-		 * Fires at the end of the Edit Term form for all taxonomies.
-		 *
-		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param object $tag      Current taxonomy term object.
-		 * @param string $taxonomy Current taxonomy slug.
-		 */
-		do_action( "{$taxonomy}_edit_form", $tag, $taxonomy );
-		?>
-
-		<div class="edit-tag-actions">
-
-			<?php submit_button( __( 'Update' ), 'primary', null, false ); ?>
-
-			<?php if ( current_user_can( 'delete_term', $tag->term_id ) ) : ?>
-				<span id="delete-link">
-					<a class="delete" href="<?php echo admin_url( wp_nonce_url( "edit-tags.php?action=delete&taxonomy=$taxonomy&tag_ID=$tag->term_id", 'delete-tag_' . $tag->term_id ) ) ?>"><?php _e( 'Delete' ); ?></a>
-				</span>
-			<?php endif; ?>
-
-		</div>
-
-		</form>
-		</div>
-
-		<?php if ( ! wp_is_mobile() ) : ?>
-		<script type="text/javascript">
-		try{document.forms.edittag.name.focus();}catch(e){}
-		</script>
-		<?php endif;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		$message = $this->get_update_message();
 		$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 		?>
 
@@ -1010,5 +774,257 @@ class Multitaxo_Plugin {
 		endif;
 
 		$this->list_table->inline_edit();
+	}
+
+	/**
+	 * Messages for tag updates.
+	 *
+	 * @access public
+	 * @return string Message to return.
+	 */
+	public function get_update_message() {
+		// 0 = unused. Messages start at index 1.
+		$messages = array(
+			0 => '',
+			1 => esc_html__( 'Multisite tag added.', 'multitaxo' ),
+			2 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
+			3 => esc_html__( 'Multisite tag updated.', 'multitaxo' ),
+			4 => esc_html__( 'Multisite tag not added.', 'multitaxo' ),
+			5 => esc_html__( 'Multisite tag not updated.', 'multitaxo' ),
+			6 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
+		);
+
+		// Filters the messages displayed when a tag is updated.
+		$messages = apply_filters( 'multisite_term_updated_messages', $messages );
+
+		$message = false;
+		if ( isset( $_REQUEST['message'] ) && ( $msg = (int) absint( wp_unslash( $_REQUEST['message'] ) ) ) ) {
+			if ( isset( $messages[ $msg ] ) ) {
+				$message = $messages[ $msg ];
+			}
+		}
+
+		return $message;
+	}
+
+	/**
+	 * Display the edit screen for a tag.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function display_multisite_network_tax_edit_screen() {
+		$taxonomy = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null;
+
+		if ( empty( $taxonomy ) ) {
+			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+		}
+
+		$tax = get_multisite_taxonomy( $taxonomy );
+
+		if ( ! $tax ) {
+			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+		}
+
+		if ( ! in_array( $tax->name, get_multisite_taxonomies( array( 'show_ui' => true ) ) ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to edit terms in this taxonomy.', 'multitaxo' ) );
+		}
+
+		if ( ! current_user_can( $tax->cap->manage_multisite_terms ) ) {
+			wp_die(
+				'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
+				'<p>' . esc_html__( 'Sorry, you are not allowed to manage terms in this taxonomy.', 'multitaxo' ) . '</p>',
+				403
+			);
+		}
+
+		$term_id = ( isset( $_GET['multisite_term_id'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_term_id'] ) ) : null;
+
+		$term = get_multisite_term( $term_id, $taxonomy );
+
+		if ( ! $term || is_wp_error( $term ) ) {
+			wp_die( esc_html__( 'Invalid term.', 'multitaxo' ) );
+		}
+
+		$title   = $tax->labels->name;
+		$message = $this->get_update_message();
+		$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
+
+		// Use with caution, see https://codex.wordpress.org/Function_Reference/wp_reset_vars.
+		$wp_http_referer = remove_query_arg( array( 'action', 'message', 'multisite_term_id' ), wp_get_referer() );
+
+		$wp_http_referer = wp_validate_redirect( $wp_http_referer, get_admin_url( null, 'network' ) );
+
+		/**
+		 * Fires before the Edit Term form for all taxonomies.
+		 *
+		 * The dynamic portion of the hook name, `$taxonomy`, refers to
+		 * the taxonomy slug.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param object $tag      Current taxonomy term object.
+		 * @param string $taxonomy Current $taxonomy slug.
+		 */
+		do_action( "{$taxonomy}_multisite_pre_edit_form", $term, $tax ); ?>
+
+		<div class="wrap">
+		<h1><?php echo $tax->labels->edit_item; ?></h1>
+
+		<?php if ( $message ) : ?>
+		<div id="message" class="updated">
+			<p><strong><?php echo $message; ?></strong></p>
+			<?php if ( $wp_http_referer ) { ?>
+			<p><a href="<?php echo esc_url( $wp_http_referer ); ?>"><?php
+				/* translators: %s: taxonomy name */
+				printf( _x( '&larr; Back to %s', 'admin screen' ), $tax->labels->name );
+			?></a></p>
+			<?php } ?>
+		</div>
+		<?php endif; ?>
+
+		<div id="ajax-response"></div>
+
+		<form name="edittag" id="edittag" method="post" action="" class="validate"<?php
+		/**
+		 * Fires inside the Edit Term form tag.
+		 *
+		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 *
+		 * @since 3.7.0
+		 */
+		do_action( "{$taxonomy}_multisite_term_edit_form_tag" );
+		?>>
+		<input type="hidden" name="action" value="editedtag"/>
+		<input type="hidden" name="tag_ID" value="<?php echo esc_attr( $term->multisite_term_id ) ?>"/>
+		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $taxonomy ) ?>"/>
+		<?php
+		wp_original_referer_field( true, 'previous' );
+		wp_nonce_field( 'update-multisite-term_' . $term->multisite_term_id );
+
+		/**
+		 * Fires at the beginning of the Edit Term form.
+		 *
+		 * At this point, the required hidden fields and nonces have already been output.
+		 *
+		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 *
+		 * @since 4.5.0
+		 *
+		 * @param object $tag      Current taxonomy term object.
+		 * @param string $taxonomy Current $taxonomy slug.
+		 */
+		do_action( "{$taxonomy}_multisite_term_edit_form_top", $term, $tax );
+		?>
+			<table class="form-table">
+				<tr class="form-field form-required term-name-wrap">
+					<th scope="row"><label for="name"><?php _ex( 'Name', 'term name' ); ?></label></th>
+					<td><input name="name" id="name" type="text" value="<?php if ( isset( $term->name ) ) echo esc_attr( $term->name ); ?>" size="40" aria-required="true" />
+					<p class="description"><?php _e('The name is how it appears on your site.'); ?></p></td>
+				</tr>
+				<tr class="form-field term-slug-wrap">
+					<th scope="row"><label for="slug"><?php _e( 'Slug' ); ?></label></th>
+					<?php
+					/**
+					 * Filters the editable slug.
+					 *
+					 * Note: This is a multi-use hook in that it is leveraged both for editable
+					 * post URIs and term slugs.
+					 *
+					 * @since 2.6.0
+					 * @since 4.4.0 The `$tag` parameter was added.
+					 *
+					 * @param string         $slug The editable slug. Will be either a term slug or post URI depending
+					 *                             upon the context in which it is evaluated.
+					 * @param object|WP_Post $tag  Term or WP_Post object.
+					 */
+					$slug = isset( $term->slug ) ? apply_filters( 'editable_slug', $term->slug, $term ) : '';
+					?>
+					<td><input name="slug" id="slug" type="text" value="<?php echo esc_attr( $slug ); ?>" size="40" />
+					<p class="description"><?php _e('The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.'); ?></p></td>
+				</tr>
+		<?php if ( is_taxonomy_hierarchical($taxonomy) ) : ?>
+				<tr class="form-field term-parent-wrap">
+					<th scope="row"><label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label></th>
+					<td>
+						<?php
+						$dropdown_args = array(
+							'hide_empty'       => 0,
+							'hide_if_empty'    => false,
+							'taxonomy'         => $taxonomy,
+							'name'             => 'parent',
+							'orderby'          => 'name',
+							'selected'         => $term->parent,
+							'exclude_tree'     => $term->multisite_term_id,
+							'hierarchical'     => true,
+							'show_option_none' => __( 'None' ),
+						);
+
+						/** This filter is documented in wp-admin/edit-tags.php */
+						$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $taxonomy, 'edit' );
+						wp_dropdown_categories( $dropdown_args ); ?>
+						<?php if ( 'category' == $taxonomy ) : ?>
+							<p class="description"><?php _e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.' ); ?></p>
+						<?php else : ?>
+							<p class="description"><?php _e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.' ); ?></p>
+						<?php endif; ?>
+					</td>
+				</tr>
+		<?php endif; // is_taxonomy_hierarchical() ?>
+				<tr class="form-field term-description-wrap">
+					<th scope="row"><label for="description"><?php _e( 'Description' ); ?></label></th>
+					<td><textarea name="description" id="description" rows="5" cols="50" class="large-text"><?php echo $term->description; // textarea_escaped ?></textarea>
+					<p class="description"><?php _e('The description is not prominent by default; however, some themes may show it.'); ?></p></td>
+				</tr>
+				<?php
+				/**
+				 * Fires after the Edit Term form fields are displayed.
+				 *
+				 * The dynamic portion of the hook name, `$taxonomy`, refers to
+				 * the taxonomy slug.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param object $tag      Current taxonomy term object.
+				 * @param string $taxonomy Current taxonomy slug.
+				 */
+				do_action( "{$taxonomy}_multisite_edit_form_fields", $term, $tax );
+				?>
+			</table>
+		<?php
+
+		/**
+		 * Fires at the end of the Edit Term form for all taxonomies.
+		 *
+		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param object $tag      Current taxonomy term object.
+		 * @param string $taxonomy Current taxonomy slug.
+		 */
+		do_action( "{$taxonomy}_multisite_edit_form", $term, $taxonomy );
+		?>
+
+		<div class="edit-tag-actions">
+
+			<?php submit_button( __( 'Update' ), 'primary', null, false ); ?>
+
+			<?php if ( current_user_can( 'delete_term', $term->multisite_term_id ) ) : ?>
+				<span id="delete-link">
+					<a class="delete" href="<?php echo admin_url( wp_nonce_url( "edit-tags.php?action=delete&taxonomy=$taxonomy&tag_ID=$term->multisite_term_id", 'delete-tag_' . $term->multisite_term_id ) ) ?>"><?php _e( 'Delete' ); ?></a>
+				</span>
+			<?php endif; ?>
+
+		</div>
+
+		</form>
+		</div>
+
+		<?php if ( ! wp_is_mobile() ) : ?>
+		<script type="text/javascript">
+		try{document.forms.edittag.name.focus();}catch(e){}
+		</script>
+		<?php endif;
 	}
 }
