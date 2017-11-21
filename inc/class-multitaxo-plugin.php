@@ -618,7 +618,7 @@ class Multitaxo_Plugin {
 
 		<div class="form-wrap">
 		<h2><?php echo $tax->labels->add_new_item; ?></h2>
-		<form id="addtag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $tax->name ); ?>" class="validate"
+		<form id="addtag" method="post" action="admin.php" class="validate"
 		<?php
 		/**
 		 * Fires inside the Add Tag form tag.
@@ -631,6 +631,7 @@ class Multitaxo_Plugin {
 		?>
 		>
 		<input type="hidden" name="action" value="add-multisite-tag" />
+		<input type="hidden" name="page" value="multisite_tags_list" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<?php wp_nonce_field( 'add-multisite-tag', '_wpnonce_add-multisite-tag' ); ?>
@@ -874,7 +875,7 @@ class Multitaxo_Plugin {
 		<?php if ( $message ) : ?>
 		<div id="message" class="updated">
 			<p><strong><?php echo $message; ?></strong></p>
-			<?php if ( $wp_http_referer ) { ?>
+			<?php if ( '' !== $wp_http_referer ) { ?>
 			<p><a href="<?php echo esc_url( $wp_http_referer ); ?>"><?php
 				/* translators: %s: taxonomy name */
 				printf( _x( '&larr; Back to %s', 'admin screen' ), $tax->labels->name );
@@ -885,7 +886,7 @@ class Multitaxo_Plugin {
 
 		<div id="ajax-response"></div>
 
-		<form name="edittag" id="edittag" method="post" action="" class="validate"<?php
+		<form name="edittag" id="edittag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $taxonomy ) ?>" class="validate"<?php
 		/**
 		 * Fires inside the Edit Term form tag.
 		 *
@@ -896,8 +897,9 @@ class Multitaxo_Plugin {
 		do_action( "{$taxonomy}_multisite_term_edit_form_tag" );
 		?>>
 		<input type="hidden" name="action" value="editedtag"/>
-		<input type="hidden" name="tag_ID" value="<?php echo esc_attr( $term->multisite_term_id ) ?>"/>
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $taxonomy ) ?>"/>
+		<input type="hidden" name="page" value="multisite_tags_list"/>
+		<input type="hidden" name="multisite_tag_id" value="<?php echo esc_attr( $term->multisite_term_id ) ?>"/>
+		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $taxonomy ) ?>"/>
 		<?php
 		wp_original_referer_field( true, 'previous' );
 		wp_nonce_field( 'update-multisite-term_' . $term->multisite_term_id );
