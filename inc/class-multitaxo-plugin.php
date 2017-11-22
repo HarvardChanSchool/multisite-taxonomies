@@ -42,6 +42,9 @@ class Multitaxo_Plugin {
 
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
+
+		add_filter( 'set-screen-option', array( $this, 'multisite_set_screen_option' ), 10, 3 );
+
 	}
 
 	/**
@@ -212,6 +215,18 @@ class Multitaxo_Plugin {
 	}
 
 	/**
+	 * Save the screen options hook.
+	 *
+	 * @access public
+	 * @return mixed option value.
+	 */
+	public function multisite_set_screen_option( $status, $option, $value ) {
+		if ( 'edit_multisite_tax_per_page' === $option ) {
+			return $value;
+		}
+	}
+
+	/**
 	 * Display the list table screen in the network.
 	 *
 	 * @access public
@@ -260,7 +275,7 @@ class Multitaxo_Plugin {
 		add_screen_option(
 			'per_page', array(
 				'default' => 20,
-				'option'  => 'edit_multi_' . $tax->name . '_per_page',
+				'option'  => 'edit_multisite_tax_per_page',
 			)
 		);
 
@@ -284,8 +299,9 @@ class Multitaxo_Plugin {
 		switch ( $this->list_table->current_action() ) {
 
 			case 'add-tag':
-				check_admin_referer( 'add-tag', '_wpnonce_add-tag' );
-				if ( ! current_user_can( $tax->cap->edit_terms ) ) {
+				check_admin_referer( 'add-multisite-tag', '_wpnonce_add-multisite-tag' );
+
+				if ( ! current_user_can( $tax->cap->edit_multisite_terms ) ) {
 					wp_die(
 						'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 						'<p>' . esc_html__( 'Sorry, you are not allowed to create terms in this taxonomy.', 'multitaxo' ) . '</p>',
@@ -293,17 +309,17 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				$ret = wp_insert_multisite_term( $_POST['tag-name'], $tax->name, $_POST );
+				$tag = wp_insert_multisite_term( sanitize_text_field( wp_unslash( $_POST['tag-name'] ) ), $tax->name, $_POST );
 
 				if ( $ret && ! is_wp_error( $ret ) ) {
 					$location = add_query_arg( 'message', 1, $referer );
 				} else {
-						$location = add_query_arg(
-							array(
-								'error'   => true,
-								'message' => 4,
-							), $referer
-						);
+					$location = add_query_arg(
+						array(
+							'error'   => true,
+							'message' => 4,
+						), $referer
+					);
 				}
 
 				break;
@@ -329,13 +345,15 @@ class Multitaxo_Plugin {
 				$location = add_query_arg( 'message', 2, $referer );
 
 				// When deleting a term, prevent the action from redirecting back to a term that no longer exists.
-				$location = remove_query_arg( array( 'tag_ID', 'action' ), $location );
+				$location = remove_query_arg( array( 'multisite_term_id', 'action', 'page' ), $location );
+
+				$location = add_query_arg( 'page', 'multisite_tags_list', $location );
 
 				break;
 			case 'bulk-delete':
 				check_admin_referer( 'bulk-tags' );
 
-				if ( ! current_user_can( $tax->cap->delete_terms ) ) {
+				if ( ! current_user_can( $tax->cap->delete_multisite_terms ) ) {
 					wp_die(
 						'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 						'<p>' . esc_html__( 'Sorry, you are not allowed to delete these items.', 'multitaxo' ) . '</p>',
@@ -353,26 +371,26 @@ class Multitaxo_Plugin {
 
 				break;
 			case 'edit':
-				if ( ! isset( $_REQUEST['tag_ID'] ) ) {
+				if ( ! isset( $_REQUEST['multisite_term_id'] ) ) {
 					break;
 				}
 
-				$term_id = (int) $_REQUEST['tag_ID'];
+				$term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) );
 				$term    = get_term( $term_id );
 
 				if ( ! $term instanceof WP_Term ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $term_id, $tax->name, $post_type ) ) );
+				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $term_id, $tax->name ) ) );
 
 				exit;
 			case 'editedtag':
-				$tag_ID = (int) $_POST['tag_ID'];
+				$tag_ID = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) );
 
-				check_admin_referer( 'update-tag_' . $tag_ID );
+				check_admin_referer( 'update-multisite-term_' . $tag_ID );
 
-				if ( ! current_user_can( 'edit_term', $tag_ID ) ) {
+				if ( ! current_user_can( 'edit_multisite_terms', $tag_ID ) ) {
 					wp_die(
 						'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 						'<p>' . esc_html__( 'Sorry, you are not allowed to edit this item.', 'multitaxo' ) . '</p>',
@@ -630,7 +648,7 @@ class Multitaxo_Plugin {
 		do_action( "{$tax->name}_term_new_form_tag" );
 		?>
 		>
-		<input type="hidden" name="action" value="add-multisite-tag" />
+		<input type="hidden" name="action" value="add-tag" />
 		<input type="hidden" name="page" value="multisite_tags_list" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
@@ -851,10 +869,12 @@ class Multitaxo_Plugin {
 		$message = $this->get_update_message();
 		$class = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated';
 
-		// Use with caution, see https://codex.wordpress.org/Function_Reference/wp_reset_vars.
-		$wp_http_referer = remove_query_arg( array( 'action', 'message', 'multisite_term_id' ), wp_get_referer() );
+		$args = array(
+			'page'               => 'multisite_tags_list',
+			'multisite_taxonomy' => $taxonomy,
+		);
 
-		$wp_http_referer = wp_validate_redirect( $wp_http_referer, get_admin_url( null, 'network' ) );
+		$return_url = add_query_arg( $args, get_admin_url( null, 'network/admin.php' ) );
 
 		/**
 		 * Fires before the Edit Term form for all taxonomies.
@@ -875,12 +895,10 @@ class Multitaxo_Plugin {
 		<?php if ( $message ) : ?>
 		<div id="message" class="updated">
 			<p><strong><?php echo $message; ?></strong></p>
-			<?php if ( '' !== $wp_http_referer ) { ?>
-			<p><a href="<?php echo esc_url( $wp_http_referer ); ?>"><?php
+			<p><a href="<?php echo esc_url( $return_url ); ?>"><?php
 				/* translators: %s: taxonomy name */
 				printf( _x( '&larr; Back to %s', 'admin screen' ), $tax->labels->name );
 			?></a></p>
-			<?php } ?>
 		</div>
 		<?php endif; ?>
 
@@ -898,7 +916,7 @@ class Multitaxo_Plugin {
 		?>>
 		<input type="hidden" name="action" value="editedtag"/>
 		<input type="hidden" name="page" value="multisite_tags_list"/>
-		<input type="hidden" name="multisite_tag_id" value="<?php echo esc_attr( $term->multisite_term_id ) ?>"/>
+		<input type="hidden" name="multisite_term_id" value="<?php echo esc_attr( $term->multisite_term_id ) ?>"/>
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $taxonomy ) ?>"/>
 		<?php
 		wp_original_referer_field( true, 'previous' );
@@ -945,7 +963,7 @@ class Multitaxo_Plugin {
 					<td><input name="slug" id="slug" type="text" value="<?php echo esc_attr( $slug ); ?>" size="40" />
 					<p class="description"><?php _e('The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.'); ?></p></td>
 				</tr>
-		<?php if ( is_taxonomy_hierarchical($taxonomy) ) : ?>
+		<?php if ( is_multisite_taxonomy_hierarchical( $taxonomy ) ) : ?>
 				<tr class="form-field term-parent-wrap">
 					<th scope="row"><label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label></th>
 					<td>
@@ -1012,9 +1030,17 @@ class Multitaxo_Plugin {
 
 			<?php submit_button( __( 'Update' ), 'primary', null, false ); ?>
 
-			<?php if ( current_user_can( 'delete_term', $term->multisite_term_id ) ) : ?>
+			<?php if ( current_user_can( 'delete_multiite_term', $term->multisite_term_id ) ) : ?>
 				<span id="delete-link">
-					<a class="delete" href="<?php echo admin_url( wp_nonce_url( "edit-tags.php?action=delete&taxonomy=$taxonomy&tag_ID=$term->multisite_term_id", 'delete-tag_' . $term->multisite_term_id ) ) ?>"><?php _e( 'Delete' ); ?></a>
+					<a class="delete" href="<?php echo wp_nonce_url( add_query_arg(
+						array(
+							'page' => 'multisite_tags_list',
+							'action' => 'delete',
+							'multisite_taxonomy' => $taxonomy,
+							'multisite_term_id' => $term->multisite_term_id,
+						),
+						'admin.php'
+					), 'delete-multisite_term_' . $term->multisite_term_id ); ?>"><?php _e( 'Delete' ); ?></a>
 				</span>
 			<?php endif; ?>
 
