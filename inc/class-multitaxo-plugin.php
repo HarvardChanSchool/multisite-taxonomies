@@ -35,6 +35,10 @@ class Multitaxo_Plugin {
 
 		// Add the editing tags screen.
 		add_action( 'network_admin_menu', array( $this, 'add_network_menu_terms' ) );
+		add_filter( 'set-screen-option', array( $this, 'multisite_set_screen_option' ), 10, 3 );
+
+		// Hide menu items we dont want to make visible to the world but want to leave behind.
+		add_action( 'admin_head', array( $this, 'hide_network_menu_terms' ), 1 );
 
 		// register our tables to WPDB.
 		add_action( 'init', array( $this, 'register_multisite_tax_tables' ), 1 );
@@ -42,9 +46,6 @@ class Multitaxo_Plugin {
 
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
-
-		add_filter( 'set-screen-option', array( $this, 'multisite_set_screen_option' ), 10, 3 );
-
 	}
 
 	/**
@@ -212,6 +213,16 @@ class Multitaxo_Plugin {
 			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_tags_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_network_tax' ) );
 		}
+	}
+
+	/**
+	 * Hide netowrk Menu Items we dont want to be seen.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function hide_network_menu_terms() {
+		remove_submenu_page( 'multisite_tags_list', 'multisite_term_edit' );
 	}
 
 	/**
