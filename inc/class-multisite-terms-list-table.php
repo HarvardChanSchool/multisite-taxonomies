@@ -649,8 +649,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			<span class="spinner"></span>
 			<span class="error" style="display:none;"></span>
 			<?php wp_nonce_field( 'multitaxinlineeditnonce', '_inline_edit', false ); ?>
-			<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $this->screen->taxonomy ); ?>" />
-			<input type="hidden" name="post_type" value="<?php echo esc_attr( $this->screen->post_type ); ?>" />
+			<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->screen->taxonomy ); ?>" />
 			<br class="clear" />
 		</p>
 		</td></tr>
