@@ -175,7 +175,8 @@ inlineEditTax = {
 		$( 'table.widefat .spinner' ).addClass( 'is-active' );
 
 		params = {
-			action: 'inline-save-tax',
+            action: 'inline-save-multisite-tax',
+            security: '',
 			tax_type: this.type,
 			tax_ID: id,
 			taxonomy: tax

@@ -46,6 +46,7 @@ class Multitaxo_Plugin {
 
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
+		add_action( 'wp_ajax_inline-save-multisite-tax', array( $this, 'ajax_inline_save_multisite_term' ) );
 	}
 
 	/**
@@ -85,11 +86,19 @@ class Multitaxo_Plugin {
 			'broken' => esc_html__( 'An unidentified error has occurred.', 'multitaxo' ),
 		));
 
+		wp_localize_script( 'admin-multisite-tags', 'adminmstags', array(
+			'ajax_nonce' => wp_create_nonce( 'admin_multisite_tags' ),
+		));
+
 		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . '/assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), '1', true );
 		wp_localize_script( 'inline-edit-multisite-tax', 'inlineEditL10n', array(
 			'error' => esc_html__( 'Error while saving the changes.', 'multitaxo' ),
 			'saved' => esc_html__( 'Changes saved.', 'multitaxo' ),
 		) );
+
+		wp_localize_script( 'inline-edit-multisite-tax', 'editmstax', array(
+			'ajax_nonce' => wp_create_nonce( 'ajax_edit_multisite_tax' ),
+		));
 	}
 
 	/**
@@ -567,17 +576,16 @@ class Multitaxo_Plugin {
 		$x->send();
 	}
 
-
-
-
-
-
-
-	public function wp_ajax_inline_save_multisite_term() {
+	/**
+	 * Add a Update Multisite term in database.
+	 *
+	 * @return void
+	 */
+	public function ajax_inline_save_multisite_term() {
 		check_ajax_referer( 'taxinlineeditnonce', '_inline_edit' );
 
 		$taxonomy = sanitize_key( $_POST['taxonomy'] );
-		$tax = get_taxonomy( $taxonomy );
+		$tax = get_multisite_taxonomy( $taxonomy );
 		if ( ! $tax )
 			wp_die( 0 );
 
@@ -591,10 +599,10 @@ class Multitaxo_Plugin {
 
 		$wp_list_table = _get_list_table( 'WP_Terms_List_Table', array( 'screen' => 'edit-' . $taxonomy ) );
 
-		$tag = get_term( $id, $taxonomy );
+		$tag = get_multisite_term( $id, $taxonomy );
 		$_POST['description'] = $tag->description;
 
-		$updated = wp_update_term($id, $taxonomy, $_POST);
+		$updated = wp_update_multisite_term($id, $taxonomy, $_POST);
 		if ( $updated && !is_wp_error($updated) ) {
 			$tag = get_term( $updated['term_id'], $taxonomy );
 			if ( !$tag || is_wp_error( $tag ) ) {
@@ -610,23 +618,13 @@ class Multitaxo_Plugin {
 		$level = 0;
 		$parent = $tag->parent;
 		while ( $parent > 0 ) {
-			$parent_tag = get_term( $parent, $taxonomy );
+			$parent_tag = get_multisite_term( $parent, $taxonomy );
 			$parent = $parent_tag->parent;
 			$level++;
 		}
 		$wp_list_table->single_row( $tag, $level );
 		wp_die();
 	}
-
-
-
-
-
-
-
-
-
-
 
 	/**
 	 * Display the list table screen in the network.
