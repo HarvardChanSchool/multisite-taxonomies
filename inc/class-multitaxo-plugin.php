@@ -79,6 +79,17 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function admin_enqueue_styles_and_scripts() {
+		wp_register_script( 'admin-multisite-tags', MULTITAXO_PLUGIN_URL . 'assets/js/admin-multisite-tags.js', array( 'jquery', 'wp-ajax-response' ), null, true );
+		wp_localize_script( 'admin-multisite-tags', 'tagsl10n', array(
+			'noPerm' => esc_html__( 'Sorry, you are not allowed to do that.', 'multitaxo' ),
+			'broken' => esc_html__( 'An unidentified error has occurred.', 'multitaxo' ),
+		));
+
+		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . 'assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), null, true );
+		wp_localize_script( 'inline-edit-multisite-tax', 'inlineEditL10n', array(
+			'error' => esc_html__( 'Error while saving the changes.', 'multitaxo' ),
+			'saved' => esc_html__( 'Changes saved.', 'multitaxo' ),
+		) );
 	}
 
 	/**
@@ -471,9 +482,9 @@ class Multitaxo_Plugin {
 			exit;
 		}
 
-		wp_enqueue_script( 'admin-tags' );
+		wp_enqueue_script( 'admin-multisite-tags' );
 		if ( current_user_can( $tax->cap->edit_multisite_terms ) ) {
-			wp_enqueue_script( 'inline-edit-tax' );
+			wp_enqueue_script( 'inline-edit-multisite-tax' );
 		}
 	}
 
@@ -560,6 +571,67 @@ class Multitaxo_Plugin {
 		);
 		$x->send();
 	}
+
+
+
+
+
+
+
+	public function wp_ajax_inline_save_multisite_term() {
+		check_ajax_referer( 'taxinlineeditnonce', '_inline_edit' );
+
+		$taxonomy = sanitize_key( $_POST['taxonomy'] );
+		$tax = get_taxonomy( $taxonomy );
+		if ( ! $tax )
+			wp_die( 0 );
+
+		if ( ! isset( $_POST['tax_ID'] ) || ! ( $id = (int) $_POST['tax_ID'] ) ) {
+			wp_die( -1 );
+		}
+
+		if ( ! current_user_can( 'edit_term', $id ) ) {
+			wp_die( -1 );
+		}
+
+		$wp_list_table = _get_list_table( 'WP_Terms_List_Table', array( 'screen' => 'edit-' . $taxonomy ) );
+
+		$tag = get_term( $id, $taxonomy );
+		$_POST['description'] = $tag->description;
+
+		$updated = wp_update_term($id, $taxonomy, $_POST);
+		if ( $updated && !is_wp_error($updated) ) {
+			$tag = get_term( $updated['term_id'], $taxonomy );
+			if ( !$tag || is_wp_error( $tag ) ) {
+				if ( is_wp_error($tag) && $tag->get_error_message() )
+					wp_die( $tag->get_error_message() );
+				wp_die( __( 'Item not updated.' ) );
+			}
+		} else {
+			if ( is_wp_error($updated) && $updated->get_error_message() )
+				wp_die( $updated->get_error_message() );
+			wp_die( __( 'Item not updated.' ) );
+		}
+		$level = 0;
+		$parent = $tag->parent;
+		while ( $parent > 0 ) {
+			$parent_tag = get_term( $parent, $taxonomy );
+			$parent = $parent_tag->parent;
+			$level++;
+		}
+		$wp_list_table->single_row( $tag, $level );
+		wp_die();
+	}
+
+
+
+
+
+
+
+
+
+
 
 	/**
 	 * Display the list table screen in the network.
