@@ -79,13 +79,13 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function admin_enqueue_styles_and_scripts() {
-		wp_register_script( 'admin-multisite-tags', MULTITAXO_PLUGIN_URL . 'assets/js/admin-multisite-tags.js', array( 'jquery', 'wp-ajax-response' ), null, true );
+		wp_register_script( 'admin-multisite-tags', MULTITAXO_PLUGIN_URL . '/assets/js/admin-multisite-tags.js', array( 'jquery', 'wp-ajax-response' ), null, true );
 		wp_localize_script( 'admin-multisite-tags', 'tagsl10n', array(
 			'noPerm' => esc_html__( 'Sorry, you are not allowed to do that.', 'multitaxo' ),
 			'broken' => esc_html__( 'An unidentified error has occurred.', 'multitaxo' ),
 		));
 
-		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . 'assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), null, true );
+		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . '/assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), null, true );
 		wp_localize_script( 'inline-edit-multisite-tax', 'inlineEditL10n', array(
 			'error' => esc_html__( 'Error while saving the changes.', 'multitaxo' ),
 			'saved' => esc_html__( 'Changes saved.', 'multitaxo' ),
