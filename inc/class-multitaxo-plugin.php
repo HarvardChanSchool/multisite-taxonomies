@@ -86,7 +86,7 @@ class Multitaxo_Plugin {
 			'broken' => esc_html__( 'An unidentified error has occurred.', 'multitaxo' ),
 		));
 
-		wp_localize_script( 'admin-multisite-tags', 'adminmstags', array(
+		wp_localize_script( 'admin-multisite-tags', 'multisite_tags', array(
 			'ajax_nonce' => wp_create_nonce( 'admin_multisite_tags' ),
 		));
 
@@ -582,7 +582,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function ajax_inline_save_multisite_term() {
-		check_ajax_referer( 'taxinlineeditnonce', '_inline_edit' );
+		check_ajax_referer( 'ajax_edit_multisite_tax', 'security' );
 
 		$taxonomy = sanitize_key( $_POST['taxonomy'] );
 		$tax = get_multisite_taxonomy( $taxonomy );
@@ -597,7 +597,21 @@ class Multitaxo_Plugin {
 			wp_die( -1 );
 		}
 
-		$wp_list_table = _get_list_table( 'WP_Terms_List_Table', array( 'screen' => 'edit-' . $taxonomy ) );
+		$args = array();
+
+		if ( isset( $_POST['screen'] ) ) {
+			$args['screen'] = convert_to_screen( wp_unslash( $_POST['screen'] ) );
+		} elseif ( isset( $GLOBALS['hook_suffix'] ) ) {
+			$args['screen'] = get_current_screen();
+		} else {
+			$args['screen'] = null;
+		}
+
+		if ( null !== $args['screen'] ) {
+			$args['screen']->taxonomy = $taxonomy;
+		}
+
+		$tax_list_table = new Multisite_Terms_List_Table( $args );
 
 		$tag = get_multisite_term( $id, $taxonomy );
 		$_POST['description'] = $tag->description;
@@ -622,7 +636,7 @@ class Multitaxo_Plugin {
 			$parent = $parent_tag->parent;
 			$level++;
 		}
-		$wp_list_table->single_row( $tag, $level );
+		$$tax_list_table->single_row( $tag, $level );
 		wp_die();
 	}
 
