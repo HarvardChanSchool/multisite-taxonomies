@@ -616,7 +616,7 @@ class Multitaxo_Plugin {
 		$tag = get_multisite_term( $id, $taxonomy );
 		$_POST['description'] = $tag->description;
 
-		$updated = wp_update_multisite_term($id, $taxonomy, $_POST);
+		$updated = update_multisite_term($id, $taxonomy, $_POST);
 		if ( $updated && !is_wp_error($updated) ) {
 			$tag = get_term( $updated['term_id'], $taxonomy );
 			if ( !$tag || is_wp_error( $tag ) ) {
