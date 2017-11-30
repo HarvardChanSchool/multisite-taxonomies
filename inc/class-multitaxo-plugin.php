@@ -46,7 +46,7 @@ class Multitaxo_Plugin {
 
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
-		add_action( 'wp_ajax_inline-save-multisite-tax', array( $this, 'ajax_inline_save_multisite_term' ) );
+		add_action( 'wp_ajax_inline-save-multisite-tag', array( $this, 'ajax_inline_save_multisite_tag' ) );
 	}
 
 	/**
@@ -498,7 +498,8 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function ajax_add_multisite_tag() {
-		check_ajax_referer( 'add-multisite-tag', '_wpnonce_add-multisite-tag' );
+		check_ajax_referer( 'add-multisite-tag', 'nonce-add-multisite-tag' );
+
 		$taxonomy = ( ! empty( wp_unslash( $_POST['multisite_taxonomy'] ) ) ) ? sanitize_key( wp_unslash( $_POST['multisite_taxonomy'] ) ) : null;
 
 		if ( empty( $taxonomy ) ) {
@@ -581,7 +582,7 @@ class Multitaxo_Plugin {
 	 *
 	 * @return void
 	 */
-	public function ajax_inline_save_multisite_term() {
+	public function ajax_inline_save_multisite_tag() {
 		check_ajax_referer( 'ajax_edit_multisite_tax', 'security' );
 
 		$taxonomy = sanitize_key( $_POST['taxonomy'] );
@@ -743,11 +744,11 @@ class Multitaxo_Plugin {
 		do_action( "{$tax->name}_term_new_form_tag" );
 		?>
 		>
-		<input type="hidden" name="action" value="add-tag" />
+		<input type="hidden" name="action" value="add-multisite-tag" />
 		<input type="hidden" name="page" value="multisite_tags_list" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-		<?php wp_nonce_field( 'add-multisite-tag', '_wpnonce_add-multisite-tag' ); ?>
+		<?php wp_nonce_field( 'add-multisite-tag', 'nonce-add-multisite-tag' ); ?>
 
 		<div class="form-field form-required term-name-wrap">
 			<label for="tag-name"><?php _ex( 'Name', 'term name' ); ?></label>
