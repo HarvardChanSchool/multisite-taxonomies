@@ -46,7 +46,7 @@ class Multitaxo_Plugin {
 
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
-		add_action( 'wp_ajax_inline-save-multisite-tag', array( $this, 'ajax_inline_save_multisite_tag' ) );
+		add_action( 'wp_ajax_inline-save-multisite-tax', array( $this, 'ajax_inline_save_multisite_tag' ) );
 	}
 
 	/**
@@ -86,17 +86,13 @@ class Multitaxo_Plugin {
 			'broken' => esc_html__( 'An unidentified error has occurred.', 'multitaxo' ),
 		));
 
-		wp_localize_script( 'admin-multisite-tags', 'multisite_tags', array(
-			'ajax_nonce' => wp_create_nonce( 'admin_multisite_tags' ),
-		));
-
 		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . '/assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), '1', true );
 		wp_localize_script( 'inline-edit-multisite-tax', 'inlineEditL10n', array(
 			'error' => esc_html__( 'Error while saving the changes.', 'multitaxo' ),
 			'saved' => esc_html__( 'Changes saved.', 'multitaxo' ),
 		) );
 
-		wp_localize_script( 'inline-edit-multisite-tax', 'editmstax', array(
+		wp_localize_script( 'inline-edit-multisite-tax', 'edit_multisite_tax', array(
 			'ajax_nonce' => wp_create_nonce( 'ajax_edit_multisite_tax' ),
 		));
 	}
@@ -583,18 +579,18 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function ajax_inline_save_multisite_tag() {
-		check_ajax_referer( 'ajax_edit_multisite_tax', 'security' );
+		check_ajax_referer( 'ajax_edit_multisite_tax', 'nonce_edit_multisite_tax' );
 
-		$taxonomy = sanitize_key( $_POST['taxonomy'] );
+		$taxonomy = sanitize_key( wp_unslash( $_POST['taxonomy'] ) );
 		$tax = get_multisite_taxonomy( $taxonomy );
 		if ( ! $tax )
 			wp_die( 0 );
 
-		if ( ! isset( $_POST['tax_ID'] ) || ! ( $id = (int) $_POST['tax_ID'] ) ) {
+		if ( ! isset( $_POST['tax_id'] ) || ! ( $id = (int) wp_unslash( $_POST['tax_id'] ) ) ) {
 			wp_die( -1 );
 		}
 
-		if ( ! current_user_can( 'edit_term', $id ) ) {
+		if ( ! current_user_can( 'edit_multisite_term', $id ) ) {
 			wp_die( -1 );
 		}
 
@@ -611,6 +607,11 @@ class Multitaxo_Plugin {
 		if ( null !== $args['screen'] ) {
 			$args['screen']->taxonomy = $taxonomy;
 		}
+
+		var_dump( $args );
+		die();
+
+
 
 		$tax_list_table = new Multisite_Terms_List_Table( $args );
 

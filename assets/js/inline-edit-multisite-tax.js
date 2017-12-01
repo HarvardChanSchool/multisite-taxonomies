@@ -176,9 +176,9 @@ inlineEditTax = {
 
 		params = {
             action: 'inline-save-multisite-tax',
-            nonce_edit_multisite_tax: multisite_tags.ajax_nonce,
+            nonce_edit_multisite_tax: edit_multisite_tax.ajax_nonce,
 			tax_type: this.type,
-			tax_ID: id,
+			tax_id: id,
 			taxonomy: tax
 		};
 
