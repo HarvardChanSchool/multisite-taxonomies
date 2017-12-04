@@ -609,9 +609,10 @@ class Multitaxo_Plugin {
 		$tag = get_multisite_term( $id, $taxonomy );
 		$_POST['description'] = $tag->description;
 
-		$updated = update_multisite_term($id, $taxonomy, $_POST);
+		$updated = update_multisite_term( $id, $taxonomy, $_POST );
+
 		if ( $updated && !is_wp_error($updated) ) {
-			$tag = get_term( $updated['term_id'], $taxonomy );
+			$tag = get_multisite_term( $updated['multisite_term_id'], $taxonomy );
 			if ( !$tag || is_wp_error( $tag ) ) {
 				if ( is_wp_error($tag) && $tag->get_error_message() )
 					wp_die( $tag->get_error_message() );
