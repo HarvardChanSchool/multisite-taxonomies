@@ -648,8 +648,9 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			<button type="button" class="save button button-primary alignright"><?php echo esc_html( $mu_tax->labels->update_item ); ?></button>
 			<span class="spinner"></span>
 			<span class="error" style="display:none;"></span>
-			<?php wp_nonce_field( 'multitaxinlineeditnonce', '_inline_edit', false ); ?>
+			<?php wp_nonce_field( 'ajax_edit_multisite_tax', 'nonce_multisite_inline_edit', false ); ?>
 			<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->screen->taxonomy ); ?>" />
+			<input type="hidden" name="screen" value="<?php echo esc_attr( $this->screen->id ); ?>" />
 			<br class="clear" />
 		</p>
 		</td></tr>

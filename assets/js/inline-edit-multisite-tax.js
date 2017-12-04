@@ -165,7 +165,7 @@ inlineEditTax = {
 	 * @returns {boolean} Always returns false.
 	 */
 	save : function(id) {
-		var params, fields, tax = $('input[name="taxonomy"]').val() || '';
+		var params, fields, tax = $('input[name="taxonomy"]').val() || '', screen = $('input[name="screen"]').val() || '';
 
 		// Makes sure we can pass an HTMLElement as the ID.
 		if( typeof(id) === 'object' ) {
@@ -179,7 +179,8 @@ inlineEditTax = {
             nonce_edit_multisite_tax: edit_multisite_tax.ajax_nonce,
 			tax_type: this.type,
 			tax_id: id,
-			taxonomy: tax
+            taxonomy: tax,
+            screen: screen,
 		};
 
 		fields = $('#edit-'+id).find(':input').serialize();
