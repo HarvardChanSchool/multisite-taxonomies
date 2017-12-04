@@ -44,7 +44,11 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php';
 // Plugin init.
 $multitaxo = new Multitaxo_Plugin();
 
-// Register Custom Taxonomy.$argv
+/**
+ * Load in a testing tax.
+ *
+ * @return void
+ */
 function testing_custom_taxonomy() {
 
 	$labels = array(
@@ -84,7 +88,8 @@ function testing_custom_taxonomy() {
 add_action( 'init', 'testing_custom_taxonomy', 0 );
 
 
-/* Save this for the topics plugin
+/*
+Save this for the topics plugin
 if ( $mu_tax->public ) {
 			$actions['view'] = sprintf(
 				'<a href="%s" aria-label="%s">%s</a>',

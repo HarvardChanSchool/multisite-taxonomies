@@ -868,7 +868,7 @@ function get_multisite_terms( $args = array() ) {
 	if ( ! empty( $args['taxonomy'] ) ) {
 		foreach ( $args['taxonomy'] as $taxonomy ) {
 			if ( ! multisite_taxonomy_exists( $taxonomy ) ) {
-				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.' ) );
+				return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.', 'multitaxo' ) );
 			}
 		}
 	}
@@ -1020,11 +1020,11 @@ function multisite_term_exists( $multisite_term, $multisite_taxonomy = '', $pare
 		if ( 0 === $multisite_term ) {
 			return 0;
 		}
-		$where = 't.multisite_term_id = %d';
+
 		if ( ! empty( $multisite_taxonomy ) ) {
-			return $wpdb->get_row( $wpdb->prepare( $tax_select . $where . ' AND tt.multisite_taxonomy = %s', $multisite_term, $multisite_taxonomy ), ARRAY_A ); // WPCS: unprepared SQL ok.
+			return $wpdb->get_row( $wpdb->prepare( $tax_select . 't.multisite_term_id = %d AND tt.multisite_taxonomy = %s', $multisite_term, $multisite_taxonomy ), ARRAY_A ); // WPCS: unprepared SQL ok.
 		} else {
-			return $wpdb->get_var( $wpdb->prepare( $select . $where, $multisite_term ) ); // WPCS: unprepared SQL ok.
+			return $wpdb->get_var( $wpdb->prepare( $select . 't.multisite_term_id = %d', $multisite_term ) ); // WPCS: unprepared SQL ok.
 		}
 	}
 
@@ -1295,7 +1295,6 @@ function count_multisite_terms( $multisite_taxonomy, $args = array() ) {
 
 	$args['fields']   = 'count';
 	$args['taxonomy'] = $multisite_taxonomy;
-
 
 	return get_multisite_terms( $args );
 }
@@ -1692,7 +1691,7 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 			 * The alias is not in a group, so we create a new one
 			 * and add the alias to it.
 			 */
-			$multisite_term_group = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) ) + 1;
+			$multisite_term_group = $wpdb->get_var( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) + 1;
 
 			update_multisite_term(
 				$alias->multisite_term_id, $multisite_taxonomy, array(
@@ -2324,7 +2323,7 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
 			 * The alias is not in a group, so we create a new one
 			 * and add the alias to it.
 			 */
-			$multisite_term_group = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) ) + 1;
+			$multisite_term_group = $wpdb->get_var( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) + 1;
 
 			update_multisite_term(
 				$alias->multisite_term_id, $multisite_taxonomy, array(
@@ -3169,11 +3168,8 @@ function get_multisite_term_link( $multisite_term, $multisite_taxonomy = '' ) {
  *
  * @since 3.1.0
  *
- * @param string $link   Optional. Anchor text. Default empty.
- * @param string $before Optional. Display before edit link. Default empty.
- * @param string $after  Optional. Display after edit link. Default empty.
- * @param object $term   Optional. Term object. If null, the queried object will be inspected. Default null.
- * @param bool   $echo   Optional. Whether or not to echo the return. Default true.
+ * @param integer $term_id Term ID for display.
+ * @param string  $taxonomy Term taxonomy for display.
  * @return string|void HTML content.
  */
 function get_edit_multisite_term_link( $term_id, $taxonomy ) {

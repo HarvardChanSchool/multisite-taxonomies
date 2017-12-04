@@ -133,9 +133,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		$this->set_pagination_args(
 			array(
-				'total_items' => count_multisite_terms( $this->screen->taxonomy, array(
-					'search'   => $search,
-				) ),
+				'total_items' => count_multisite_terms(
+					$this->screen->taxonomy, array(
+						'search' => $search,
+					)
+				),
 				'per_page'    => $tags_per_page,
 			)
 		);
@@ -490,12 +492,14 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		if ( current_user_can( 'delete_multisite_term', $multisite_term->multisite_term_id ) ) {
 			$actions['delete'] = sprintf(
 				'<a href="%s" class="delete-multisite-term aria-button-if-js" aria-label="%s">%s</a>',
-				wp_nonce_url( add_query_arg(
-					array(
-						'action' => 'delete',
-						'multisite_term_id' => $multisite_term->multisite_term_id,
-					)
-				), 'delete-multisite_term_' . $multisite_term->multisite_term_id ),
+				wp_nonce_url(
+					add_query_arg(
+						array(
+							'action'            => 'delete',
+							'multisite_term_id' => $multisite_term->multisite_term_id,
+						)
+					), 'delete-multisite_term_' . $multisite_term->multisite_term_id
+				),
 				/* translators: %s: multisite term name */
 				esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;', 'multitaxo' ), $multisite_term->name ) ),
 				__( 'Delete', 'multitaxo' )
