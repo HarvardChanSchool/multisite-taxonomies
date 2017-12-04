@@ -363,7 +363,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				wp_delete_multisite_term( $tag_ID, $tax->name );
+				delete_multisite_term( $tag_ID, $tax->name );
 
 				$location = add_query_arg( 'message', 2, $referer );
 
@@ -387,7 +387,7 @@ class Multitaxo_Plugin {
 				$tags = (array) $_REQUEST['delete_tags'];
 
 				foreach ( $tags as $tag_ID ) {
-					wp_delete_multisite_term( $tag_ID, $tax->name );
+					delete_multisite_term( $tag_ID, $tax->name );
 				}
 
 				$location = add_query_arg( 'message', 6, $referer );
@@ -427,7 +427,7 @@ class Multitaxo_Plugin {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				$ret = wp_update_multisite_term( $tag_ID, $tax->name, $_POST );
+				$ret = update_multisite_term( $tag_ID, $tax->name, $_POST );
 
 				if ( $ret && ! is_wp_error( $ret ) ) {
 					$location = add_query_arg( 'message', 3, $referer );
@@ -507,7 +507,7 @@ class Multitaxo_Plugin {
 
 		$x = new WP_Ajax_Response();
 
-		$tag = wp_insert_multisite_term( sanitize_text_field( wp_unslash( $_POST['tag-name'] ) ), $taxonomy, $_POST );
+		$tag = insert_multisite_term( sanitize_text_field( wp_unslash( $_POST['tag-name'] ) ), $taxonomy, $_POST );
 
 		if ( ! $tag || is_wp_error( $tag ) || ( ! $tag = get_multisite_term( $tag['multisite_term_id'], $taxonomy ) ) ) {
 			$message = esc_html__( 'An error has occurred. Please reload the page and try again.', 'multitaxo' );
@@ -608,9 +608,6 @@ class Multitaxo_Plugin {
 
 		$tag = get_multisite_term( $id, $taxonomy );
 		$_POST['description'] = $tag->description;
-
-		var_dump( $_POST );
-		wp_die();
 
 		$updated = update_multisite_term($id, $taxonomy, $_POST);
 		if ( $updated && !is_wp_error($updated) ) {

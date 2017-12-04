@@ -8,7 +8,7 @@
 /**
  * Retrieves a list of registered multisite taxonomy names or objects.
  *
- * @global array $wp_multisite_taxonomies The registered multisite taxonomies.
+ * @global array $multisite_taxonomies The registered multisite taxonomies.
  *
  * @param array  $args     Optional. An array of `key => value` arguments to match against the multisite taxonomy objects.
  *                         Default empty array.
@@ -20,11 +20,11 @@
  * @return array A list of multisite taxonomy names or objects.
  */
 function get_multisite_taxonomies( $args = array(), $output = 'names', $operator = 'and' ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
 	$field = ( 'names' === $output ) ? 'name' : false;
 
-	return wp_filter_object_list( $wp_multisite_taxonomies, $args, $operator, $field );
+	return wp_filter_object_list( $multisite_taxonomies, $args, $operator, $field );
 }
 
 /**
@@ -39,7 +39,7 @@ function get_multisite_taxonomies( $args = array(), $output = 'names', $operator
  *
  *     Array( 'category', 'post_tag' )
  *
- * @global array $wp_multisite_taxonomies The registered multisite taxonomies.
+ * @global array $multisite_taxonomies The registered multisite taxonomies.
  *
  * @param array|string|WP_Post $object Name of the type of multisite taxonomy object, or an object (row from posts).
  * @param string               $output Optional. The type of output to return in the array. Accepts either
@@ -47,7 +47,7 @@ function get_multisite_taxonomies( $args = array(), $output = 'names', $operator
  * @return array The names of all multisite taxonomy of $object_type.
  */
 function get_object_multisite_taxonomies( $object, $output = 'names' ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
 	if ( is_object( $object ) ) {
 		if ( 'attachment' === $object->post_type ) {
@@ -59,7 +59,7 @@ function get_object_multisite_taxonomies( $object, $output = 'names' ) {
 	$object = (array) $object;
 
 	$multisite_taxonomies = array();
-	foreach ( (array) $wp_multisite_taxonomies as $multi_tax_name => $multi_tax_obj ) {
+	foreach ( (array) $multisite_taxonomies as $multi_tax_name => $multi_tax_obj ) {
 		if ( array_intersect( $object, (array) $multi_tax_obj->object_type ) ) {
 			if ( 'names' === $output ) {
 				$multisite_taxonomies[] = $multi_tax_name;
@@ -78,33 +78,33 @@ function get_object_multisite_taxonomies( $object, $output = 'names' ) {
  * The get_multisite_taxonomy function will first check that the parameter string given
  * is a multisite taxonomy object and if it is, it will return it.
  *
- * @global array $wp_multisite_taxonomies The registered multisite taxonomies.
+ * @global array $multisite_taxonomies The registered multisite taxonomies.
  *
  * @param string $multisite_taxonomy Name of multisite taxonomy object to return.
  * @return Multisite_Taxonomy|false The Multisite Taxonomy Object or false if $multisite_taxonomy doesn't exist.
  */
 function get_multisite_taxonomy( $multisite_taxonomy ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
 	if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
 		return false;
 	}
 
-	return $wp_multisite_taxonomies[ $multisite_taxonomy ];
+	return $multisite_taxonomies[ $multisite_taxonomy ];
 }
 
 /**
  * Checks that the multisite taxonomy name exists.
  *
- * @global array $wp_multisite_taxonomies The registered multisite taxonomies.
+ * @global array $multisite_taxonomies The registered multisite taxonomies.
  *
  * @param string $multisite_taxonomy Name of multisite taxonomy object.
  * @return bool Whether the multisite taxonomy exists.
  */
 function multisite_taxonomy_exists( $multisite_taxonomy ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
-	return isset( $wp_multisite_taxonomies[ $multisite_taxonomy ] );
+	return isset( $multisite_taxonomies[ $multisite_taxonomy ] );
 }
 
 /**
@@ -136,7 +136,7 @@ function is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) {
  * parameter), along with strings for the multisite taxonomy name and another string for
  * the object type.
  *
- * @global array $wp_multisite_taxonomies Registered multisite taxonomies.
+ * @global array $multisite_taxonomies Registered multisite taxonomies.
  *
  * @param string       $multisite_taxonomy    Multisite Taxonomy key, must not exceed 32 characters.
  * @param array|string $object_type Object type or array of object types with which the multisite taxonomy should be associated.
@@ -208,10 +208,10 @@ function is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) {
  * @return WP_Error|void WP_Error, if errors.
  */
 function register_multisite_taxonomy( $multisite_taxonomy, $object_type, $args = array() ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
-	if ( ! is_array( $wp_multisite_taxonomies ) ) {
-		$wp_multisite_taxonomies = array();
+	if ( ! is_array( $multisite_taxonomies ) ) {
+		$multisite_taxonomies = array();
 	}
 
 	$args = wp_parse_args( $args );
@@ -223,7 +223,7 @@ function register_multisite_taxonomy( $multisite_taxonomy, $object_type, $args =
 	$multisite_taxonomy_object = new Multisite_Taxonomy( $multisite_taxonomy, $object_type, $args );
 	$multisite_taxonomy_object->add_rewrite_rules();
 
-	$wp_multisite_taxonomies[ $multisite_taxonomy ] = $multisite_taxonomy_object;
+	$multisite_taxonomies[ $multisite_taxonomy ] = $multisite_taxonomy_object;
 
 	$multisite_taxonomy_object->add_hooks();
 
@@ -241,7 +241,7 @@ function register_multisite_taxonomy( $multisite_taxonomy, $object_type, $args =
  * Unregisters a multisite taxonomy.
  *
  * @global WP    $wp            Current WordPress environment instance.
- * @global array $wp_multisite_taxonomies List of multisite taxonomies.
+ * @global array $multisite_taxonomies List of multisite taxonomies.
  *
  * @param string $multisite_taxonomy Multisite taxonomy name.
  * @return bool|WP_Error True on success, WP_Error on failure or if the multisite taxonomy doesn't exist.
@@ -253,13 +253,13 @@ function unregister_multisite_taxonomy( $multisite_taxonomy ) {
 
 	$multisite_taxonomy_object = get_multisite_taxonomy( $multisite_taxonomy );
 
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
 	$multisite_taxonomy_object->remove_rewrite_rules();
 	$multisite_taxonomy_object->remove_hooks();
 
 	// Remove the taxonomy.
-	unset( $wp_multisite_taxonomies[ $multisite_taxonomy ] );
+	unset( $multisite_taxonomies[ $multisite_taxonomy ] );
 
 	/**
 	 * Fires after a multisite taxonomy is unregistered.
@@ -361,16 +361,16 @@ function get_multisite_taxonomy_labels( $multisite_taxonomy ) {
 /**
  * Add an already registered multisite taxonomy to an object type.
  *
- * @global array $wp_multisite_taxonomies The registered multisite taxonomies.
+ * @global array $multisite_taxonomies The registered multisite taxonomies.
  *
  * @param string $multisite_taxonomy    Name of multisite taxonomy object.
  * @param string $object_type Name of the object type.
  * @return bool True if successful, false if not.
  */
 function register_multisite_taxonomy_for_object_type( $multisite_taxonomy, $object_type ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
-	if ( ! isset( $wp_multisite_taxonomies[ $multisite_taxonomy ] ) ) {
+	if ( ! isset( $multisite_taxonomies[ $multisite_taxonomy ] ) ) {
 		return false;
 	}
 
@@ -378,12 +378,12 @@ function register_multisite_taxonomy_for_object_type( $multisite_taxonomy, $obje
 		return false;
 	}
 
-	if ( ! in_array( $object_type, $wp_multisite_taxonomies[ $multisite_taxonomy ]->object_type, true ) ) {
-		$wp_multisite_taxonomies[ $multisite_taxonomy ]->object_type[] = $object_type;
+	if ( ! in_array( $object_type, $multisite_taxonomies[ $multisite_taxonomy ]->object_type, true ) ) {
+		$multisite_taxonomies[ $multisite_taxonomy ]->object_type[] = $object_type;
 	}
 
 	// Filter out empties.
-	$wp_multisite_taxonomies[ $multisite_taxonomy ]->object_type = array_filter( $wp_multisite_taxonomies[ $multisite_taxonomy ]->object_type );
+	$multisite_taxonomies[ $multisite_taxonomy ]->object_type = array_filter( $multisite_taxonomies[ $multisite_taxonomy ]->object_type );
 
 	return true;
 }
@@ -391,16 +391,16 @@ function register_multisite_taxonomy_for_object_type( $multisite_taxonomy, $obje
 /**
  * Remove an already registered multisite taxonomy from an object type.
  *
- * @global array $wp_multisite_taxonomies The registered multisite taxonomies.
+ * @global array $multisite_taxonomies The registered multisite taxonomies.
  *
  * @param string $multisite_taxonomy    Name of multisite taxonomy object.
  * @param string $object_type Name of the object type.
  * @return bool True if successful, false if not.
  */
 function unregister_multisite_taxonomy_for_object_type( $multisite_taxonomy, $object_type ) {
-	global $wp_multisite_taxonomies;
+	global $multisite_taxonomies;
 
-	if ( ! isset( $wp_multisite_taxonomies[ $multisite_taxonomy ] ) ) {
+	if ( ! isset( $multisite_taxonomies[ $multisite_taxonomy ] ) ) {
 		return false;
 	}
 
@@ -408,12 +408,12 @@ function unregister_multisite_taxonomy_for_object_type( $multisite_taxonomy, $ob
 		return false;
 	}
 
-	$key = array_search( $object_type, $wp_multisite_taxonomies[ $multisite_taxonomy ]->object_type, true );
+	$key = array_search( $object_type, $multisite_taxonomies[ $multisite_taxonomy ]->object_type, true );
 	if ( false === $key ) {
 		return false;
 	}
 
-	unset( $wp_multisite_taxonomies[ $multisite_taxonomy ]->object_type[ $key ] );
+	unset( $multisite_taxonomies[ $multisite_taxonomy ]->object_type[ $key ] );
 	return true;
 }
 
@@ -1310,7 +1310,7 @@ function count_multisite_terms( $multisite_taxonomy, $args = array() ) {
  * @param int          $object_id  The multisite term Object Id that refers to the multisite term.
  * @param string|array $multisite_taxonomies List of multisite taxonomy names or single multisite taxonomy name.
  */
-function wp_delete_object_multisite_term_relationships( $object_id, $multisite_taxonomies ) {
+function delete_object_multisite_term_relationships( $object_id, $multisite_taxonomies ) {
 	$object_id = (int) $object_id;
 
 	if ( ! is_array( $multisite_taxonomies ) ) {
@@ -1318,13 +1318,13 @@ function wp_delete_object_multisite_term_relationships( $object_id, $multisite_t
 	}
 
 	foreach ( (array) $multisite_taxonomies as $multisite_taxonomy ) {
-		$multisite_term_ids = wp_get_object_multisite_terms(
+		$multisite_term_ids = get_object_multisite_terms(
 			$object_id, $multisite_taxonomy, array(
 				'fields' => 'ids',
 			)
 		);
 		$multisite_term_ids = array_map( 'intval', $multisite_term_ids );
-		wp_remove_object_multisite_terms( $object_id, $multisite_term_ids, $multisite_taxonomy );
+		remove_object_multisite_terms( $object_id, $multisite_term_ids, $multisite_taxonomy );
 	}
 }
 
@@ -1353,7 +1353,7 @@ function wp_delete_object_multisite_term_relationships( $object_id, $multisite_t
  * @return bool|int|WP_Error True on success, false if multisite term does not exist. Zero on attempted
  *                           deletion of default Category. WP_Error if the multisite taxonomy does not exist.
  */
-function wp_delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = array() ) {
+function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = array() ) {
 	global $wpdb;
 
 	$multisite_term = (int) $multisite_term;
@@ -1431,7 +1431,7 @@ function wp_delete_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 	$object_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT object_id FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $mtmt_id ) );
 
 	foreach ( $object_ids as $object_id ) {
-		$multisite_terms = wp_get_object_multisite_terms(
+		$multisite_terms = get_object_multisite_terms(
 			$object_id, $multisite_taxonomy, array(
 				'fields'  => 'ids',
 				'orderby' => 'none',
@@ -1446,7 +1446,7 @@ function wp_delete_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 			}
 		}
 		$multisite_terms = array_map( 'intval', $multisite_terms );
-		wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy );
+		set_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy );
 	}
 
 	// Clean the relationship caches for all object types using this multisite term.
@@ -1528,7 +1528,7 @@ function wp_delete_multisite_term( $multisite_term, $multisite_taxonomy, $args =
  * @return array|WP_Error The requested multisite term data or empty array if no multisite terms found.
  *                        WP_Error if any of the $multisite_taxonomies don't exist.
  */
-function wp_get_object_multisite_terms( $object_ids, $multisite_taxonomies, $args = array() ) {
+function get_object_multisite_terms( $object_ids, $multisite_taxonomies, $args = array() ) {
 	global $wpdb;
 
 	if ( empty( $object_ids ) || empty( $multisite_taxonomies ) ) {
@@ -1565,7 +1565,7 @@ function wp_get_object_multisite_terms( $object_ids, $multisite_taxonomies, $arg
 	 * @param array $object_ids Array of object IDs for which `$multisite_terms` were retrieved.
 	 * @param array $multisite_taxonomies Array of multisite taxonomies from which `$multisite_terms` were retrieved.
 	 * @param array $args       An array of arguments for retrieving multisite terms for the given
-	 *                          object(s). See wp_get_object_multisite_terms() for details.
+	 *                          object(s). See get_object_multisite_terms() for details.
 	 */
 	$multisite_terms = apply_filters( 'get_object_multisite_terms', $multisite_terms, $object_ids, $multisite_taxonomies, $args );
 
@@ -1576,15 +1576,15 @@ function wp_get_object_multisite_terms( $object_ids, $multisite_taxonomies, $arg
 	 * Filters the multisite terms for a given object or objects.
 	 *
 	 * The `$multisite_taxonomies` parameter passed to this filter is formatted as a SQL fragment. The
-	 * {@see 'wp_get_object_multisite_terms'} filter is recommended as an alternative.
+	 * {@see 'get_object_multisite_terms'} filter is recommended as an alternative.
 	 *
 	 * @param array     $multisite_terms      An array of multisite terms for the given object or objects.
 	 * @param int|array $object_ids Object ID or array of IDs.
 	 * @param string    $multisite_taxonomies SQL-formatted (comma-separated and quoted) list of multisite taxonomy names.
 	 * @param array     $args       An array of arguments for retrieving multisite terms for the given object(s).
-	 *                              See wp_get_object_multisite_terms() for details.
+	 *                              See get_object_multisite_terms() for details.
 	 */
-	return apply_filters( 'wp_get_object_multisite_terms', $multisite_terms, $object_ids, $multisite_taxonomies, $args );
+	return apply_filters( 'get_object_multisite_terms', $multisite_terms, $object_ids, $multisite_taxonomies, $args );
 }
 
 /**
@@ -1628,7 +1628,7 @@ function wp_get_object_multisite_terms( $object_ids, $multisite_taxonomies, $arg
  * @return array|WP_Error An array containing the `multisite_term_id` and `multisite_term_multisite_taxonomy_id`,
  *                        WP_Error otherwise.
  */
-function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = array() ) {
+function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = array() ) {
 	global $wpdb;
 
 	if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
@@ -1694,7 +1694,7 @@ function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 			 */
 			$multisite_term_group = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) ) + 1;
 
-			wp_update_multisite_term(
+			update_multisite_term(
 				$alias->multisite_term_id, $multisite_taxonomy, array(
 					'multisite_term_group' => $multisite_term_group,
 				)
@@ -1756,7 +1756,7 @@ function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 		}
 	}
 
-	$slug = wp_unique_multisite_term_slug( $slug, (object) $args );
+	$slug = unique_multisite_term_slug( $slug, (object) $args );
 
 	$data = compact( 'name', 'slug', 'multisite_term_group' );
 
@@ -1765,9 +1765,9 @@ function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args =
 	 *
 	 * @param array  $data     Multisite term data to be inserted.
 	 * @param string $multisite_taxonomy Multisite taxonomy slug.
-	 * @param array  $args     Arguments passed to wp_insert_multisite_term().
+	 * @param array  $args     Arguments passed to insert_multisite_term().
 	 */
-	$data = apply_filters( 'wp_insert_multisite_term_data', $data, $multisite_taxonomy, $args );
+	$data = apply_filters( 'insert_multisite_term_data', $data, $multisite_taxonomy, $args );
 
 	if ( false === $wpdb->insert( $wpdb->multisite_terms, $data ) ) {
 		return new WP_Error( 'db_insert_error', __( 'Could not insert term into the database', 'multitaxo' ), $wpdb->last_error );
@@ -1908,7 +1908,7 @@ function wp_insert_multisite_term( $multisite_term, $multisite_taxonomy, $args =
  * @param bool             $append    Optional. If false will delete difference of multisite terms. Default false.
  * @return array|WP_Error Multisite term multisite taxonomy IDs of the affected multisite terms.
  */
-function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy, $append = false ) {
+function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy, $append = false ) {
 	global $wpdb;
 
 	$object_id = (int) $object_id;
@@ -1921,7 +1921,7 @@ function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite
 		$multisite_terms = array( $multisite_term );
 	}
 	if ( ! $append ) {
-		$old_mtmt_ids = wp_get_object_multisite_terms(
+		$old_mtmt_ids = get_object_multisite_terms(
 			$object_id, $multisite_taxonomy, array(
 				'fields'  => 'mtmt_ids',
 				'orderby' => 'none',
@@ -1944,7 +1944,7 @@ function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite
 			if ( is_int( $multisite_term ) ) {
 				continue;
 			}
-			$multisite_term_info = wp_insert_multisite_term( $multisite_term, $multisite_taxonomy );
+			$multisite_term_info = insert_multisite_term( $multisite_term, $multisite_taxonomy );
 		}
 		if ( is_wp_error( $multisite_term_info ) ) {
 			return $multisite_term_info;
@@ -1984,7 +1984,7 @@ function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite
 	} // End foreach().
 
 	if ( $new_mtmt_ids ) {
-		wp_update_multisite_term_count( $new_mtmt_ids, $multisite_taxonomy );
+		update_multisite_term_count( $new_mtmt_ids, $multisite_taxonomy );
 	}
 	if ( ! $append ) {
 		$delete_mtmt_ids = array_diff( $old_mtmt_ids, $mtmt_ids );
@@ -1994,7 +1994,7 @@ function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite
 			$delete_multisite_term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT tt.multisite_term_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt WHERE tt.multisite_taxonomy = %s AND tt.multisite_term_multisite_taxonomy_id IN ($in_delete_mtmt_ids)", $multisite_taxonomy ) ); // WPCS: unprepared SQL ok.
 			$delete_multisite_term_ids = array_map( 'intval', $delete_multisite_term_ids );
 
-			$remove = wp_remove_object_multisite_terms( $object_id, $delete_multisite_term_ids, $multisite_taxonomy );
+			$remove = remove_object_multisite_terms( $object_id, $delete_multisite_term_ids, $multisite_taxonomy );
 			if ( is_wp_error( $remove ) ) {
 				return $remove;
 			}
@@ -2005,7 +2005,7 @@ function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite
 	if ( ! $append && isset( $t->sort ) && $t->sort ) {
 		$values               = array();
 		$multisite_term_order = 0;
-		$final_mtmt_ids       = wp_get_object_multisite_terms(
+		$final_mtmt_ids       = get_object_multisite_terms(
 			$object_id, $multisite_taxonomy, array(
 				'fields' => 'mtmt_ids',
 			)
@@ -2047,8 +2047,8 @@ function wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite
  * @param array|string     $multisite_taxonomy  Multisite taxonomy name.
  * @return array|WP_Error Multisite term multisite taxonomy IDs of the affected multisite terms.
  */
-function wp_add_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy ) {
-	return wp_set_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy, true );
+function add_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy ) {
+	return set_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy, true );
 }
 
 /**
@@ -2061,7 +2061,7 @@ function wp_add_object_multisite_terms( $object_id, $multisite_terms, $multisite
  * @param array|string     $multisite_taxonomy  Multisite taxonomy name.
  * @return bool|WP_Error True on success, false or WP_Error on failure.
  */
-function wp_remove_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy ) {
+function remove_object_multisite_terms( $object_id, $multisite_terms, $multisite_taxonomy ) {
 	global $wpdb;
 
 	$object_id = (int) $object_id;
@@ -2121,7 +2121,7 @@ function wp_remove_object_multisite_terms( $object_id, $multisite_terms, $multis
 		 */
 		do_action( 'deleted_multisite_term_relationships', $object_id, $mtmt_ids, $multisite_taxonomy );
 
-		wp_update_multisite_term_count( $mtmt_ids, $multisite_taxonomy );
+		update_multisite_term_count( $mtmt_ids, $multisite_taxonomy );
 
 		return (bool) $deleted;
 	}
@@ -2150,7 +2150,7 @@ function wp_remove_object_multisite_terms( $object_id, $multisite_terms, $multis
  * @param object $multisite_term The multisite term object that the `$slug` will belong to.
  * @return string Will return a true unique slug.
  */
-function wp_unique_multisite_term_slug( $slug, $multisite_term ) {
+function unique_multisite_term_slug( $slug, $multisite_term ) {
 	global $wpdb;
 
 	$needs_suffix  = true;
@@ -2192,7 +2192,7 @@ function wp_unique_multisite_term_slug( $slug, $multisite_term ) {
 	 * @param string $slug         The slug.
 	 * @param object $multisite_term         Multisite term object.
 	 */
-	if ( apply_filters( 'wp_unique_multisite_term_slug_is_bad_slug', $needs_suffix, $slug, $multisite_term ) ) {
+	if ( apply_filters( 'unique_multisite_term_slug_is_bad_slug', $needs_suffix, $slug, $multisite_term ) ) {
 		if ( $parent_suffix ) {
 			$slug .= $parent_suffix;
 		} else {
@@ -2220,7 +2220,7 @@ function wp_unique_multisite_term_slug( $slug, $multisite_term ) {
 	 * @param object $multisite_term          Multisite term object.
 	 * @param string $original_slug Slug originally passed to the function for testing.
 	 */
-	return apply_filters( 'wp_unique_multisite_term_slug', $slug, $multisite_term, $original_slug );
+	return apply_filters( 'unique_multisite_term_slug', $slug, $multisite_term, $original_slug );
 }
 
 /**
@@ -2251,7 +2251,7 @@ function wp_unique_multisite_term_slug( $slug, $multisite_term ) {
  * @param array|string $args     Optional. Array of get_multisite_terms() arguments. Default empty array.
  * @return array|WP_Error Returns Multisite term ID and multisite taxonomy multisite term ID
  */
-function wp_update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args = array() ) {
+function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args = array() ) {
 	global $wpdb;
 
 	if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
@@ -2326,7 +2326,7 @@ function wp_update_multisite_term( $multisite_term_id, $multisite_taxonomy, $arg
 			 */
 			$multisite_term_group = $wpdb->get_var( $wpdb->prepare( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) ) + 1;
 
-			wp_update_multisite_term(
+			update_multisite_term(
 				$alias->multisite_term_id, $multisite_taxonomy, array(
 					'multisite_term_group' => $multisite_term_group,
 				)
@@ -2347,7 +2347,7 @@ function wp_update_multisite_term( $multisite_term_id, $multisite_taxonomy, $arg
 	 * @param array  $parsed_args An array of potentially altered update arguments for the given multisite term.
 	 * @param array  $args        An array of update arguments for the given multisite term.
 	 */
-	$parent = apply_filters( 'wp_update_multisite_term_parent', $args['parent'], $multisite_term_id, $multisite_taxonomy, $parsed_args, $args );
+	$parent = apply_filters( 'update_multisite_term_parent', $args['parent'], $multisite_term_id, $multisite_taxonomy, $parsed_args, $args );
 
 	// Check for duplicate slug.
 	$duplicate = get_multisite_term_by( 'slug', $slug, $multisite_taxonomy );
@@ -2355,7 +2355,7 @@ function wp_update_multisite_term( $multisite_term_id, $multisite_taxonomy, $arg
 		// If an empty slug was passed or the parent changed, reset the slug to something unique.
 		// Otherwise, bail.
 		if ( $empty_slug || ( $parent !== $multisite_term['parent'] ) ) {
-			$slug = wp_unique_multisite_term_slug( $slug, (object) $args );
+			$slug = unique_multisite_term_slug( $slug, (object) $args );
 		} else {
 			/* translators: 1: Multisite taxonomy multisite term slug */
 			return new WP_Error( 'duplicate_multisite_term_slug', sprintf( __( 'The slug &#8220;%s&#8221; is already in use by another multisite term', 'multitaxo' ), $slug ) );
@@ -2380,9 +2380,9 @@ function wp_update_multisite_term( $multisite_term_id, $multisite_taxonomy, $arg
 	 * @param array  $data     Multisite term data to be updated.
 	 * @param int    $multisite_term_id  Multisite term ID.
 	 * @param string $multisite_taxonomy Multisite taxonomy slug.
-	 * @param array  $args     Arguments passed to wp_update_multisite_term().
+	 * @param array  $args     Arguments passed to update_multisite_term().
 	 */
-	$data = apply_filters( 'wp_update_multisite_term_data', $data, $multisite_term_id, $multisite_taxonomy, $args );
+	$data = apply_filters( 'update_multisite_term_data', $data, $multisite_term_id, $multisite_taxonomy, $args );
 
 	$wpdb->update( $wpdb->multisite_terms, $data, compact( 'multisite_term_id' ) );
 	if ( empty( $slug ) ) {
@@ -2478,14 +2478,14 @@ function wp_update_multisite_term( $multisite_term_id, $multisite_taxonomy, $arg
  * @param bool $defer Optional. Enable if true, disable if false.
  * @return bool Whether multisite term counting is enabled or disabled.
  */
-function wp_defer_multisite_term_counting( $defer = null ) {
+function defer_multisite_term_counting( $defer = null ) {
 	static $_defer = false;
 
 	if ( is_bool( $defer ) ) {
 		$_defer = $defer;
 		// Flush any deferred counts.
 		if ( ! $defer ) {
-			wp_update_multisite_term_count( null, null, true );
+			update_multisite_term_count( null, null, true );
 		}
 	}
 	return $_defer;
@@ -2507,12 +2507,12 @@ function wp_defer_multisite_term_counting( $defer = null ) {
  * @param bool      $do_deferred Whether to flush the deferred multisite term counts too. Default false.
  * @return bool If no terms will return false, and if successful will return true.
  */
-function wp_update_multisite_term_count( $multisite_terms, $multisite_taxonomy, $do_deferred = false ) {
+function update_multisite_term_count( $multisite_terms, $multisite_taxonomy, $do_deferred = false ) {
 	static $_deferred = array();
 
 	if ( $do_deferred ) {
 		foreach ( (array) array_keys( $_deferred ) as $multisite_taxonomy ) {
-			wp_update_multisite_term_count_now( $_deferred[ $tax ], $multisite_taxonomy );
+			update_multisite_term_count_now( $_deferred[ $tax ], $multisite_taxonomy );
 			unset( $_deferred[ $tax ] );
 		}
 	}
@@ -2524,7 +2524,7 @@ function wp_update_multisite_term_count( $multisite_terms, $multisite_taxonomy, 
 	if ( ! is_array( $multisite_terms ) ) {
 		$multisite_terms = array( $multisite_terms );
 	}
-	if ( wp_defer_multisite_term_counting() ) {
+	if ( defer_multisite_term_counting() ) {
 		if ( ! isset( $_deferred[ $multisite_taxonomy ] ) ) {
 			$_deferred[ $multisite_taxonomy ] = array();
 		}
@@ -2532,7 +2532,7 @@ function wp_update_multisite_term_count( $multisite_terms, $multisite_taxonomy, 
 		return true;
 	}
 
-	return wp_update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy );
+	return update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy );
 }
 
 /**
@@ -2542,7 +2542,7 @@ function wp_update_multisite_term_count( $multisite_terms, $multisite_taxonomy, 
  * @param string $multisite_taxonomy The context of the multisite term.
  * @return true Always true when complete.
  */
-function wp_update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy ) {
+function update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy ) {
 	$multisite_terms = array_map( 'intval', $multisite_terms );
 
 	$multisite_taxonomy = get_multisite_taxonomy( $multisite_taxonomy );
@@ -2767,7 +2767,7 @@ function update_object_multisite_term_cache( $object_ids, $object_type ) {
 	if ( empty( $ids ) ) {
 		return false;
 	}
-	$multisite_terms = wp_get_object_multisite_terms(
+	$multisite_terms = get_object_multisite_terms(
 		$ids, $multisite_taxonomies, array(
 			'fields'                           => 'all_with_object_id',
 			'orderby'                          => 'name',
@@ -3293,7 +3293,7 @@ function get_the_multisite_taxonomies( $post = 0, $args = array() ) {
 
 		$multisite_terms = get_object_multisite_term_cache( $post->ID, $multisite_taxonomy );
 		if ( false === $multisite_terms ) {
-			$multisite_terms = wp_get_object_multisite_terms( $post->ID, $multisite_taxonomy, $t['args'] );
+			$multisite_terms = get_object_multisite_terms( $post->ID, $multisite_taxonomy, $t['args'] );
 		}
 		$links = array();
 
@@ -3338,7 +3338,7 @@ function is_object_in_multsite_term( $object_id, $multisite_taxonomy, $multisite
 	}
 	$object_multisite_terms = get_object_multisite_term_cache( $object_id, $multisite_taxonomy );
 	if ( false === $object_multisite_terms ) {
-		$object_multisite_terms = wp_get_object_multisite_terms(
+		$object_multisite_terms = get_object_multisite_terms(
 			$object_id, $multisite_taxonomy, array(
 				'update_multisite_term_meta_cache' => false,
 			)
@@ -3464,7 +3464,7 @@ function get_multisite_ancestors( $object_id = 0, $object_type = '', $resource_t
  * @param string $multisite_taxonomy Multisite taxonomy name.
  * @return int|false False on error.
  */
-function wp_get_multisite_term_multisite_taxonomy_parent_id( $multisite_term_id, $multisite_taxonomy ) {
+function get_multisite_term_multisite_taxonomy_parent_id( $multisite_term_id, $multisite_taxonomy ) {
 	$multisite_term = get_multisite_term( $multisite_term_id, $multisite_taxonomy );
 	if ( ! $multisite_term || is_wp_error( $multisite_term ) ) {
 		return false;
@@ -3482,7 +3482,7 @@ function wp_get_multisite_term_multisite_taxonomy_parent_id( $multisite_term_id,
  *
  * @return int The new parent for the multisite term.
  */
-function wp_check_multisite_term_hierarchy_for_loops( $parent, $multisite_term_id, $multisite_taxonomy ) {
+function check_multisite_term_hierarchy_for_loops( $parent, $multisite_term_id, $multisite_taxonomy ) {
 	// Nothing fancy here - bail.
 	if ( ! $parent ) {
 		return 0;
@@ -3493,7 +3493,7 @@ function wp_check_multisite_term_hierarchy_for_loops( $parent, $multisite_term_i
 		return 0;
 	}
 	// Now look for larger loops.
-	$loop = wp_find_hierarchy_loop( 'wp_get_multisite_term_multisite_taxonomy_parent_id', $multisite_term_id, $parent, array( $multisite_taxonomy ) );
+	$loop = wp_find_hierarchy_loop( 'get_multisite_term_multisite_taxonomy_parent_id', $multisite_term_id, $parent, array( $multisite_taxonomy ) );
 	if ( ! $loop ) {
 		return $parent; // No loop.
 	}
@@ -3503,7 +3503,7 @@ function wp_check_multisite_term_hierarchy_for_loops( $parent, $multisite_term_i
 	}
 	// There's a loop, but it doesn't contain $multisite_term_id. Break the loop.
 	foreach ( array_keys( $loop ) as $loop_member ) {
-		wp_update_multisite_term(
+		update_multisite_term(
 			$loop_member, $multisite_taxonomy, array(
 				'parent' => 0,
 			)
@@ -3527,7 +3527,7 @@ function get_multisite_terms_to_edit( $post_id, $multisite_taxonomy ) {
 
 	$multisite_terms = get_object_multisite_term_cache( $post_id, $multisite_taxonomy );
 	if ( false === $multisite_terms ) {
-		$multisite_terms = wp_get_object_multisite_terms( $post_id, $multisite_taxonomy );
+		$multisite_terms = get_object_multisite_terms( $post_id, $multisite_taxonomy );
 		wp_cache_add( $post_id, wp_list_pluck( $multisite_terms, 'multisite_term_id' ), $multisite_taxonomy . '_relationships' );
 	}
 
@@ -3564,10 +3564,10 @@ function get_multisite_terms_to_edit( $post_id, $multisite_taxonomy ) {
  * @param string     $multisite_taxonomy Optional. The multisite taxonomy for which to retrieve multisite terms.
  * @return array|WP_Error
  */
-function wp_create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
+function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
 	$id = multisite_term_exists( $multisite_term_name, $multisite_taxonomy );
 	if ( is_numeric( $id ) ) {
 		return $id;
 	}
-	return wp_insert_multisite_term( $multisite_term_name, $multisite_taxonomy );
+	return insert_multisite_term( $multisite_term_name, $multisite_taxonomy );
 }
