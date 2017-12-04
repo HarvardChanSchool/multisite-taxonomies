@@ -86,17 +86,3 @@ function testing_custom_taxonomy() {
 
 }
 add_action( 'init', 'testing_custom_taxonomy', 0 );
-
-
-/*
-Save this for the topics plugin
-if ( $mu_tax->public ) {
-			$actions['view'] = sprintf(
-				'<a href="%s" aria-label="%s">%s</a>',
-				get_multisite_term_link( $multisite_term ),
-				// translators: %s: taxonomy term name
-				esc_attr( sprintf( __( 'View &#8220;%s&#8221; archive', 'multitaxo' ), $multisite_term->name ) ),
-				__( 'View', 'multitaxo' )
-			);
-		}
-*/
