@@ -640,6 +640,7 @@ class Multisite_Tax_Query {
 			case 'multisite_term_multisite_taxonomy_id':
 				$multisite_terms = implode( ',', array_map( 'intval', $query['multisite_terms'] ) );
 				$multisite_terms = $wpdb->get_col(
+					// @codingStandardsIgnoreStart
 					$wpdb->prepare(
 						"
 					SELECT %s
@@ -647,6 +648,7 @@ class Multisite_Tax_Query {
 					WHERE multisite_term_multisite_taxonomy_id IN (%s)
 				"
 					), $resulting_field, $multisite_terms
+					// @codingStandardsIgnoreEnd
 				);
 				break;
 			default:
