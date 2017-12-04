@@ -1057,12 +1057,14 @@ function multisite_term_exists( $multisite_term, $multisite_taxonomy = '', $pare
 		return $wpdb->get_row( $wpdb->prepare( "SELECT tt.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy as tt ON tt.multisite_term_id = t.multisite_term_id WHERE $else_where AND tt.multisite_taxonomy = %s $orderby $limit", $else_where_fields ), ARRAY_A ); // WPCS: unprepared SQL ok.
 	}
 
+	// @codingStandardsIgnoreLine
 	$result = $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_id FROM $wpdb->multisite_terms as t WHERE $where $orderby $limit", $where_fields ) ); // WPCS: unprepared SQL ok.
 
 	if ( $result ) {
 		return $result;
 	}
 
+	// @codingStandardsIgnoreLine
 	return $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_id FROM $wpdb->multisite_terms as t WHERE $else_where $orderby $limit", $else_where_fields ) ); // WPCS: unprepared SQL ok.
 }
 
@@ -3054,6 +3056,7 @@ function _update_post_multisite_term_count( $multisite_terms, $multisite_taxonom
 			$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships, $wpdb->posts p1 WHERE p1.ID = $wpdb->multisite_term_relationships.object_id AND ( post_status = 'publish' OR ( post_status = 'inherit' AND post_parent > 0 AND ( SELECT post_status FROM $wpdb->posts WHERE ID = p1.post_parent ) = 'publish' ) ) AND post_type = 'attachment' AND multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
 		}
 		if ( $object_types ) {
+			// @codingStandardsIgnoreLine
 			$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships, $wpdb->posts WHERE $wpdb->posts.ID = $wpdb->multisite_term_relationships.object_id AND post_status = 'publish' AND post_type IN ('" . implode( "', '", $object_types ) . "') AND multisite_term_multisite_taxonomy_id = %d", $multisite_term ) ); // WPCS: unprepared SQL ok.
 		}
 
