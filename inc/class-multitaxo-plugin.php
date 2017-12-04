@@ -631,15 +631,15 @@ class Multitaxo_Plugin {
 			$tag = get_multisite_term( $updated['multisite_term_id'], $taxonomy );
 			if ( ! $tag || is_wp_error( $tag ) ) {
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
-					wp_die( $tag->get_error_message() );
+					wp_die( esc_html( $tag->get_error_message() ) );
 				}
-				wp_die( __( 'Item not updated.' ) );
+				wp_die( esc_html__( 'Item not updated.', 'multitaxo' ) );
 			}
 		} else {
 			if ( is_wp_error( $updated ) && $updated->get_error_message() ) {
-				wp_die( $updated->get_error_message() );
+				wp_die( esc_html( $updated->get_error_message() ) );
 			}
-			wp_die( __( 'Item not updated.' ) );
+			wp_die( esc_html__( 'Item not updated.', 'multitaxo' ) );
 		}
 		$level  = 0;
 		$parent = $tag->parent;
@@ -707,7 +707,7 @@ class Multitaxo_Plugin {
 		<hr class="wp-header-end">
 
 		<?php if ( $message ) : ?>
-		<div id="message" class="<?php echo $class; ?> notice is-dismissible"><p><?php echo $message; ?></p></div>
+		<div id="message" class="<?php echo esc_attr( $class ); ?> notice is-dismissible"><p><?php echo esc_html( $message ); ?></p></div>
 		<?php
 		$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'message', 'error' ), $_SERVER['REQUEST_URI'] );
 		endif;
@@ -742,7 +742,7 @@ class Multitaxo_Plugin {
 		?>
 
 		<div class="form-wrap">
-		<h2><?php echo $tax->labels->add_new_item; ?></h2>
+		<h2><?php echo esc_html( $tax->labels->add_new_item ); ?></h2>
 		<form id="addtag" method="post" action="admin.php" class="validate"
 		<?php
 		/**
@@ -767,7 +767,7 @@ class Multitaxo_Plugin {
 			<p><?php esc_html_e( 'The name is how it appears on your site.', 'multitaxo' ); ?></p>
 		</div>
 		<div class="form-field term-slug-wrap">
-			<label for="tag-slug"><?php _e( 'Slug' ); ?></label>
+			<label for="tag-slug"><?php esc_html_e( 'Slug', 'multitaxo' ); ?></label>
 			<input name="slug" id="tag-slug" type="text" value="" size="40" />
 			<p><?php esc_html_e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'multitaxo' ); ?></p>
 		</div>
@@ -782,7 +782,7 @@ class Multitaxo_Plugin {
 				'name'             => 'parent',
 				'orderby'          => 'name',
 				'hierarchical'     => true,
-				'show_option_none' => __( 'None' ),
+				'show_option_none' => esc_html__( 'None', 'multitaxo' ),
 			);
 			/**
 			 * Filters the taxonomy parent drop-down on the Edit Term page.
@@ -809,16 +809,16 @@ class Multitaxo_Plugin {
 			wp_dropdown_categories( $dropdown_args );
 			?>
 			<?php if ( 'category' == $tax->name ) : ?>
-				<p><?php _e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.' ); ?></p>
+				<p><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
 			<?php else : ?>
-				<p><?php _e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.' ); ?></p>
+				<p><?php esc_html_e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.', 'multitaxo' ); ?></p>
 			<?php endif; ?>
 		</div>
-		<?php endif; // is_taxonomy_hierarchical() ?>
+		<?php endif; // is_taxonomy_hierarchical(). ?>
 		<div class="form-field term-description-wrap">
-			<label for="tag-description"><?php _e( 'Description' ); ?></label>
+			<label for="tag-description"><?php esc_html_e( 'Description', 'multitaxo' ); ?></label>
 			<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
-			<p><?php _e( 'The description is not prominent by default; however, some themes may show it.' ); ?></p>
+			<p><?php esc_html_e( 'The description is not prominent by default; however, some themes may show it.', 'multitaxo' ); ?></p>
 		</div>
 
 		<?php
@@ -998,11 +998,11 @@ class Multitaxo_Plugin {
 		?>
 
 		<div class="wrap">
-		<h1><?php echo $tax->labels->edit_item; ?></h1>
+		<h1><?php echo esc_html( $tax->labels->edit_item ); ?></h1>
 
 		<?php if ( $message ) : ?>
 		<div id="message" class="updated">
-			<p><strong><?php echo $message; ?></strong></p>
+			<p><strong><?php echo esc_html( $message ); ?></strong></p>
 			<p><a href="<?php echo esc_url( $return_url ); ?>">
 									<?php
 									/* translators: %s: taxonomy name */
@@ -1057,10 +1057,10 @@ class Multitaxo_Plugin {
 						echo esc_attr( $term->name );}
 ?>
 " size="40" aria-required="true" />
-					<p class="description"><?php _e( 'The name is how it appears on your site.' ); ?></p></td>
+					<p class="description"><?php esc_html_e( 'The name is how it appears on your site.', 'multitaxo' ); ?></p></td>
 				</tr>
 				<tr class="form-field term-slug-wrap">
-					<th scope="row"><label for="slug"><?php _e( 'Slug' ); ?></label></th>
+					<th scope="row"><label for="slug"><?php esc_html_e( 'Slug', 'multitaxo' ); ?></label></th>
 					<?php
 					/**
 					 * Filters the editable slug.
@@ -1078,7 +1078,7 @@ class Multitaxo_Plugin {
 					$slug = isset( $term->slug ) ? apply_filters( 'editable_slug', $term->slug, $term ) : '';
 					?>
 					<td><input name="slug" id="slug" type="text" value="<?php echo esc_attr( $slug ); ?>" size="40" />
-					<p class="description"><?php _e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.' ); ?></p></td>
+					<p class="description"><?php esc_html_e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'multitaxo' ); ?></p></td>
 				</tr>
 		<?php if ( is_multisite_taxonomy_hierarchical( $taxonomy ) ) : ?>
 				<tr class="form-field term-parent-wrap">
@@ -1094,7 +1094,7 @@ class Multitaxo_Plugin {
 							'selected'         => $term->parent,
 							'exclude_tree'     => $term->multisite_term_id,
 							'hierarchical'     => true,
-							'show_option_none' => __( 'None' ),
+							'show_option_none' => esc_html__( 'None', 'multitaxo' ),
 						);
 
 						/** This filter is documented in wp-admin/edit-tags.php */
@@ -1102,17 +1102,17 @@ class Multitaxo_Plugin {
 						wp_dropdown_categories( $dropdown_args );
 						?>
 						<?php if ( 'category' == $taxonomy ) : ?>
-							<p class="description"><?php _e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
 						<?php else : ?>
-							<p class="description"><?php _e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.', 'multitaxo' ); ?></p>
 						<?php endif; ?>
 					</td>
 				</tr>
-		<?php endif; // is_taxonomy_hierarchical() ?>
+		<?php endif; // endif is_taxonomy_hierarchical(). ?>
 				<tr class="form-field term-description-wrap">
-					<th scope="row"><label for="description"><?php _e( 'Description' ); ?></label></th>
-					<td><textarea name="description" id="description" rows="5" cols="50" class="large-text"><?php echo $term->description; // textarea_escaped ?></textarea>
-					<p class="description"><?php _e( 'The description is not prominent by default; however, some themes may show it.' ); ?></p></td>
+					<th scope="row"><label for="description"><?php esc_html_e( 'Description', 'multitaxo' ); ?></label></th>
+					<td><textarea name="description" id="description" rows="5" cols="50" class="large-text"><?php echo esc_textarea( $term->description ); // textarea_escaped. ?></textarea>
+					<p class="description"><?php esc_html_e( 'The description is not prominent by default; however, some themes may show it.', 'multitaxo' ); ?></p></td>
 				</tr>
 				<?php
 				/**
@@ -1146,13 +1146,13 @@ class Multitaxo_Plugin {
 
 		<div class="edit-tag-actions">
 
-			<?php submit_button( __( 'Update' ), 'primary', null, false ); ?>
+			<?php submit_button( esc_url__( 'Update', 'multitaxo' ), 'primary', null, false ); ?>
 
 			<?php if ( current_user_can( 'delete_multiite_term', $term->multisite_term_id ) ) : ?>
 				<span id="delete-link">
 					<a class="delete" href="
 					<?php
-					echo wp_nonce_url(
+					echo esc_url( wp_nonce_url(
 						add_query_arg(
 							array(
 								'page'               => 'multisite_tags_list',
@@ -1162,9 +1162,9 @@ class Multitaxo_Plugin {
 							),
 							'admin.php'
 						), 'delete-multisite_term_' . $term->multisite_term_id
-					);
+					) );
 					?>
-					"><?php _e( 'Delete' ); ?></a>
+					"><?php esc_html_e( 'Delete', 'multitaxo' ); ?></a>
 				</span>
 			<?php endif; ?>
 
