@@ -318,7 +318,7 @@ class Multisite_Taxonomy {
 		}
 
 		$this->labels = get_multisite_taxonomy_labels( $this );
-		$this->label = $this->labels->name;
+		$this->label  = $this->labels->name;
 	}
 
 	/**

@@ -121,7 +121,8 @@ class Multisite_Term {
 		// If there isn't a cached version, hit the database.
 		if ( ! $_multisite_term || ( $multisite_taxonomy && $multisite_taxonomy !== $_multisite_term->multisite_taxonomy ) ) {
 			// Grab all matching multisite terms, in case any are shared between multisite taxonomies.
-			$multisite_terms = $wpdb->get_results( $wpdb->prepare( "SELECT t.*, tt.* FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id = %d", $multisite_term_id ) );
+			$multisite_terms = $wpdb->get_results( $wpdb->prepare( "SELECT t.*, tt.* FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id = %d", $multisite_term_id ) );
+
 			if ( ! $multisite_terms ) {
 				return false;
 			}
@@ -169,7 +170,7 @@ class Multisite_Term {
 			}
 		} // End if().
 
-		$multisite_term_obj = new WP_Multisite_Term( $_multisite_term );
+		$multisite_term_obj = new Multisite_Term( $_multisite_term );
 		$multisite_term_obj->filter( $multisite_term_obj->filter );
 
 		return $multisite_term_obj;
@@ -180,7 +181,7 @@ class Multisite_Term {
 	 *
 	 * @access public
 	 *
-	 * @param WP_Multisite_Term|object $multisite_term Multisite Term object.
+	 * @param Multisite_Term|object $multisite_term Multisite Term object.
 	 */
 	public function __construct( $multisite_term ) {
 		foreach ( get_object_vars( $multisite_term ) as $key => $value ) {
@@ -221,7 +222,7 @@ class Multisite_Term {
 	public function __get( $key ) {
 		switch ( $key ) {
 			case 'data':
-				$data = new stdClass();
+				$data    = new stdClass();
 				$columns = array( 'multisite_term_id', 'name', 'slug', 'multisite_term_group', 'multisite_term_multisite_taxonomy_id', 'multisite_taxonomy', 'description', 'parent', 'count' );
 				foreach ( $columns as $column ) {
 					$data->{$column} = isset( $this->{$column} ) ? $this->{$column} : null;

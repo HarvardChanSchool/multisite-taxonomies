@@ -48,7 +48,7 @@ class Multisite_Tax_Query {
 	 * @var string
 	 */
 	private static $no_results = array(
-		'join' => array( '' ),
+		'join'  => array( '' ),
 		'where' => array( '0 = 1' ),
 	);
 
@@ -145,10 +145,10 @@ class Multisite_Tax_Query {
 
 		$defaults = array(
 			'multisite_taxonomy' => '',
-			'multisite_terms' => array(),
-			'field' => 'multisite_term_id',
-			'operator' => 'IN',
-			'include_children' => true,
+			'multisite_terms'    => array(),
+			'field'              => 'multisite_term_id',
+			'operator'           => 'IN',
+			'include_children'   => true,
 		);
 
 		foreach ( $queries as $key => $query ) {
@@ -156,9 +156,9 @@ class Multisite_Tax_Query {
 				$cleaned_query['relation'] = $this->sanitize_relation( $query );
 			} elseif ( self::is_first_order_clause( $query ) ) { // First-order clause.
 
-				$cleaned_clause = array_merge( $defaults, $query );
+				$cleaned_clause                    = array_merge( $defaults, $query );
 				$cleaned_clause['multisite_terms'] = (array) $cleaned_clause['multisite_terms'];
-				$cleaned_query[] = $cleaned_clause;
+				$cleaned_query[]                   = $cleaned_clause;
 
 				/*
 				 * Keep a copy of the clause in the flate
@@ -255,7 +255,7 @@ class Multisite_Tax_Query {
 	 * }
 	 */
 	public function get_sql( $primary_table, $primary_id_column ) {
-		$this->primary_table = $primary_table;
+		$this->primary_table     = $primary_table;
 		$this->primary_id_column = $primary_id_column;
 
 		return $this->get_sql_clauses();
@@ -283,7 +283,7 @@ class Multisite_Tax_Query {
 		 * To keep $this->queries unaltered, pass a copy.
 		 */
 		$queries = $this->queries;
-		$sql = $this->get_sql_for_query( $queries );
+		$sql     = $this->get_sql_for_query( $queries );
 
 		if ( ! empty( $sql['where'] ) ) {
 			$sql['where'] = ' AND ' . $sql['where'];
@@ -400,7 +400,7 @@ class Multisite_Tax_Query {
 			'join'  => array(),
 		);
 
-		$join = '';
+		$join  = '';
 		$where = '';
 
 		$this->clean_query( $clause );
@@ -410,7 +410,7 @@ class Multisite_Tax_Query {
 		}
 
 		$multisite_terms = $clause['multisite_terms'];
-		$operator = strtoupper( $clause['operator'] );
+		$operator        = strtoupper( $clause['operator'] );
 
 		if ( 'IN' === $operator ) {
 
@@ -426,7 +426,7 @@ class Multisite_Tax_Query {
 			 */
 			$alias = $this->find_compatible_table_alias( $clause, $parent_query );
 			if ( false === $alias ) {
-				$i = count( $this->table_aliases );
+				$i     = count( $this->table_aliases );
 				$alias = $i ? 'tt' . $i : $wpdb->multisite_term_relationships;
 
 				// Store the alias as part of a flat array to build future iterators.
@@ -558,7 +558,7 @@ class Multisite_Tax_Query {
 	private function clean_query( &$query ) {
 		if ( empty( $query['multisite_taxonomy'] ) ) {
 			if ( 'multisite_term_multisite_taxonomy_id' !== $query['field'] ) {
-				$query = new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.' , 'multitaxo' ) );
+				$query = new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 				return;
 			}
 
@@ -580,7 +580,7 @@ class Multisite_Tax_Query {
 
 			$children = array();
 			foreach ( $query['multisite_terms'] as $multisite_term ) {
-				$children = array_merge( $children, get_multisite_term_children( $multisite_term, $query['multisite_taxonomy'] ) );
+				$children   = array_merge( $children, get_multisite_term_children( $multisite_term, $query['multisite_taxonomy'] ) );
 				$children[] = $multisite_term;
 			}
 			$query['multisite_terms'] = $children;
@@ -633,7 +633,7 @@ class Multisite_Tax_Query {
 					INNER JOIN $wpdb->multisite_terms USING (multisite_term_id)
 					WHERE multisite_taxonomy = '{%s}'
 					AND $wpdb->multisite_terms.{%s} IN (%s)
-				", $wpdb->multisite_term_multisite_taxonomy . $resulting_field,$query['multisite_taxonomy'],$query['field'],$multisite_terms
+				", $wpdb->multisite_term_multisite_taxonomy . $resulting_field, $query['multisite_taxonomy'], $query['field'], $multisite_terms
 					)
 				);
 				break;
@@ -669,6 +669,6 @@ class Multisite_Tax_Query {
 		}
 
 		$query['multisite_terms'] = $multisite_terms;
-		$query['field'] = $resulting_field;
+		$query['field']           = $resulting_field;
 	}
 }

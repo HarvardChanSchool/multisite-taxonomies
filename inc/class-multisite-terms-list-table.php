@@ -46,32 +46,21 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		parent::__construct(
 			array(
-				'plural' => 'multisite terms',
-				'singular' => 'multisite term',
-				'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
+				'plural'   => 'tags',
+				'singular' => 'tag',
+				'screen'   => isset( $args['screen'] ) ? $args['screen'] : get_current_screen(),
 			)
 		);
 
-		$action = $this->screen->action; // WPCS: override ok.
-		$post_type = $this->screen->post_type; // WPCS: override ok.
-		$multisite_taxonomy  = $this->screen->multisite_taxonomy;
+		$action             = $this->screen->action; // WPCS: override ok.
+		$post_type          = $this->screen->post_type; // WPCS: override ok.
+		$multisite_taxonomy = $this->screen->taxonomy;
 
 		if ( empty( $multisite_taxonomy ) || ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
-			wp_die( esc_html__( 'Invalid multisite taxonomy.','multitaxo' ) );
+			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 		}
 
 		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // WPCS: override ok.
-
-		// @todo Still needed? Maybe just the show_ui part.
-		if ( empty( $post_type ) || ! in_array(
-			$post_type, get_post_types(
-				array(
-					'show_ui' => true,
-				)
-			), true
-		) ) {
-			$post_type = 'post'; // WPCS: override ok.
-		}
 	}
 
 	/**
@@ -80,7 +69,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @return bool
 	 */
 	public function ajax_user_can() {
-		return current_user_can( get_multisite_taxonomy( $this->screen->multisite_taxonomy )->cap->manage_multisite_terms );
+		return current_user_can( get_multisite_taxonomy( $this->screen->taxonomy )->cap->manage_multisite_terms );
 	}
 
 	/**
@@ -89,7 +78,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @access public
 	 */
 	public function prepare_items() {
-		$tags_per_page = $this->get_items_per_page( 'edit_' . $this->screen->multisite_taxonomy . '_per_page' );
+		$tags_per_page = $this->get_items_per_page( 'edit_multisite_tax_per_page' );
+
 		if ( ! empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
 			$search = trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ); // WPCS: CSRF ok. input var okay.
 		} else {
@@ -97,10 +87,21 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		}
 
 		$args = array(
-			'search' => $search,
-			'page' => $this->get_pagenum(),
-			'number' => $tags_per_page,
+			'search'   => $search,
+			'page'     => $this->get_pagenum(),
+			'number'   => $tags_per_page,
+			'taxonomy' => $this->screen->taxonomy,
 		);
+
+		$page = $args['page'];
+
+		// Set variable because $args['number'] can be subsequently overridden.
+		$number = $args['number'];
+
+		$args['offset'] = ( $page - 1 ) * $number;
+		$offset         = $args['offset'];
+		// Convert it to table rows.
+		$count = 0;
 
 		if ( ! empty( $_REQUEST['orderby'] ) ) { // WPCS: CSRF ok. input var okay.
 			$args['orderby'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) ); // WPCS: CSRF ok. input var okay.
@@ -110,12 +111,34 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['order'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // WPCS: CSRF ok. input var okay.
 		}
 
+		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
+			// We'll need the full set of multiste terms then.
+			$args['number'] = 0;
+			$args['offset'] = 0;
+		}
+
+		$args = wp_parse_args(
+			$args, array(
+				'page'       => 1,
+				'number'     => 20,
+				'search'     => '',
+				'hide_empty' => 0,
+				'taxonomy'   => $this->screen->taxonomy,
+			)
+		);
+
 		$this->callback_args = $args;
+
+		$this->items = get_multisite_terms( $args );
 
 		$this->set_pagination_args(
 			array(
-				'total_items' => wp_count_terms( $this->screen->multisite_taxonomy, compact( 'search' ) ),
-				'per_page' => $tags_per_page,
+				'total_items' => count_multisite_terms(
+					$this->screen->taxonomy, array(
+						'search' => $search,
+					)
+				),
+				'per_page'    => $tags_per_page,
 			)
 		);
 	}
@@ -126,7 +149,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function no_items() {
-		echo esc_html( get_multisite_taxonomy( $this->screen->multisite_taxonomy )->labels->not_found );
+		echo esc_html( get_multisite_taxonomy( $this->screen->taxonomy )->labels->not_found );
 	}
 
 	/**
@@ -137,7 +160,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	protected function get_bulk_actions() {
 		$actions = array();
 
-		if ( current_user_can( get_multisite_taxonomy( $this->screen->multisite_taxonomy )->cap->delete_multisite_terms ) ) {
+		if ( current_user_can( get_multisite_taxonomy( $this->screen->taxonomy )->cap->delete_multisite_terms ) ) {
 			$actions['delete'] = __( 'Delete', 'multitaxo' );
 		}
 
@@ -169,7 +192,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			'slug'        => __( 'Slug', 'multitaxo' ),
 		);
 
-		if ( 'link_category' === $this->screen->multisite_taxonomy ) {
+		if ( 'link_category' === $this->screen->taxonomy ) {
 			$columns['links'] = __( 'Links', 'multitaxo' );
 		} else {
 			$columns['posts'] = _x( 'Count', 'Number/count of items', 'multitaxo' );
@@ -199,14 +222,15 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @access public
 	 */
 	public function display_rows_or_placeholder() {
-		$multisite_taxonomy = $this->screen->multisite_taxonomy;
+		$multisite_taxonomy = $this->screen->taxonomy;
 
 		$args = wp_parse_args(
 			$this->callback_args, array(
-				'page' => 1,
-				'number' => 20,
-				'search' => '',
+				'page'       => 1,
+				'number'     => 20,
+				'search'     => '',
 				'hide_empty' => 0,
+				'taxonomy'   => $multisite_taxonomy,
 			)
 		);
 
@@ -216,7 +240,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$number = $args['number'];
 
 		$args['offset'] = ( $page - 1 ) * $number;
-		$offset = $args['offset'];
+		$offset         = $args['offset'];
 		// Convert it to table rows.
 		$count = 0;
 
@@ -225,7 +249,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['number'] = 0;
 			$args['offset'] = 0;
 		}
-		$multisite_terms = get_multisite_terms( $multisite_taxonomy, $args );
+
+		$multisite_terms = $this->items;
 
 		if ( empty( $multisite_terms ) || ! is_array( $multisite_terms ) ) {
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';
@@ -261,6 +286,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @param int    $parent The parent taxonomy.
 	 * @param int    $level The current level of hierarchy.
 	 */
+	// @codingStandardsIgnoreLine
 	private function _rows( $multisite_taxonomy, $multisite_terms, &$children, $start, $per_page, &$count, $parent = 0, $level = 0 ) {
 
 		$end = $start + $per_page;
@@ -279,11 +305,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			if ( (int) $count === (int) $start && $multisite_term->parent > 0 && empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
 				$my_parents = array();
 				$parent_ids = array();
-				$p = $multisite_term->parent;
+				$p          = $multisite_term->parent;
 				while ( $p ) {
-					$my_parent = get_multisite_term( $p, $multisite_taxonomy );
+					$my_parent    = get_multisite_term( $p, $multisite_taxonomy );
 					$my_parents[] = $my_parent;
-					$p = $my_parent->parent;
+					$p            = $my_parent->parent;
 					if ( in_array( $p, $parent_ids, true ) ) { // Prevent parent loops.
 						break;
 					}
@@ -292,6 +318,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				unset( $parent_ids );
 
 				$num_parents = count( $my_parents );
+				// @codingStandardsIgnoreLine
 				while ( $my_parent = array_pop( $my_parents ) ) {
 					echo "\t";
 					$this->single_row( $my_parent, $level - $num_parents );
@@ -323,11 +350,12 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function single_row( $multisite_term, $level = 0 ) {
-		global $multisite_taxonomy;
-		$multisite_term = sanitize_multisite_term( $term, $multisite_taxonomy );
+		$multisite_term = sanitize_multisite_term( $multisite_term, $this->taxonomy );
+
 		$this->level = $level;
-		echo '<tr id="tag-' . esc_attr( $term->multisite_term_id ) . '">';
-		$this->single_row_columns( $tag );
+
+		echo '<tr id="tag-' . esc_attr( $multisite_term->multisite_term_id ) . '">';
+		$this->single_row_columns( $multisite_term );
 		echo '</tr>';
 	}
 
@@ -354,7 +382,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @return string
 	 */
 	public function column_name( $multisite_term ) {
-		$multisite_taxonomy = $this->screen->multisite_taxonomy;
+		$multisite_taxonomy = $this->screen->taxonomy;
 
 		$pad = str_repeat( '&#8212; ', max( 0, $this->level ) );
 
@@ -431,8 +459,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			return '';
 		}
 
-		$multisite_taxonomy = $this->screen->multisite_taxonomy;
-		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy );
+		$multisite_taxonomy = $this->screen->taxonomy;
+		$mu_tax             = get_multisite_taxonomy( $multisite_taxonomy );
 		if ( wp_doing_ajax() ) {
 			$uri = wp_get_referer();
 		} else {
@@ -444,7 +472,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$edit_link = add_query_arg(
 			'wp_http_referer',
 			rawurlencode( wp_unslash( $uri ) ),
-			get_edit_term_link( $multisite_term->multisite_term_id, $multisite_taxonomy, $this->screen->post_type )
+			get_edit_multisite_term_link( $multisite_term->multisite_term_id, $multisite_taxonomy )
 		);
 
 		$actions = array();
@@ -466,21 +494,20 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		if ( current_user_can( 'delete_multisite_term', $multisite_term->multisite_term_id ) ) {
 			$actions['delete'] = sprintf(
 				'<a href="%s" class="delete-multisite-term aria-button-if-js" aria-label="%s">%s</a>',
-				wp_nonce_url( "edit-tags.php?action=delete&amp;multisite_taxonomy=$multisite_taxonomy&amp;multisite_term_id=$multisite_term->multisite_term_id", 'delete-multisite_term_' . $tag->multisite_term_id ),
+				wp_nonce_url(
+					add_query_arg(
+						array(
+							'action'            => 'delete',
+							'multisite_term_id' => $multisite_term->multisite_term_id,
+						)
+					), 'delete-multisite_term_' . $multisite_term->multisite_term_id
+				),
 				/* translators: %s: multisite term name */
 				esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;', 'multitaxo' ), $multisite_term->name ) ),
 				__( 'Delete', 'multitaxo' )
 			);
 		}
-		if ( $mu_tax->public ) {
-			$actions['view'] = sprintf(
-				'<a href="%s" aria-label="%s">%s</a>',
-				get_multisite_term_link( $multisite_term ),
-				/* translators: %s: taxonomy term name */
-				esc_attr( sprintf( __( 'View &#8220;%s&#8221; archive', 'multitaxo' ), $multisite_term->name ) ),
-				__( 'View', 'multitaxo' )
-			);
-		}
+
 		/**
 		 * Filters the action links displayed for each multisite term in the multiste terms list table.
 		 *
@@ -490,7 +517,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		 *                        'Edit', 'Quick Edit', 'Delete', and 'View'.
 		 * @param Multisite_Term $multisite_term    Term object.
 		 */
-		$actions = apply_filters( "{$multisite_taxonomy}_row_actions", $actions, $multisite_term );
+		$actions = apply_filters( "multitiste_taxonomy_{$multisite_taxonomy}_row_actions", $actions, $multisite_term );
 
 		return $this->row_actions( $actions );
 	}
@@ -524,12 +551,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	public function column_posts( $multisite_term ) {
 		$count = number_format_i18n( $multisite_term->count );
 
-		$mu_tax = get_multisite_taxonomy( $this->screen->multisite_taxonomy );
+		$mu_tax = get_multisite_taxonomy( $this->screen->taxonomy );
 
-		$ptype_object = get_post_type_object( $this->screen->post_type );
-		if ( ! $ptype_object->show_ui ) {
-			return $count;
-		}
 		if ( $mu_tax->query_var ) {
 			$args = array(
 				$mu_tax->query_var => $multisite_term->slug,
@@ -537,16 +560,10 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		} else {
 			$args = array(
 				'multisite_taxonomy' => $mu_tax->name,
-				'multisite_term' => $multisite_term->slug,
+				'multisite_term'     => $multisite_term->slug,
 			);
 		}
 
-		if ( 'post' !== $this->screen->post_type ) {
-			$args['post_type'] = $this->screen->post_type;
-		}
-		if ( 'attachment' === $this->screen->post_type ) {
-			return "<a href='" . esc_url( add_query_arg( $args, 'upload.php' ) ) . "'>$count</a>";
-		}
 		return "<a href='" . esc_url( add_query_arg( $args, 'edit.php' ) ) . "'>$count</a>";
 	}
 
@@ -575,21 +592,21 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		/**
 		 * Filters the displayed columns in the multiste terms list table.
 		 *
-		 * The dynamic portion of the hook name, `$this->screen->multisite_taxonomy`,
+		 * The dynamic portion of the hook name, `$this->screen->taxonomy`,
 		 * refers to the slug of the current taxonomy.
 		 *
 		 * @param string $string      Blank string.
 		 * @param string $column_name Name of the column.
 		 * @param int    $multisite_term_id     Term ID.
 		 */
-		return apply_filters( "manage_{$this->screen->multisite_taxonomy}_custom_column", '', $column_name, $multisite_term->multisite_term_id );
+		return apply_filters( "manage_{$this->screen->taxonomy}_custom_column", '', $column_name, $multisite_term->multisite_term_id );
 	}
 
 	/**
 	 * Outputs the hidden row displayed when inline editing.
 	 */
 	public function inline_edit() {
-		$mu_tax = get_multisite_taxonomy( $this->screen->multisite_taxonomy );
+		$mu_tax = get_multisite_taxonomy( $this->screen->taxonomy );
 
 		if ( ! current_user_can( $mu_tax->cap->edit_multisite_terms ) ) {
 			return;
@@ -615,11 +632,11 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		<?php
 
 		$core_columns = array(
-			'cb' => true,
+			'cb'          => true,
 			'description' => true,
-			'name' => true,
-			'slug' => true,
-			'posts' => true,
+			'name'        => true,
+			'slug'        => true,
+			'posts'       => true,
 		);
 
 		list( $columns ) = $this->get_column_info();
@@ -627,19 +644,19 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			if ( isset( $core_columns[ $column_name ] ) ) {
 				continue;
 			}
-			do_action( 'quick_edit_custom_box', $column_name, 'edit-multisite-terms', $this->screen->multisite_taxonomy );
+			do_action( 'quick_edit_custom_box', $column_name, 'edit-multisite-terms', $this->screen->taxonomy );
 		}
 
 		?>
 
 		<p class="inline-edit-save submit">
-			<button type="button" class="cancel button alignleft"><?php esc_html_e( 'Cancel' , 'multitaxo' ); ?></button>
+			<button type="button" class="cancel button alignleft"><?php esc_html_e( 'Cancel', 'multitaxo' ); ?></button>
 			<button type="button" class="save button button-primary alignright"><?php echo esc_html( $mu_tax->labels->update_item ); ?></button>
 			<span class="spinner"></span>
 			<span class="error" style="display:none;"></span>
-			<?php wp_nonce_field( 'multitaxinlineeditnonce', '_inline_edit', false ); ?>
-			<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $this->screen->multisite_taxonomy ); ?>" />
-			<input type="hidden" name="post_type" value="<?php echo esc_attr( $this->screen->post_type ); ?>" />
+			<?php wp_nonce_field( 'ajax_edit_multisite_tax', 'nonce_multisite_inline_edit', false ); ?>
+			<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->screen->taxonomy ); ?>" />
+			<input type="hidden" name="screen" value="<?php echo esc_attr( $this->screen->id ); ?>" />
 			<br class="clear" />
 		</p>
 		</td></tr>
