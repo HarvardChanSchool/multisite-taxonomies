@@ -37,11 +37,13 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tags-meta-box.php';
 // Loading multisite taxonomy and multisite term API.
 require_once plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php';
 
 // Plugin init.
 $multitaxo = new Multitaxo_Plugin();
+$multi_admin = new Multisite_Tags_Meta_Box();
 
 /**
  * Load in a testing tax.

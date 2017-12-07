@@ -1193,17 +1193,19 @@ class Multitaxo_Plugin {
 				<span id="delete-link">
 					<a class="delete" href="
 					<?php
-					echo esc_url( wp_nonce_url(
-						add_query_arg(
-							array(
-								'page'               => 'multisite_tags_list',
-								'action'             => 'delete',
-								'multisite_taxonomy' => $taxonomy,
-								'multisite_term_id'  => $term->multisite_term_id,
-							),
-							'admin.php'
-						), 'delete-multisite_term_' . $term->multisite_term_id
-					) );
+					echo esc_url(
+						wp_nonce_url(
+							add_query_arg(
+								array(
+									'page'               => 'multisite_tags_list',
+									'action'             => 'delete',
+									'multisite_taxonomy' => $taxonomy,
+									'multisite_term_id'  => $term->multisite_term_id,
+								),
+								'admin.php'
+							), 'delete-multisite_term_' . $term->multisite_term_id
+						)
+					);
 					?>
 					"><?php esc_html_e( 'Delete', 'multitaxo' ); ?></a>
 				</span>
