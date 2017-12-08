@@ -30,24 +30,8 @@ class Multisite_Tags_Meta_Box {
 	public function add_multsite_tags_meta_box( $post_type, $post ) {
 		$has_multisite_tax = false;
 
-		// all taxonomies
-		foreach ( get_object_multisite_taxonomies( $post ) as $tax_name ) {
-			$taxonomy = get_taxonomy( $tax_name );
-
-			var_dump( $taxonomy);
-
-			if ( $taxonomy->show_ui && $taxonomy->meta_box_cb ) {
-				$has_multisite_tax = true;
-			}
-		}
-
-		if ( true === $has_multisite_tax ) {
-			add_meta_box(
-				'multisite_tax_meta_box', esc_html__( 'Multisite Tags', 'multitaxo' ), array( $this, 'multsite_tags_meta_box_callback' ), null, 'advanced', 'default', array(
-					'post_type' => $post_type,
-					'post'      => $post,
-				)
-			);
+		if ( count( (array) get_object_multisite_taxonomies( $post ) ) > 0 ) {
+			add_meta_box( 'multisite_tax_meta_box', esc_html__( 'Multisite Tags', 'multitaxo' ), array( $this, 'multsite_tags_meta_box_callback' ), null, 'advanced', 'default', array( $post_type, $post ) );
 		}
 	}
 

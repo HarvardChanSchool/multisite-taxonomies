@@ -58,18 +58,18 @@ function get_object_multisite_taxonomies( $object, $output = 'names' ) {
 
 	$object = (array) $object;
 
-	$multisite_taxonomies = array();
+	$taxonomies = array();
 	foreach ( (array) $multisite_taxonomies as $multi_tax_name => $multi_tax_obj ) {
 		if ( array_intersect( $object, (array) $multi_tax_obj->object_type ) ) {
 			if ( 'names' === $output ) {
-				$multisite_taxonomies[] = $multi_tax_name;
+				$taxonomies[] = $multi_tax_name;
 			} else {
-				$multisite_taxonomies[ $multi_tax_name ] = $multi_tax_obj;
+				$taxonomies[ $multi_tax_name ] = $multi_tax_obj;
 			}
 		}
 	}
 
-	return $multisite_taxonomies;
+	return $taxonomies;
 }
 
 /**
