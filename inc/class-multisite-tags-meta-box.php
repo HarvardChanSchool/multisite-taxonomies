@@ -28,8 +28,8 @@ class Multisite_Tags_Meta_Box {
 	 * @return void
 	 */
 	public function add_multsite_tags_meta_box( $post_type, $post ) {
-		if ( count( (array) get_object_multisite_taxonomies( $post ) ) > 0 ) {
-			add_meta_box( 'multisite_tax_meta_box', esc_html__( 'Multisite Tags', 'multitaxo' ), array( $this, 'multsite_tags_meta_box_callback' ), null, 'advanced', 'default', array( $post_type, $post ) );
+		if ( count( (array) get_object_multisite_taxonomies( $post_type ) ) > 0 ) {
+			add_meta_box( 'multisite_tax_meta_box', esc_html__( 'Multisite Tags', 'multitaxo' ), array( $this, 'multsite_tags_meta_box_callback' ), null, 'advanced', 'default', array( $post, $post_type ) );
 		}
 	}
 
@@ -41,10 +41,8 @@ class Multisite_Tags_Meta_Box {
 	 *
 	 * @return void
 	 */
-	public function multsite_tags_meta_box_callback( $post_type, $post ) {
-		global $multisite_taxonomies;
-
-		$taxonomies = get_object_multisite_taxonomies( $post );
+	public function multsite_tags_meta_box_callback( $post, $metabox ) {
+		$taxonomies = get_object_multisite_taxonomies( $post, 'object' );
 
 		$tabs = array();
 		$tab_contents = array();
@@ -61,21 +59,27 @@ class Multisite_Tags_Meta_Box {
 			<?php
 		}
 
+		?>
+		</ul>
+		<?php
+
 		// and lets do this again for the boxes.
 		reset( $taxonomies );
 
 		// loop and loop.
 		foreach ( $taxonomies as $tax ) {
 			?>
-			<div id="tabs-<?php esc_attr( $tax->name ); ?>">
-				<h2><?php esc_html( $tax->labels->name ); ?></h2>
+			<div id="tabs-<?php echo esc_attr( $tax->name ); ?>">
+				<h2><?php echo esc_html( $tax->labels->name ); ?></h2>
 			<?php
+
+			$args = array();
 
 			// Are we heirarchical or not?
 			if ( true === $tax->hierarchical ) {
-				multisite_categories_meta_box( $post, $args );
+				$this->multisite_categories_meta_box( $post, $args );
 			} else {
-				multisite_tags_meta_box( $post, $args );
+				$this->multisite_tags_meta_box( $post, $args );
 			}
 
 			?>
