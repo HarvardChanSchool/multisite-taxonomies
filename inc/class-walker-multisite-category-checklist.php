@@ -16,7 +16,7 @@
  * @see wp_category_checklist()
  * @see wp_terms_checklist()
  */
-class Walker_Category_Checklist extends Walker {
+class Walker_Multisite_Category_Checklist extends Walker {
 	public $tree_type = 'category';
 	public $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
 
