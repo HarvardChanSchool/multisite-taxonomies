@@ -77,7 +77,6 @@ class Multisite_Tags_Meta_Box {
 
 		?>
 		<style>
-
 .ui-tabs-vertical {
     clear: both;
     overflow: hidden;
@@ -191,10 +190,10 @@ class Multisite_Tags_Meta_Box {
 		}
 		$r                     = wp_parse_args( $args, $defaults );
 		$tax_name              = esc_attr( $r['taxonomy'] );
-		$taxonomy              = get_taxonomy( $r['taxonomy'] );
+		$taxonomy              = get_multisite_taxonomy( $r['taxonomy'] );
 		$user_can_assign_terms = current_user_can( $taxonomy->cap->assign_terms );
 		$comma                 = _x( ',', 'tag delimiter' );
-		$terms_to_edit         = get_terms_to_edit( $post->ID, $tax_name );
+		$terms_to_edit         = get_multisite_terms_to_edit( $post->ID, $tax_name );
 		if ( ! is_string( $terms_to_edit ) ) {
 			$terms_to_edit = '';
 		}
