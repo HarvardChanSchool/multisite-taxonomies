@@ -17,6 +17,9 @@ class Multisite_Tags_Meta_Box {
 	public function __construct() {
 		// We enqueue both the frontend and admin styles and scripts.
 		add_action( 'add_meta_boxes', array( $this, 'add_multsite_tags_meta_box' ), 10, 2 );
+
+		// Add the admin scripts to the posts pages.
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_wp_admin_scripts' ) );
 	}
 
 	/**
@@ -34,6 +37,31 @@ class Multisite_Tags_Meta_Box {
 	}
 
 	/**
+	 * Display the metabox container if we should use it.
+	 *
+	 * @param string  $post_type The WP Post type.
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return void
+	 */
+	public function load_wp_admin_scripts( $hook ) {
+		if( 'post.php' !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-box.js', array( 'jquery', 'multisite-tags-suggest', 'jquery-ui-core', 'jquery-ui-tabs' ), false, 1 );
+
+		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-suggest.js', array( 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
+		wp_localize_script( 'multisite-tags-suggest', 'tagsSuggestL10n', array(
+			'tagDelimiter' => _x( ',', 'tag delimiter' ),
+			'removeTerm'   => __( 'Remove term:' ),
+			'termSelected' => __( 'Term selected.' ),
+			'termAdded'    => __( 'Term added.' ),
+			'termRemoved'  => __( 'Term removed.' ),
+		) );
+	}
+
+	/**
 	 * display the meta box content.
 	 *
 	 * @param string  $post_type The WP Post type.
@@ -48,7 +76,48 @@ class Multisite_Tags_Meta_Box {
 		$tab_contents = array();
 
 		?>
-		<div id="multisite-tax">
+		<style>
+
+.ui-tabs-vertical {
+    clear: both;
+    overflow: hidden;
+}
+
+.ui-tabs-vertical .ui-tabs-nav {
+    padding: .2em 1% .2em 1%;
+    float: left;
+    width: 15%;
+	margin-left: 2%;
+	margin-right: -2%;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li {
+    clear: left;
+    margin: 5px 0 5px 0;
+    border: solid 1px #ddd;
+    background-color: #fdfdfd;
+    padding: 7px 0 7px 7px;
+	z-index: 9;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li a {
+    display: block;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+    background-color: #fff;
+	border-right-color: #fff;
+}
+
+.ui-tabs-vertical .ui-tabs-panel {
+    padding: 1%;
+    float: right;
+    width: 80%;
+	border-left: solid 1px #ddd;
+
+}
+		</style>
+		<div id="multisite-tax-picker">
 			<ul>
 		<?php
 
@@ -130,19 +199,19 @@ class Multisite_Tags_Meta_Box {
 			$terms_to_edit = '';
 		}
 	?>
-	<div class="tagsdiv" id="<?php echo $tax_name; ?>">
+	<div class="multitagsdiv" id="<?php echo $tax_name; ?>">
 		<div class="jaxtag">
 		<div class="nojs-tags hide-if-js">
-			<label for="tax-input-<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_or_remove_items; ?></label>
-			<p><textarea name="<?php echo "tax_input[$tax_name]"; ?>" rows="3" cols="20" class="the-tags" id="tax-input-<?php echo $tax_name; ?>" <?php disabled( ! $user_can_assign_terms ); ?> aria-describedby="new-tag-<?php echo $tax_name; ?>-desc"><?php echo str_replace( ',', $comma . ' ', $terms_to_edit ); // textarea_escaped by esc_attr() ?></textarea></p>
+			<label for="multi-tax-input-<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_or_remove_items; ?></label>
+			<p><textarea name="<?php echo "multi_tax_input[$tax_name]"; ?>" rows="3" cols="20" class="the-tags" id="multi-tax-input-<?php echo $tax_name; ?>" <?php disabled( ! $user_can_assign_terms ); ?> aria-describedby="new-tag-<?php echo $tax_name; ?>-desc"><?php echo str_replace( ',', $comma . ' ', $terms_to_edit ); // textarea_escaped by esc_attr() ?></textarea></p>
 		</div>
 		<?php if ( $user_can_assign_terms ) : ?>
 		<div class="ajaxtag hide-if-no-js">
-			<label class="screen-reader-text" for="new-tag-<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_new_item; ?></label>
-			<p><input data-wp-taxonomy="<?php echo $tax_name; ?>" type="text" id="new-tag-<?php echo $tax_name; ?>" name="newtag[<?php echo $tax_name; ?>]" class="newtag form-input-tip" size="16" autocomplete="off" aria-describedby="new-tag-<?php echo $tax_name; ?>-desc" value="" />
+			<label class="screen-reader-text" for="new-multi-tag-<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_new_item; ?></label>
+			<p><input data-multi-taxonomy="<?php echo $tax_name; ?>" type="text" id="new-multi-tag-<?php echo $tax_name; ?>" name="new_multi_tag[<?php echo $tax_name; ?>]" class="newtag form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-tag-<?php echo $tax_name; ?>-desc" value="" />
 			<input type="button" class="button tagadd" value="<?php esc_attr_e( 'Add' ); ?>" /></p>
 		</div>
-		<p class="howto" id="new-tag-<?php echo $tax_name; ?>-desc"><?php echo $taxonomy->labels->separate_items_with_commas; ?></p>
+		<p class="howto" id="new-multi-tag-<?php echo $tax_name; ?>-desc"><?php echo $taxonomy->labels->separate_items_with_commas; ?></p>
 		<?php elseif ( empty( $terms_to_edit ) ) : ?>
 			<p><?php echo $taxonomy->labels->no_terms; ?></p>
 		<?php endif; ?>

@@ -19,7 +19,11 @@ var tagBox, array_unique_noempty;
 		} );
 
 		return out;
-	};
+    };
+
+    // Add tabs functionality
+    $( "#multisite-tax-picker" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
+    $( "#multisite-tax-picker li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
 
 	tagBox = {
 		clean : function( tags ) {
@@ -39,7 +43,7 @@ var tagBox, array_unique_noempty;
 		parseTags : function(el) {
 			var id = el.id,
 				num = id.split('-check-num-')[1],
-				taxbox = $(el).closest('.tagsdiv'),
+				taxbox = $(el).closest('.multitagsdiv'),
 				thetags = taxbox.find('.the-tags'),
 				current_tags = thetags.val().split( tagDelimiter ),
 				new_tags = [];
