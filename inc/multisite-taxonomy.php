@@ -3591,14 +3591,16 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
  *                                     the top of the list. Default true.
  */
 function multisite_category_checklist( $post_id = 0, $descendants_and_self = 0, $selected_cats = false, $popular_cats = false, $walker = null, $checked_ontop = true ) {
-	wp_terms_checklist( $post_id, array(
-		'taxonomy' => 'category',
-		'descendants_and_self' => $descendants_and_self,
-		'selected_cats' => $selected_cats,
-		'popular_cats' => $popular_cats,
-		'walker' => $walker,
-		'checked_ontop' => $checked_ontop
-	) );
+	wp_terms_checklist(
+		$post_id, array(
+			'taxonomy'             => 'category',
+			'descendants_and_self' => $descendants_and_self,
+			'selected_cats'        => $selected_cats,
+			'popular_cats'         => $popular_cats,
+			'walker'               => $walker,
+			'checked_ontop'        => $checked_ontop,
+		)
+	);
 }
 
 /**
@@ -3628,15 +3630,15 @@ function multisite_category_checklist( $post_id = 0, $descendants_and_self = 0, 
  * }
  */
 function multisite_terms_checklist( $post_id = 0, $args = array() ) {
- 	$defaults = array(
-		'descendants_and_self' => 0,
-		'selected_cats' => false,
-		'popular_cats' => false,
-		'walker' => null,
-		'taxonomy' => 'category',
-		'checked_ontop' => true,
-		'echo' => true,
-	);
+	 $defaults = array(
+		 'descendants_and_self' => 0,
+		 'selected_cats'        => false,
+		 'popular_cats'         => false,
+		 'walker'               => null,
+		 'taxonomy'             => 'category',
+		 'checked_ontop'        => true,
+		 'echo'                 => true,
+	 );
 
 	/**
 	 * Filters the taxonomy terms checklist arguments.
@@ -3653,17 +3655,17 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$r = wp_parse_args( $params, $defaults );
 
 	if ( empty( $r['walker'] ) || ! ( $r['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Multisite_Category_Checklist;
+		$walker = new Walker_Multisite_Category_Checklist();
 	} else {
 		$walker = $r['walker'];
 	}
 
-	$taxonomy = $r['taxonomy'];
+	$taxonomy             = $r['taxonomy'];
 	$descendants_and_self = (int) $r['descendants_and_self'];
 
 	$args = array( 'taxonomy' => $taxonomy );
 
-	$tax = get_taxonomy( $taxonomy );
+	$tax              = get_taxonomy( $taxonomy );
 	$args['disabled'] = ! current_user_can( $tax->cap->assign_terms );
 
 	$args['list_only'] = ! empty( $r['list_only'] );
@@ -3678,21 +3680,25 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	if ( is_array( $r['popular_cats'] ) ) {
 		$args['popular_cats'] = $r['popular_cats'];
 	} else {
-		$args['popular_cats'] = get_terms( $taxonomy, array(
-			'fields' => 'ids',
-			'orderby' => 'count',
-			'order' => 'DESC',
-			'number' => 10,
-			'hierarchical' => false
-		) );
+		$args['popular_cats'] = get_terms(
+			$taxonomy, array(
+				'fields'       => 'ids',
+				'orderby'      => 'count',
+				'order'        => 'DESC',
+				'number'       => 10,
+				'hierarchical' => false,
+			)
+		);
 	}
 	if ( $descendants_and_self ) {
-		$categories = (array) get_terms( $taxonomy, array(
-			'child_of' => $descendants_and_self,
-			'hierarchical' => 0,
-			'hide_empty' => 0
-		) );
-		$self = get_term( $descendants_and_self, $taxonomy );
+		$categories = (array) get_terms(
+			$taxonomy, array(
+				'child_of'     => $descendants_and_self,
+				'hierarchical' => 0,
+				'hide_empty'   => 0,
+			)
+		);
+		$self       = get_term( $descendants_and_self, $taxonomy );
 		array_unshift( $categories, $self );
 	} else {
 		$categories = (array) get_terms( $taxonomy, array( 'get' => 'all' ) );
@@ -3703,12 +3709,12 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	if ( $r['checked_ontop'] ) {
 		// Post process $categories rather than adding an exclude to the get_terms() query to keep the query the same across all posts (for any query cache)
 		$checked_categories = array();
-		$keys = array_keys( $categories );
+		$keys               = array_keys( $categories );
 
 		foreach ( $keys as $k ) {
-			if ( in_array( $categories[$k]->term_id, $args['selected_cats'] ) ) {
-				$checked_categories[] = $categories[$k];
-				unset( $categories[$k] );
+			if ( in_array( $categories[ $k ]->term_id, $args['selected_cats'] ) ) {
+				$checked_categories[] = $categories[ $k ];
+				unset( $categories[ $k ] );
 			}
 		}
 
@@ -3736,29 +3742,38 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  * @since 2.5.0
  *
  * @param string $taxonomy Taxonomy to retrieve terms from.
- * @param int $default Not used.
- * @param int $number Number of terms to retrieve. Defaults to 10.
- * @param bool $echo Optionally output the list as well. Defaults to true.
+ * @param int    $default Not used.
+ * @param int    $number Number of terms to retrieve. Defaults to 10.
+ * @param bool   $echo Optionally output the list as well. Defaults to true.
  * @return array List of popular term IDs.
  */
 function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 10, $echo = true ) {
 	$post = get_post();
 
-	if ( $post && $post->ID )
-		$checked_terms = wp_get_object_terms($post->ID, $taxonomy, array('fields'=>'ids'));
-	else
+	if ( $post && $post->ID ) {
+		$checked_terms = get_object_multisite_terms( $post->ID, $taxonomy, array( 'fields' => 'ids' ) );
+	} else {
 		$checked_terms = array();
+	}
 
-	$terms = get_terms( $taxonomy, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => $number, 'hierarchical' => false ) );
+	$terms = get_multisite_terms(
+		$taxonomy, array(
+			'orderby'      => 'count',
+			'order'        => 'DESC',
+			'number'       => $number,
+			'hierarchical' => false,
+		)
+	);
 
-	$tax = get_taxonomy($taxonomy);
+	$tax = get_multisite_taxonomy( $taxonomy );
 
 	$popular_ids = array();
 	foreach ( (array) $terms as $term ) {
 		$popular_ids[] = $term->term_id;
-		if ( !$echo ) // Hack for Ajax use.
+		if ( ! $echo ) { // Hack for Ajax use.
 			continue;
-		$id = "popular-$taxonomy-$term->term_id";
+		}
+		$id      = "popular-$taxonomy-$term->term_id";
 		$checked = in_array( $term->term_id, $checked_terms ) ? 'checked="checked"' : '';
 		?>
 
@@ -3799,18 +3814,24 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 		$checked_categories[] = $default;
 	}
 
-	$categories = get_terms( 'link_category', array( 'orderby' => 'name', 'hide_empty' => 0 ) );
+	$categories = get_terms(
+		'link_category', array(
+			'orderby'    => 'name',
+			'hide_empty' => 0,
+		)
+	);
 
-	if ( empty( $categories ) )
+	if ( empty( $categories ) ) {
 		return;
+	}
 
 	foreach ( $categories as $category ) {
 		$cat_id = $category->term_id;
 
 		/** This filter is documented in wp-includes/category-template.php */
-		$name = esc_html( apply_filters( 'the_category', $category->name ) );
+		$name    = esc_html( apply_filters( 'the_category', $category->name ) );
 		$checked = in_array( $cat_id, $checked_categories ) ? ' checked="checked"' : '';
-		echo '<li id="link-category-', $cat_id, '"><label for="in-link-category-', $cat_id, '" class="selectit"><input value="', $cat_id, '" type="checkbox" name="link_category[]" id="in-link-category-', $cat_id, '"', $checked, '/> ', $name, "</label></li>";
+		echo '<li id="link-category-', $cat_id, '"><label for="in-link-category-', $cat_id, '" class="selectit"><input value="', $cat_id, '" type="checkbox" name="link_category[]" id="in-link-category-', $cat_id, '"', $checked, '/> ', $name, '</label></li>';
 	}
 }
 
@@ -3821,10 +3842,11 @@ function link_multisite_category_checklist( $link_id = 0 ) {
  *
  * @param WP_Post $post Post object.
  */
-function get_multisite_inline_data($post) {
-	$post_type_object = get_post_type_object($post->post_type);
-	if ( ! current_user_can( 'edit_post', $post->ID ) )
+function get_multisite_inline_data( $post ) {
+	$post_type_object = get_post_type_object( $post->post_type );
+	if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 		return;
+	}
 
 	$title = esc_textarea( trim( $post->post_title ) );
 
@@ -3857,7 +3879,7 @@ function get_multisite_inline_data($post) {
 	}
 
 	$taxonomy_names = get_object_taxonomies( $post->post_type );
-	foreach ( $taxonomy_names as $taxonomy_name) {
+	foreach ( $taxonomy_names as $taxonomy_name ) {
 		$taxonomy = get_taxonomy( $taxonomy_name );
 
 		if ( $taxonomy->hierarchical && $taxonomy->show_ui ) {
@@ -3878,17 +3900,19 @@ function get_multisite_inline_data($post) {
 				$terms_to_edit = '';
 			}
 
-			echo '<div class="tags_input" id="'.$taxonomy_name.'_'.$post->ID.'">'
+			echo '<div class="tags_input" id="' . $taxonomy_name . '_' . $post->ID . '">'
 				. esc_html( str_replace( ',', ', ', $terms_to_edit ) ) . '</div>';
 
 		}
 	}
 
-	if ( !$post_type_object->hierarchical )
-		echo '<div class="sticky">' . (is_sticky($post->ID) ? 'sticky' : '') . '</div>';
+	if ( ! $post_type_object->hierarchical ) {
+		echo '<div class="sticky">' . ( is_sticky( $post->ID ) ? 'sticky' : '' ) . '</div>';
+	}
 
-	if ( post_type_supports( $post->post_type, 'post-formats' ) )
+	if ( post_type_supports( $post->post_type, 'post-formats' ) ) {
 		echo '<div class="post_format">' . esc_html( get_post_format( $post->ID ) ) . '</div>';
+	}
 
 	echo '</div>';
 }

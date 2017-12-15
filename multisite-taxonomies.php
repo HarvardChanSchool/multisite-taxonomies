@@ -38,11 +38,14 @@ require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tags-meta-box.php';
+/** Walker_Category_Checklist class */
+require_once plugin_dir_path( __FILE__ ) . 'inc/class-walker-multisite-category-checklist.php';
 // Loading multisite taxonomy and multisite term API.
 require_once plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php';
 
+
 // Plugin init.
-$multitaxo = new Multitaxo_Plugin();
+$multitaxo   = new Multitaxo_Plugin();
 $multi_admin = new Multisite_Tags_Meta_Box();
 
 /**
@@ -71,6 +74,7 @@ function testing_custom_taxonomy() {
 		'search_items'               => __( 'Search Items', 'multitaxo' ),
 		'not_found'                  => __( 'Not Found', 'multitaxo' ),
 		'no_terms'                   => __( 'No items', 'multitaxo' ),
+		'most_used'                  => __( 'Most Used', 'multitaxo' ),
 		'items_list'                 => __( 'Items list', 'multitaxo' ),
 		'items_list_navigation'      => __( 'Items list navigation', 'multitaxo' ),
 	);
@@ -84,7 +88,6 @@ function testing_custom_taxonomy() {
 		'show_tagcloud'     => true,
 	);
 	register_multisite_taxonomy( 'taxonomy', array( 'post' ), $args );
-
 
 	$labels = array(
 		'name'                       => _x( 'Cartegories', 'Taxonomy General Name', 'multitaxo' ),
@@ -105,6 +108,7 @@ function testing_custom_taxonomy() {
 		'search_items'               => __( 'Search Items', 'multitaxo' ),
 		'not_found'                  => __( 'Not Found', 'multitaxo' ),
 		'no_terms'                   => __( 'No items', 'multitaxo' ),
+		'most_used'                  => __( 'Most Used', 'multitaxo' ),
 		'items_list'                 => __( 'Items list', 'multitaxo' ),
 		'items_list_navigation'      => __( 'Items list navigation', 'multitaxo' ),
 	);

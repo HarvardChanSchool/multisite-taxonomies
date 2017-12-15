@@ -45,20 +45,22 @@ class Multisite_Tags_Meta_Box {
 	 * @return void
 	 */
 	public function load_wp_admin_scripts( $hook ) {
-		if( 'post.php' !== $hook ) {
+		if ( 'post.php' !== $hook ) {
 			return;
 		}
 
 		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-box.js', array( 'jquery', 'multisite-tags-suggest', 'jquery-ui-core', 'jquery-ui-tabs' ), false, 1 );
 
 		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-suggest.js', array( 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
-		wp_localize_script( 'multisite-tags-suggest', 'tagsSuggestL10n', array(
-			'tagDelimiter' => _x( ',', 'tag delimiter' ),
-			'removeTerm'   => __( 'Remove term:' ),
-			'termSelected' => __( 'Term selected.' ),
-			'termAdded'    => __( 'Term added.' ),
-			'termRemoved'  => __( 'Term removed.' ),
-		) );
+		wp_localize_script(
+			'multisite-tags-suggest', 'tagsSuggestL10n', array(
+				'tagDelimiter' => _x( ',', 'tag delimiter' ),
+				'removeTerm'   => __( 'Remove term:' ),
+				'termSelected' => __( 'Term selected.' ),
+				'termAdded'    => __( 'Term added.' ),
+				'termRemoved'  => __( 'Term removed.' ),
+			)
+		);
 	}
 
 	/**
@@ -72,46 +74,46 @@ class Multisite_Tags_Meta_Box {
 	public function multsite_tags_meta_box_callback( $post, $metabox ) {
 		$taxonomies = get_object_multisite_taxonomies( $post, 'object' );
 
-		$tabs = array();
+		$tabs         = array();
 		$tab_contents = array();
 
 		?>
 		<style>
 .ui-tabs-vertical {
-    clear: both;
-    overflow: hidden;
+	clear: both;
+	overflow: hidden;
 }
 
 .ui-tabs-vertical .ui-tabs-nav {
-    padding: .2em 1% .2em 1%;
-    float: left;
-    width: 15%;
+	padding: .2em 1% .2em 1%;
+	float: left;
+	width: 15%;
 	margin-left: 2%;
 	margin-right: -2%;
 }
 
 .ui-tabs-vertical .ui-tabs-nav li {
-    clear: left;
-    margin: 5px 0 5px 0;
-    border: solid 1px #ddd;
-    background-color: #fdfdfd;
-    padding: 7px 0 7px 7px;
+	clear: left;
+	margin: 5px 0 5px 0;
+	border: solid 1px #ddd;
+	background-color: #fdfdfd;
+	padding: 7px 0 7px 7px;
 	z-index: 9;
 }
 
 .ui-tabs-vertical .ui-tabs-nav li a {
-    display: block;
+	display: block;
 }
 
 .ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
-    background-color: #fff;
+	background-color: #fff;
 	border-right-color: #fff;
 }
 
 .ui-tabs-vertical .ui-tabs-panel {
-    padding: 1%;
-    float: right;
-    width: 80%;
+	padding: 1%;
+	float: right;
+	width: 80%;
 	border-left: solid 1px #ddd;
 
 }
@@ -141,7 +143,11 @@ class Multisite_Tags_Meta_Box {
 				<h2><?php echo esc_html( $tax->labels->name ); ?></h2>
 			<?php
 
-			$args = array();
+			$args = array(
+				'title'    => $tax->labels->name,
+				'taxonomy' => $tax->name,
+				'args'     => array(),
+			);
 
 			// Are we heirarchical or not?
 			if ( true === $tax->hierarchical ) {
@@ -171,27 +177,19 @@ class Multisite_Tags_Meta_Box {
 	 * @param array   $box {
 	 *     Tags meta box arguments.
 	 *
-	 *     @type string   $id       Meta box 'id' attribute.
+	 *     @type string   $taxonomy Taxonomy corresponding.
 	 *     @type string   $title    Meta box title.
-	 *     @type callable $callback Meta box display callback.
 	 *     @type array    $args {
 	 *         Extra meta box arguments.
-	 *
-	 *         @type string $taxonomy Taxonomy. Default 'post_tag'.
 	 *     }
 	 * }
 	 */
-	function multisite_tags_meta_box( $post, $box ) {
-		$defaults = array( 'taxonomy' => 'post_tag' );
-		if ( ! isset( $box['args'] ) || ! is_array( $box['args'] ) ) {
-			$args = array();
-		} else {
-			$args = $box['args'];
-		}
+	function multisite_tags_meta_box( $post, $args ) {
+		$defaults              = array( 'taxonomy' => 'tag' );
 		$r                     = wp_parse_args( $args, $defaults );
 		$tax_name              = esc_attr( $r['taxonomy'] );
 		$taxonomy              = get_multisite_taxonomy( $r['taxonomy'] );
-		$user_can_assign_terms = current_user_can( $taxonomy->cap->assign_terms );
+		$user_can_assign_terms = current_user_can( $taxonomy->cap->assign_multisite_terms );
 		$comma                 = _x( ',', 'tag delimiter' );
 		$terms_to_edit         = get_multisite_terms_to_edit( $post->ID, $tax_name );
 		if ( ! is_string( $terms_to_edit ) ) {
@@ -244,16 +242,11 @@ class Multisite_Tags_Meta_Box {
 	 *     }
 	 * }
 	 */
-	function multisite_categories_meta_box( $post, $box ) {
+	function multisite_categories_meta_box( $post, $args ) {
 		$defaults = array( 'taxonomy' => 'category' );
-		if ( ! isset( $box['args'] ) || ! is_array( $box['args'] ) ) {
-			$args = array();
-		} else {
-			$args = $box['args'];
-		}
 		$r        = wp_parse_args( $args, $defaults );
 		$tax_name = esc_attr( $r['taxonomy'] );
-		$taxonomy = get_taxonomy( $r['taxonomy'] );
+		$taxonomy = get_multisite_taxonomy( $r['taxonomy'] );
 		?>
 		<div id="taxonomy-<?php echo $tax_name; ?>" class="categorydiv">
 			<ul id="<?php echo $tax_name; ?>-tabs" class="category-tabs">
@@ -263,7 +256,7 @@ class Multisite_Tags_Meta_Box {
 
 			<div id="<?php echo $tax_name; ?>-pop" class="tabs-panel" style="display: none;">
 				<ul id="<?php echo $tax_name; ?>checklist-pop" class="categorychecklist form-no-clear" >
-					<?php $popular_ids = wp_popular_terms_checklist( $tax_name ); ?>
+					<?php $popular_ids = popular_multisite_terms_checklist( $tax_name ); ?>
 				</ul>
 			</div>
 
@@ -274,7 +267,7 @@ class Multisite_Tags_Meta_Box {
 				?>
 				<ul id="<?php echo $tax_name; ?>checklist" data-wp-lists="list:<?php echo $tax_name; ?>" class="categorychecklist form-no-clear">
 					<?php
-					wp_terms_checklist(
+					multisite_terms_checklist(
 						$post->ID, array(
 							'taxonomy'     => $tax_name,
 							'popular_cats' => $popular_ids,
@@ -283,7 +276,7 @@ class Multisite_Tags_Meta_Box {
 	?>
 				</ul>
 			</div>
-		<?php if ( current_user_can( $taxonomy->cap->edit_terms ) ) : ?>
+		<?php if ( current_user_can( $taxonomy->cap->edit_multisite_terms ) ) : ?>
 				<div id="<?php echo $tax_name; ?>-adder" class="wp-hidden-children">
 					<a id="<?php echo $tax_name; ?>-add-toggle" href="#<?php echo $tax_name; ?>-add" class="hide-if-no-js taxonomy-add-new">
 						<?php
