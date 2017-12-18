@@ -3779,7 +3779,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 
 		<li id="<?php echo esc_attr( $id ); ?>" class="popular-category">
 			<label class="selectit">
-				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_terms ) ); ?> />
+				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // WPCS: XSS ok. ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_terms ) ); ?> />
 				<?php
 				/** This filter is documented in wp-includes/category-template.php */
 				echo esc_html( apply_filters( 'the_category', $term->name ) );
@@ -3831,7 +3831,7 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 		/** This filter is documented in wp-includes/category-template.php */
 		$name    = esc_html( apply_filters( 'the_category', $category->name ) );
 		$checked = in_array( $cat_id, $checked_categories, true ) ? ' checked="checked"' : '';
-		echo '<li id="link-category-' . esc_attr( $cat_id ) . '"><label for="in-link-category-' . esc_attr( $cat_id ) . '" class="selectit"><input value="' . esc_attr( $cat_id ) . '" type="checkbox" name="link_category[]" id="in-link-category-' . esc_attr( $cat_id ) . '"' . $checked . '/> ' . esc_html( $name ) . '</label></li>';
+		echo '<li id="link-category-' . esc_attr( $cat_id ) . '"><label for="in-link-category-' . esc_attr( $cat_id ) . '" class="selectit"><input value="' . esc_attr( $cat_id ) . '" type="checkbox" name="link_category[]" id="in-link-category-' . esc_attr( $cat_id ) . '"' . $checked . '/> ' . esc_html( $name ) . '</label></li>'; // WPCS: XSS ok.
 	}
 }
 
@@ -3860,22 +3860,22 @@ function get_multisite_inline_data( $post ) {
 	<div class="comment_status">' . esc_html( $post->comment_status ) . '</div>
 	<div class="ping_status">' . esc_html( $post->ping_status ) . '</div>
 	<div class="_status">' . esc_html( $post->post_status ) . '</div>
-	<div class="jj">' . mysql2date( 'd', $post->post_date, false ) . '</div>
-	<div class="mm">' . mysql2date( 'm', $post->post_date, false ) . '</div>
-	<div class="aa">' . mysql2date( 'Y', $post->post_date, false ) . '</div>
-	<div class="hh">' . mysql2date( 'H', $post->post_date, false ) . '</div>
-	<div class="mn">' . mysql2date( 'i', $post->post_date, false ) . '</div>
-	<div class="ss">' . mysql2date( 's', $post->post_date, false ) . '</div>
+	<div class="jj">' . esc_html( mysql2date( 'd', $post->post_date, false ) ) . '</div>
+	<div class="mm">' . esc_html( mysql2date( 'm', $post->post_date, false ) ) . '</div>
+	<div class="aa">' . esc_html( mysql2date( 'Y', $post->post_date, false ) ) . '</div>
+	<div class="hh">' . esc_html( mysql2date( 'H', $post->post_date, false ) ) . '</div>
+	<div class="mn">' . esc_html( mysql2date( 'i', $post->post_date, false ) ) . '</div>
+	<div class="ss">' . esc_html( mysql2date( 's', $post->post_date, false ) ) . '</div>
 	<div class="post_password">' . esc_html( $post->post_password ) . '</div>';
 
 	if ( $post_type_object->hierarchical ) {
 		echo '<div class="post_parent">' . esc_html( $post->post_parent ) . '</div>';
 	}
 
-	echo '<div class="page_template">' . ( $post->page_template ? esc_html( $post->page_template ) : 'default' ) . '</div>';
+	echo '<div class="page_template">' . ( $post->page_template ? esc_html( $post->page_template ) : 'default' ) . '</div>'; // WPCS: XSS ok.
 
 	if ( post_type_supports( $post->post_type, 'page-attributes' ) ) {
-		echo '<div class="menu_order">' . $post->menu_order . '</div>';
+		echo '<div class="menu_order">' . esc_html( $post->menu_order ) . '</div>';
 	}
 
 	$taxonomy_names = get_object_taxonomies( $post->post_type );
@@ -3891,7 +3891,7 @@ function get_multisite_inline_data( $post ) {
 			}
 			$term_ids = empty( $terms ) ? array() : wp_list_pluck( $terms, 'term_id' );
 
-			echo '<div class="post_category" id="' . $taxonomy_name . '_' . $post->ID . '">' . implode( ',', $term_ids ) . '</div>';
+			echo '<div class="post_category" id="' . esc_attr( $taxonomy_name ) . '_' . esc_attr( $post->ID ) . '">' . esc_html( implode( ',', $term_ids ) ) . '</div>';
 
 		} elseif ( $taxonomy->show_ui ) {
 
@@ -3900,7 +3900,7 @@ function get_multisite_inline_data( $post ) {
 				$terms_to_edit = '';
 			}
 
-			echo '<div class="tags_input" id="' . $taxonomy_name . '_' . $post->ID . '">'
+			echo '<div class="tags_input" id="' . esc_attr( $taxonomy_name ) . '_' . esc_attr( $post->ID ) . '">'
 				. esc_html( str_replace( ',', ', ', $terms_to_edit ) ) . '</div>';
 
 		}
