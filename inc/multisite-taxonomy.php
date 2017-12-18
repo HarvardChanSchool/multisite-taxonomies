@@ -3630,15 +3630,15 @@ function multisite_category_checklist( $post_id = 0, $descendants_and_self = 0, 
  * }
  */
 function multisite_terms_checklist( $post_id = 0, $args = array() ) {
-	 $defaults = array(
-		 'descendants_and_self' => 0,
-		 'selected_cats'        => false,
-		 'popular_cats'         => false,
-		 'walker'               => null,
-		 'taxonomy'             => 'category',
-		 'checked_ontop'        => true,
-		 'echo'                 => true,
-	 );
+	$defaults = array(
+		'descendants_and_self' => 0,
+		'selected_cats'        => false,
+		'popular_cats'         => false,
+		'walker'               => null,
+		'taxonomy'             => 'category',
+		'checked_ontop'        => true,
+		'echo'                 => true,
+	);
 
 	/**
 	 * Filters the taxonomy terms checklist arguments.
@@ -3707,21 +3707,21 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$output = '';
 
 	if ( $r['checked_ontop'] ) {
-		// Post process $categories rather than adding an exclude to the get_terms() query to keep the query the same across all posts (for any query cache)
+		// Post process $categories rather than adding an exclude to the get_terms() query to keep the query the same across all posts (for any query cache).
 		$checked_categories = array();
 		$keys               = array_keys( $categories );
 
 		foreach ( $keys as $k ) {
-			if ( in_array( $categories[ $k ]->term_id, $args['selected_cats'] ) ) {
+			if ( in_array( $categories[ $k ]->term_id, $args['selected_cats'], true ) ) {
 				$checked_categories[] = $categories[ $k ];
 				unset( $categories[ $k ] );
 			}
 		}
 
-		// Put checked cats on top
+		// Put checked cats on top.
 		$output .= call_user_func_array( array( $walker, 'walk' ), array( $checked_categories, 0, $args ) );
 	}
-	// Then the rest of them
+	// Then the rest of them.
 	$output .= call_user_func_array( array( $walker, 'walk' ), array( $categories, 0, $args ) );
 
 	if ( $r['echo'] ) {
@@ -3774,7 +3774,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 			continue;
 		}
 		$id      = "popular-$taxonomy-$term->term_id";
-		$checked = in_array( $term->term_id, $checked_terms ) ? 'checked="checked"' : '';
+		$checked = in_array( $term->term_id, $checked_terms, true ) ? 'checked="checked"' : '';
 		?>
 
 		<li id="<?php echo $id; ?>" class="popular-category">
@@ -3830,7 +3830,7 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 
 		/** This filter is documented in wp-includes/category-template.php */
 		$name    = esc_html( apply_filters( 'the_category', $category->name ) );
-		$checked = in_array( $cat_id, $checked_categories ) ? ' checked="checked"' : '';
+		$checked = in_array( $cat_id, $checked_categories, true ) ? ' checked="checked"' : '';
 		echo '<li id="link-category-', $cat_id, '"><label for="in-link-category-', $cat_id, '" class="selectit"><input value="', $cat_id, '" type="checkbox" name="link_category[]" id="in-link-category-', $cat_id, '"', $checked, '/> ', $name, '</label></li>';
 	}
 }

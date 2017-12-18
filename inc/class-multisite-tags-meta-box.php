@@ -4,6 +4,7 @@
  *
  * @package multitaxo
  */
+
 /**
  * Settings screens init class.
  */
@@ -39,8 +40,7 @@ class Multisite_Tags_Meta_Box {
 	/**
 	 * Display the metabox container if we should use it.
 	 *
-	 * @param string  $post_type The WP Post type.
-	 * @param WP_Post $post Post object.
+	 * @param string $hook page hook.
 	 *
 	 * @return void
 	 */
@@ -54,20 +54,20 @@ class Multisite_Tags_Meta_Box {
 		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-suggest.js', array( 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
 		wp_localize_script(
 			'multisite-tags-suggest', 'tagsSuggestL10n', array(
-				'tagDelimiter' => _x( ',', 'tag delimiter' ),
-				'removeTerm'   => __( 'Remove term:' ),
-				'termSelected' => __( 'Term selected.' ),
-				'termAdded'    => __( 'Term added.' ),
-				'termRemoved'  => __( 'Term removed.' ),
+				'tagDelimiter' => _x( ',', 'tag delimiter', 'multitaxo' ),
+				'removeTerm'   => __( 'Remove term:', 'multitaxo' ),
+				'termSelected' => __( 'Term selected.', 'multitaxo' ),
+				'termAdded'    => __( 'Term added.', 'multitaxo' ),
+				'termRemoved'  => __( 'Term removed.', 'multitaxo' ),
 			)
 		);
 	}
 
 	/**
-	 * display the meta box content.
+	 * Display the meta box content.
 	 *
-	 * @param string  $post_type The WP Post type.
-	 * @param WP_Post $post Post object.
+	 * @param string  $post The WP Post type.
+	 * @param WP_Post $metabox Post object.
 	 *
 	 * @return void
 	 */
@@ -174,7 +174,7 @@ class Multisite_Tags_Meta_Box {
 	 * @todo Create taxonomy-agnostic wrapper for this.
 	 *
 	 * @param WP_Post $post Post object.
-	 * @param array   $box {
+	 * @param array   $args {
 	 *     Tags meta box arguments.
 	 *
 	 *     @type string   $taxonomy Taxonomy corresponding.
@@ -184,39 +184,39 @@ class Multisite_Tags_Meta_Box {
 	 *     }
 	 * }
 	 */
-	function multisite_tags_meta_box( $post, $args ) {
+	public function multisite_tags_meta_box( $post, $args ) {
 		$defaults              = array( 'taxonomy' => 'tag' );
 		$r                     = wp_parse_args( $args, $defaults );
 		$tax_name              = esc_attr( $r['taxonomy'] );
 		$taxonomy              = get_multisite_taxonomy( $r['taxonomy'] );
 		$user_can_assign_terms = current_user_can( $taxonomy->cap->assign_multisite_terms );
-		$comma                 = _x( ',', 'tag delimiter' );
+		$comma                 = _x( ',', 'tag delimiter', 'multitaxo' );
 		$terms_to_edit         = get_multisite_terms_to_edit( $post->ID, $tax_name );
 		if ( ! is_string( $terms_to_edit ) ) {
 			$terms_to_edit = '';
 		}
 	?>
-	<div class="multitagsdiv" id="<?php echo $tax_name; ?>">
+	<div class="multitagsdiv" id="<?php echo esc_attr( $tax_name ); ?>">
 		<div class="jaxtag">
 		<div class="nojs-tags hide-if-js">
-			<label for="multi-tax-input-<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_or_remove_items; ?></label>
-			<p><textarea name="<?php echo "multi_tax_input[$tax_name]"; ?>" rows="3" cols="20" class="the-tags" id="multi-tax-input-<?php echo $tax_name; ?>" <?php disabled( ! $user_can_assign_terms ); ?> aria-describedby="new-tag-<?php echo $tax_name; ?>-desc"><?php echo str_replace( ',', $comma . ' ', $terms_to_edit ); // textarea_escaped by esc_attr() ?></textarea></p>
+			<label for="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_or_remove_items ); ?></label>
+			<p><textarea name="<?php echo esc_attr( "multi_tax_input[$tax_name]" ); ?>" rows="3" cols="20" class="the-tags" id="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>" <?php disabled( ! $user_can_assign_terms ); ?> aria-describedby="new-tag-<?php echo esc_attr( $tax_name ); ?>-desc"><?php echo esc_textarea( str_replace( ',', $comma . ' ', $terms_to_edit ) ); ?></textarea></p>
 		</div>
 		<?php if ( $user_can_assign_terms ) : ?>
 		<div class="ajaxtag hide-if-no-js">
-			<label class="screen-reader-text" for="new-multi-tag-<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_new_item; ?></label>
-			<p><input data-multi-taxonomy="<?php echo $tax_name; ?>" type="text" id="new-multi-tag-<?php echo $tax_name; ?>" name="new_multi_tag[<?php echo $tax_name; ?>]" class="newtag form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-tag-<?php echo $tax_name; ?>-desc" value="" />
-			<input type="button" class="button tagadd" value="<?php esc_attr_e( 'Add' ); ?>" /></p>
+			<label class="screen-reader-text" for="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
+			<p><input data-multi-taxonomy="<?php echo esc_attr( $tax_name ); ?>" type="text" id="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>" name="new_multi_tag[<?php echo esc_attr( $tax_name ); ?>]" class="newtag form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>-desc" value="" />
+			<input type="button" class="button tagadd" value="<?php esc_attr_e( 'Add', 'multitaxo' ); ?>" /></p>
 		</div>
-		<p class="howto" id="new-multi-tag-<?php echo $tax_name; ?>-desc"><?php echo $taxonomy->labels->separate_items_with_commas; ?></p>
+		<p class="howto" id="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>-desc"><?php echo esc_html( $taxonomy->labels->separate_items_with_commas ); ?></p>
 		<?php elseif ( empty( $terms_to_edit ) ) : ?>
-			<p><?php echo $taxonomy->labels->no_terms; ?></p>
+			<p><?php echo esc_html( $taxonomy->labels->no_terms ); ?></p>
 		<?php endif; ?>
 		</div>
 		<ul class="tagchecklist" role="list"></ul>
 	</div>
 	<?php if ( $user_can_assign_terms ) : ?>
-	<p class="hide-if-no-js"><button type="button" class="button-link tagcloud-link" id="link-<?php echo $tax_name; ?>" aria-expanded="false"><?php echo $taxonomy->labels->choose_from_most_used; ?></button></p>
+	<p class="hide-if-no-js"><button type="button" class="button-link tagcloud-link" id="link-<?php echo esc_attr( $tax_name ); ?>" aria-expanded="false"><?php echo esc_html( $taxonomy->labels->choose_from_most_used ); ?></button></p>
 	<?php endif; ?>
 	<?php
 	}
@@ -229,7 +229,7 @@ class Multisite_Tags_Meta_Box {
 	 * @todo Create taxonomy-agnostic wrapper for this.
 	 *
 	 * @param WP_Post $post Post object.
-	 * @param array   $box {
+	 * @param array   $args {
 	 *     Categories meta box arguments.
 	 *
 	 *     @type string   $id       Meta box 'id' attribute.
@@ -242,30 +242,30 @@ class Multisite_Tags_Meta_Box {
 	 *     }
 	 * }
 	 */
-	function multisite_categories_meta_box( $post, $args ) {
+	public function multisite_categories_meta_box( $post, $args ) {
 		$defaults = array( 'taxonomy' => 'category' );
 		$r        = wp_parse_args( $args, $defaults );
 		$tax_name = esc_attr( $r['taxonomy'] );
 		$taxonomy = get_multisite_taxonomy( $r['taxonomy'] );
 		?>
-		<div id="taxonomy-<?php echo $tax_name; ?>" class="categorydiv">
-			<ul id="<?php echo $tax_name; ?>-tabs" class="category-tabs">
-				<li class="tabs"><a href="#<?php echo $tax_name; ?>-all"><?php echo $taxonomy->labels->all_items; ?></a></li>
-				<li class="hide-if-no-js"><a href="#<?php echo $tax_name; ?>-pop"><?php echo esc_html( $taxonomy->labels->most_used ); ?></a></li>
+		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="categorydiv">
+			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="category-tabs">
+				<li class="tabs"><a href="#<?php echo esc_attr( $tax_name ); ?>-all"><?php echo esc_html( $taxonomy->labels->all_items ); ?></a></li>
+				<li class="hide-if-no-js"><a href="#<?php echo esc_attr( $tax_name ); ?>-pop"><?php echo esc_html( $taxonomy->labels->most_used ); ?></a></li>
 			</ul>
 
-			<div id="<?php echo $tax_name; ?>-pop" class="tabs-panel" style="display: none;">
-				<ul id="<?php echo $tax_name; ?>checklist-pop" class="categorychecklist form-no-clear" >
+			<div id="<?php echo esc_attr( $tax_name ); ?>-pop" class="tabs-panel" style="display: none;">
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="categorychecklist form-no-clear" >
 					<?php $popular_ids = popular_multisite_terms_checklist( $tax_name ); ?>
 				</ul>
 			</div>
 
-			<div id="<?php echo $tax_name; ?>-all" class="tabs-panel">
+			<div id="<?php echo esc_attr( $tax_name ); ?>-all" class="tabs-panel">
 				<?php
-				$name = ( $tax_name == 'category' ) ? 'post_category' : 'tax_input[' . $tax_name . ']';
-				echo "<input type='hidden' name='{$name}[]' value='0' />"; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
+				$name = ( 'category' === $tax_name ) ? 'post_category' : 'tax_input[' . $tax_name . ']';
+				echo '<input type="hidden" name="' . esc_attr( $name ) . '[]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
 				?>
-				<ul id="<?php echo $tax_name; ?>checklist" data-wp-lists="list:<?php echo $tax_name; ?>" class="categorychecklist form-no-clear">
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="categorychecklist form-no-clear">
 					<?php
 					multisite_terms_checklist(
 						$post->ID, array(
@@ -277,18 +277,18 @@ class Multisite_Tags_Meta_Box {
 				</ul>
 			</div>
 		<?php if ( current_user_can( $taxonomy->cap->edit_multisite_terms ) ) : ?>
-				<div id="<?php echo $tax_name; ?>-adder" class="wp-hidden-children">
-					<a id="<?php echo $tax_name; ?>-add-toggle" href="#<?php echo $tax_name; ?>-add" class="hide-if-no-js taxonomy-add-new">
+				<div id="<?php echo esc_attr( $tax_name ); ?>-adder" class="wp-hidden-children">
+					<a id="<?php echo esc_attr( $tax_name ); ?>-add-toggle" href="#<?php echo esc_attr( $tax_name ); ?>-add" class="hide-if-no-js taxonomy-add-new">
 						<?php
 							/* translators: %s: add new taxonomy label */
-							printf( __( '+ %s' ), $taxonomy->labels->add_new_item );
+							printf( esc_html__( '+ %s', 'multitaxo' ), esc_html( $taxonomy->labels->add_new_item ) );
 						?>
 					</a>
-					<p id="<?php echo $tax_name; ?>-add" class="category-add wp-hidden-child">
-						<label class="screen-reader-text" for="new<?php echo $tax_name; ?>"><?php echo $taxonomy->labels->add_new_item; ?></label>
-						<input type="text" name="new<?php echo $tax_name; ?>" id="new<?php echo $tax_name; ?>" class="form-required form-input-tip" value="<?php echo esc_attr( $taxonomy->labels->new_item_name ); ?>" aria-required="true"/>
-						<label class="screen-reader-text" for="new<?php echo $tax_name; ?>_parent">
-							<?php echo $taxonomy->labels->parent_item_colon; ?>
+					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="category-add wp-hidden-child">
+						<label class="screen-reader-text" for="new<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
+						<input type="text" name="new<?php echo esc_attr( $tax_name ); ?>" id="new<?php echo esc_attr( $tax_name ); ?>" class="form-required form-input-tip" value="<?php echo esc_attr( $taxonomy->labels->new_item_name ); ?>" aria-required="true"/>
+						<label class="screen-reader-text" for="new<?php echo esc_attr( $tax_name ); ?>_parent">
+							<?php echo esc_html( $taxonomy->labels->parent_item_colon ); ?>
 						</label>
 						<?php
 						$parent_dropdown_args = array(
@@ -328,9 +328,9 @@ class Multisite_Tags_Meta_Box {
 
 						wp_dropdown_categories( $parent_dropdown_args );
 						?>
-						<input type="button" id="<?php echo $tax_name; ?>-add-submit" data-wp-lists="add:<?php echo $tax_name; ?>checklist:<?php echo $tax_name; ?>-add" class="button category-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
+						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button category-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
 						<?php wp_nonce_field( 'add-' . $tax_name, '_ajax_nonce-add-' . $tax_name, false ); ?>
-						<span id="<?php echo $tax_name; ?>-ajax-response"></span>
+						<span id="<?php echo esc_attr( $tax_name ); ?>-ajax-response"></span>
 					</p>
 				</div>
 			<?php endif; ?>
