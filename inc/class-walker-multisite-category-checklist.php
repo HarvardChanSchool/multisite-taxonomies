@@ -17,11 +17,24 @@
  * @see wp_terms_checklist()
  */
 class Walker_Multisite_Category_Checklist extends Walker {
+	/**
+	 * Type of tree we are waling over.
+	 *
+	 * @access public
+	 * @var string
+	 */
 	public $tree_type = 'category';
+
+	/**
+	 * DB fields to look in.
+	 *
+	 * @access public
+	 * @var array
+	 */
 	public $db_fields = array(
 		'parent' => 'parent',
 		'id'     => 'term_id',
-	); // TODO: decouple this
+	); // TODO: decouple this.
 
 	/**
 	 * Starts the list before the elements are added.
@@ -32,7 +45,7 @@ class Walker_Multisite_Category_Checklist extends Walker {
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param int    $depth  Depth of category. Used for tab indentation.
-	 * @param array  $args   An array of arguments. @see wp_terms_checklist()
+	 * @param array  $args   An array of arguments. @see wp_terms_checklist().
 	 */
 	public function start_lvl( &$output, $depth = 0, $args = array() ) {
 		$indent  = str_repeat( "\t", $depth );
@@ -48,7 +61,7 @@ class Walker_Multisite_Category_Checklist extends Walker {
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param int    $depth  Depth of category. Used for tab indentation.
-	 * @param array  $args   An array of arguments. @see wp_terms_checklist()
+	 * @param array  $args   An array of arguments. @see wp_terms_checklist().
 	 */
 	public function end_lvl( &$output, $depth = 0, $args = array() ) {
 		$indent  = str_repeat( "\t", $depth );
@@ -65,7 +78,7 @@ class Walker_Multisite_Category_Checklist extends Walker {
 	 * @param string $output   Passed by reference. Used to append additional content.
 	 * @param object $category The current term object.
 	 * @param int    $depth    Depth of the term in reference to parents. Default 0.
-	 * @param array  $args     An array of arguments. @see wp_terms_checklist()
+	 * @param array  $args     An array of arguments. @see wp_terms_checklist().
 	 * @param int    $id       ID of the current term.
 	 */
 	public function start_el( &$output, $category, $depth = 0, $args = array(), $id = 0 ) {
@@ -75,14 +88,14 @@ class Walker_Multisite_Category_Checklist extends Walker {
 			$taxonomy = $args['taxonomy'];
 		}
 
-		if ( $taxonomy == 'category' ) {
+		if ( 'category' === $taxonomy ) {
 			$name = 'post_category';
 		} else {
 			$name = 'tax_input[' . $taxonomy . ']';
 		}
 
 		$args['popular_cats'] = empty( $args['popular_cats'] ) ? array() : $args['popular_cats'];
-		$class                = in_array( $category->term_id, $args['popular_cats'] ) ? ' class="popular-category"' : '';
+		$class                = in_array( $category->term_id, $args['popular_cats'], true ) ? ' class="popular-category"' : '';
 
 		$args['selected_cats'] = empty( $args['selected_cats'] ) ? array() : $args['selected_cats'];
 
@@ -90,7 +103,7 @@ class Walker_Multisite_Category_Checklist extends Walker {
 			$aria_checked = 'false';
 			$inner_class  = 'category';
 
-			if ( in_array( $category->term_id, $args['selected_cats'] ) ) {
+			if ( in_array( $category->term_id, $args['selected_cats'], true ) ) {
 				$inner_class .= ' selected';
 				$aria_checked = 'true';
 			}
@@ -104,7 +117,7 @@ class Walker_Multisite_Category_Checklist extends Walker {
 			/** This filter is documented in wp-includes/category-template.php */
 			$output .= "\n<li id='{$taxonomy}-{$category->term_id}'$class>" .
 				'<label class="selectit"><input value="' . $category->term_id . '" type="checkbox" name="' . $name . '[]" id="in-' . $taxonomy . '-' . $category->term_id . '"' .
-				checked( in_array( $category->term_id, $args['selected_cats'] ), true, false ) .
+				checked( in_array( $category->term_id, $args['selected_cats'], true ), true, false ) .
 				disabled( empty( $args['disabled'] ), false, false ) . ' /> ' .
 				esc_html( apply_filters( 'the_category', $category->name ) ) . '</label>';
 		}
@@ -120,7 +133,7 @@ class Walker_Multisite_Category_Checklist extends Walker {
 	 * @param string $output   Passed by reference. Used to append additional content.
 	 * @param object $category The current term object.
 	 * @param int    $depth    Depth of the term in reference to parents. Default 0.
-	 * @param array  $args     An array of arguments. @see wp_terms_checklist()
+	 * @param array  $args     An array of arguments. @see wp_terms_checklist().
 	 */
 	public function end_el( &$output, $category, $depth = 0, $args = array() ) {
 		$output .= "</li>\n";
