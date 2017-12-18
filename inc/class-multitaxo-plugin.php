@@ -133,10 +133,10 @@ class Multitaxo_Plugin {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		/*
-         * Indexes have a maximum size of 767 bytes. Historically, we haven't need to be concerned about that.
-         * As of 4.2, however, we moved to utf8mb4, which uses 4 bytes per character. This means that an index which
-         * used to have room for floor(767/3) = 255 characters, now only has room for floor(767/4) = 191 characters.
-         */
+		 * Indexes have a maximum size of 767 bytes. Historically, we haven't need to be concerned about that.
+		 * As of 4.2, however, we moved to utf8mb4, which uses 4 bytes per character. This means that an index which
+		 * used to have room for floor(767/3) = 255 characters, now only has room for floor(767/4) = 191 characters.
+		 */
 
 		$max_index_length = 191;
 
