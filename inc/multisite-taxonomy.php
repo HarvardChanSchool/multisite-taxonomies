@@ -3725,7 +3725,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$output .= call_user_func_array( array( $walker, 'walk' ), array( $categories, 0, $args ) );
 
 	if ( $r['echo'] ) {
-		echo $output;
+		echo $output; // WPCS: XSS ok.
 	}
 
 	return $output;
@@ -3777,9 +3777,9 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 		$checked = in_array( $term->term_id, $checked_terms, true ) ? 'checked="checked"' : '';
 		?>
 
-		<li id="<?php echo $id; ?>" class="popular-category">
+		<li id="<?php echo esc_attr( $id ); ?>" class="popular-category">
 			<label class="selectit">
-				<input id="in-<?php echo $id; ?>" type="checkbox" <?php echo $checked; ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_terms ) ); ?> />
+				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_terms ) ); ?> />
 				<?php
 				/** This filter is documented in wp-includes/category-template.php */
 				echo esc_html( apply_filters( 'the_category', $term->name ) );
@@ -3831,7 +3831,7 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 		/** This filter is documented in wp-includes/category-template.php */
 		$name    = esc_html( apply_filters( 'the_category', $category->name ) );
 		$checked = in_array( $cat_id, $checked_categories, true ) ? ' checked="checked"' : '';
-		echo '<li id="link-category-', $cat_id, '"><label for="in-link-category-', $cat_id, '" class="selectit"><input value="', $cat_id, '" type="checkbox" name="link_category[]" id="in-link-category-', $cat_id, '"', $checked, '/> ', $name, '</label></li>';
+		echo '<li id="link-category-' . esc_attr( $cat_id ) . '"><label for="in-link-category-' . esc_attr( $cat_id ) . '" class="selectit"><input value="' . esc_attr( $cat_id ) . '" type="checkbox" name="link_category[]" id="in-link-category-' . esc_attr( $cat_id ) . '"' . $checked . '/> ' . esc_html( $name ) . '</label></li>';
 	}
 }
 
@@ -3852,11 +3852,11 @@ function get_multisite_inline_data( $post ) {
 
 	/** This filter is documented in wp-admin/edit-tag-form.php */
 	echo '
-<div class="hidden" id="inline_' . $post->ID . '">
-	<div class="post_title">' . $title . '</div>' .
+<div class="hidden" id="inline_' . esc_attr( $post->ID ) . '">
+	<div class="post_title">' . esc_html( $title ) . '</div>' .
 	/** This filter is documented in wp-admin/edit-tag-form.php */
-	'<div class="post_name">' . apply_filters( 'editable_slug', $post->post_name, $post ) . '</div>
-	<div class="post_author">' . $post->post_author . '</div>
+	'<div class="post_name">' . esc_html( apply_filters( 'editable_slug', $post->post_name, $post ) ) . '</div>
+	<div class="post_author">' . esc_html( $post->post_author ) . '</div>
 	<div class="comment_status">' . esc_html( $post->comment_status ) . '</div>
 	<div class="ping_status">' . esc_html( $post->ping_status ) . '</div>
 	<div class="_status">' . esc_html( $post->post_status ) . '</div>
@@ -3869,7 +3869,7 @@ function get_multisite_inline_data( $post ) {
 	<div class="post_password">' . esc_html( $post->post_password ) . '</div>';
 
 	if ( $post_type_object->hierarchical ) {
-		echo '<div class="post_parent">' . $post->post_parent . '</div>';
+		echo '<div class="post_parent">' . esc_html( $post->post_parent ) . '</div>';
 	}
 
 	echo '<div class="page_template">' . ( $post->page_template ? esc_html( $post->page_template ) : 'default' ) . '</div>';
