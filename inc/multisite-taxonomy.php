@@ -3797,7 +3797,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
  *
  * @since 2.5.1
  *
- * @param int $link_id
+ * @param int $link_id Link ID for category.
  */
 function link_multisite_category_checklist( $link_id = 0 ) {
 	$default = 1;
@@ -3806,7 +3806,7 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 
 	if ( $link_id ) {
 		$checked_categories = wp_get_link_cats( $link_id );
-		// No selected categories, strange
+		// No selected categories, strange.
 		if ( ! count( $checked_categories ) ) {
 			$checked_categories[] = $default;
 		}
