@@ -858,7 +858,7 @@ function get_multisite_terms( $args = array() ) {
 
 	$defaults = array(
 		'suppress_filter' => false,
-		'taxonomy' => array(),
+		'taxonomy'        => array(),
 	);
 
 	$args = wp_parse_args( $args, $defaults );
@@ -3826,137 +3826,139 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  * @return string HTML content only if 'echo' argument is 0.
  */
 function dropdown_multisite_categories( $args = '' ) {
-    $defaults = array(
-        'show_option_all'   => '',
-        'show_option_none'  => '',
-        'orderby'           => 'id',
-        'order'             => 'ASC',
-        'show_count'        => 0,
-        'hide_empty'        => 1,
-        'child_of'          => 0,
-        'exclude'           => '',
-        'echo'              => 1,
-        'selected'          => 0,
-        'hierarchical'      => 0,
-        'name'              => 'cat',
-        'id'                => '',
-        'class'             => 'postform',
-        'depth'             => 0,
-        'tab_index'         => 0,
-        'taxonomy'          => 'category',
-        'hide_if_empty'     => false,
-        'option_none_value' => -1,
-        'value_field'       => 'term_id',
-        'required'          => false,
-    );
+	$defaults = array(
+		'show_option_all'   => '',
+		'show_option_none'  => '',
+		'orderby'           => 'id',
+		'order'             => 'ASC',
+		'show_count'        => 0,
+		'hide_empty'        => 1,
+		'child_of'          => 0,
+		'exclude'           => '',
+		'echo'              => 1,
+		'selected'          => 0,
+		'hierarchical'      => 0,
+		'name'              => 'cat',
+		'id'                => '',
+		'class'             => 'postform',
+		'depth'             => 0,
+		'tab_index'         => 0,
+		'taxonomy'          => 'category',
+		'hide_if_empty'     => false,
+		'option_none_value' => -1,
+		'value_field'       => 'term_id',
+		'required'          => false,
+	);
 
-    $defaults['selected'] = ( is_category() ) ? get_query_var( 'cat' ) : 0;
+	$defaults['selected'] = ( is_category() ) ? get_query_var( 'cat' ) : 0;
 
-    // Back compat.
-    if ( isset( $args['type'] ) && 'link' == $args['type'] ) {
-        _deprecated_argument( __FUNCTION__, '3.0.0',
-            /* translators: 1: "type => link", 2: "taxonomy => link_category" */
-            sprintf( __( '%1$s is deprecated. Use %2$s instead.' ),
-                '<code>type => link</code>',
-                '<code>taxonomy => link_category</code>'
-            )
-        );
-        $args['taxonomy'] = 'link_category';
-    }
+	// Back compat.
+	if ( isset( $args['type'] ) && 'link' == $args['type'] ) {
+		_deprecated_argument(
+			__FUNCTION__, '3.0.0',
+			/* translators: 1: "type => link", 2: "taxonomy => link_category" */
+			sprintf(
+				__( '%1$s is deprecated. Use %2$s instead.' ),
+				'<code>type => link</code>',
+				'<code>taxonomy => link_category</code>'
+			)
+		);
+		$args['taxonomy'] = 'link_category';
+	}
 
-    $r = wp_parse_args( $args, $defaults );
-    $option_none_value = $r['option_none_value'];
+	$r                 = wp_parse_args( $args, $defaults );
+	$option_none_value = $r['option_none_value'];
 
-    if ( ! isset( $r['pad_counts'] ) && $r['show_count'] && $r['hierarchical'] ) {
-        $r['pad_counts'] = true;
-    }
+	if ( ! isset( $r['pad_counts'] ) && $r['show_count'] && $r['hierarchical'] ) {
+		$r['pad_counts'] = true;
+	}
 
-    $tab_index = $r['tab_index'];
+	$tab_index = $r['tab_index'];
 
-    $tab_index_attribute = '';
-    if ( (int) $tab_index > 0 ) {
-        $tab_index_attribute = " tabindex=\"$tab_index\"";
-    }
+	$tab_index_attribute = '';
+	if ( (int) $tab_index > 0 ) {
+		$tab_index_attribute = " tabindex=\"$tab_index\"";
+	}
 
-    // Avoid clashes with the 'name' param of get_terms().
-    $get_terms_args = $r;
-    unset( $get_terms_args['name'] );
-    $categories = get_terms( $r['taxonomy'], $get_terms_args );
+	// Avoid clashes with the 'name' param of get_terms().
+	$get_terms_args = $r;
+	unset( $get_terms_args['name'] );
+	$categories = get_terms( $r['taxonomy'], $get_terms_args );
 
-    $name = esc_attr( $r['name'] );
-    $class = esc_attr( $r['class'] );
-    $id = $r['id'] ? esc_attr( $r['id'] ) : $name;
-    $required = $r['required'] ? 'required' : '';
+	$name     = esc_attr( $r['name'] );
+	$class    = esc_attr( $r['class'] );
+	$id       = $r['id'] ? esc_attr( $r['id'] ) : $name;
+	$required = $r['required'] ? 'required' : '';
 
-    if ( ! $r['hide_if_empty'] || ! empty( $categories ) ) {
-        $output = "<select $required name='$name' id='$id' class='$class' $tab_index_attribute>\n";
-    } else {
-        $output = '';
-    }
-    if ( empty( $categories ) && ! $r['hide_if_empty'] && ! empty( $r['show_option_none'] ) ) {
+	if ( ! $r['hide_if_empty'] || ! empty( $categories ) ) {
+		$output = "<select $required name='$name' id='$id' class='$class' $tab_index_attribute>\n";
+	} else {
+		$output = '';
+	}
+	if ( empty( $categories ) && ! $r['hide_if_empty'] && ! empty( $r['show_option_none'] ) ) {
 
-        /**
-         * Filters a taxonomy drop-down display element.
-         *
-         * A variety of taxonomy drop-down display elements can be modified
-         * just prior to display via this filter. Filterable arguments include
-         * 'show_option_none', 'show_option_all', and various forms of the
-         * term name.
-         *
-         * @since 1.2.0
-         *
-         * @see wp_dropdown_categories()
-         *
-         * @param string       $element  Category name.
-         * @param WP_Term|null $category The category object, or null if there's no corresponding category.
-         */
-        $show_option_none = apply_filters( 'list_cats', $r['show_option_none'], null );
-        $output .= "\t<option value='" . esc_attr( $option_none_value ) . "' selected='selected'>$show_option_none</option>\n";
-    }
+		/**
+		 * Filters a taxonomy drop-down display element.
+		 *
+		 * A variety of taxonomy drop-down display elements can be modified
+		 * just prior to display via this filter. Filterable arguments include
+		 * 'show_option_none', 'show_option_all', and various forms of the
+		 * term name.
+		 *
+		 * @since 1.2.0
+		 *
+		 * @see wp_dropdown_categories()
+		 *
+		 * @param string       $element  Category name.
+		 * @param WP_Term|null $category The category object, or null if there's no corresponding category.
+		 */
+		$show_option_none = apply_filters( 'list_cats', $r['show_option_none'], null );
+		$output          .= "\t<option value='" . esc_attr( $option_none_value ) . "' selected='selected'>$show_option_none</option>\n";
+	}
 
-    if ( ! empty( $categories ) ) {
+	if ( ! empty( $categories ) ) {
 
-        if ( $r['show_option_all'] ) {
+		if ( $r['show_option_all'] ) {
 
-            /** This filter is documented in wp-includes/category-template.php */
-            $show_option_all = apply_filters( 'list_cats', $r['show_option_all'], null );
-            $selected = ( '0' === strval($r['selected']) ) ? " selected='selected'" : '';
-            $output .= "\t<option value='0'$selected>$show_option_all</option>\n";
-        }
+			/** This filter is documented in wp-includes/category-template.php */
+			$show_option_all = apply_filters( 'list_cats', $r['show_option_all'], null );
+			$selected        = ( '0' === strval( $r['selected'] ) ) ? " selected='selected'" : '';
+			$output         .= "\t<option value='0'$selected>$show_option_all</option>\n";
+		}
 
-        if ( $r['show_option_none'] ) {
+		if ( $r['show_option_none'] ) {
 
-            /** This filter is documented in wp-includes/category-template.php */
-            $show_option_none = apply_filters( 'list_cats', $r['show_option_none'], null );
-            $selected = selected( $option_none_value, $r['selected'], false );
-            $output .= "\t<option value='" . esc_attr( $option_none_value ) . "'$selected>$show_option_none</option>\n";
-        }
+			/** This filter is documented in wp-includes/category-template.php */
+			$show_option_none = apply_filters( 'list_cats', $r['show_option_none'], null );
+			$selected         = selected( $option_none_value, $r['selected'], false );
+			$output          .= "\t<option value='" . esc_attr( $option_none_value ) . "'$selected>$show_option_none</option>\n";
+		}
 
-        if ( $r['hierarchical'] ) {
-            $depth = $r['depth'];  // Walk the full depth.
-        } else {
-            $depth = -1; // Flat.
-        }
-        $output .= walk_category_dropdown_tree( $categories, $depth, $r );
-    }
+		if ( $r['hierarchical'] ) {
+			$depth = $r['depth'];  // Walk the full depth.
+		} else {
+			$depth = -1; // Flat.
+		}
+		$output .= walk_category_dropdown_tree( $categories, $depth, $r );
+	}
 
-    if ( ! $r['hide_if_empty'] || ! empty( $categories ) ) {
-        $output .= "</select>\n";
-    }
-    /**
-     * Filters the taxonomy drop-down output.
-     *
-     * @since 2.1.0
-     *
-     * @param string $output HTML output.
-     * @param array  $r      Arguments used to build the drop-down.
-     */
-    $output = apply_filters( 'wp_dropdown_cats', $output, $r );
+	if ( ! $r['hide_if_empty'] || ! empty( $categories ) ) {
+		$output .= "</select>\n";
+	}
+	/**
+	 * Filters the taxonomy drop-down output.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param string $output HTML output.
+	 * @param array  $r      Arguments used to build the drop-down.
+	 */
+	$output = apply_filters( 'wp_dropdown_cats', $output, $r );
 
-    if ( $r['echo'] ) {
-        echo $output;
-    }
-    return $output;
+	if ( $r['echo'] ) {
+		echo $output;
+	}
+	return $output;
 }
 
 /**
@@ -3986,7 +3988,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 		$checked_terms = array();
 	}
 
-	var_dump( );
+	var_dump();
 
 	$terms = get_multisite_terms(
 		$taxonomy, array(
