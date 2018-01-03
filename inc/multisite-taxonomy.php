@@ -862,6 +862,8 @@ function get_multisite_terms( $args = array() ) {
 	);
 
 	$args = wp_parse_args( $args, $defaults );
+
+	var_dump( $args );
 	if ( isset( $args['taxonomy'] ) && null !== $args['taxonomy'] ) {
 		$args['taxonomy'] = (array) $args['taxonomy'];
 	}
