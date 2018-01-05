@@ -87,7 +87,7 @@ function testing_custom_taxonomy() {
 		'show_in_nav_menus' => true,
 		'show_tagcloud'     => true,
 	);
-	register_multisite_taxonomy( 'colors', array( 'post' ), $args );
+	register_multisite_taxonomy( 'color', array( 'post' ), $args );
 
 	$labels = array(
 		'name'                       => _x( 'Animals', 'Taxonomy General Name', 'multitaxo' ),
@@ -121,7 +121,7 @@ function testing_custom_taxonomy() {
 		'show_in_nav_menus' => true,
 		'show_tagcloud'     => true,
 	);
-	register_multisite_taxonomy( 'animals', array( 'post', 'page' ), $args );
+	register_multisite_taxonomy( 'animal', array( 'post', 'page' ), $args );
 
 }
 add_action( 'init', 'testing_custom_taxonomy', 0 );
