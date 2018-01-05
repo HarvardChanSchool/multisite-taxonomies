@@ -113,7 +113,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
 			// We'll need the full set of multiste terms then.
-			$args['number'] = 0;
 			$args['offset'] = 0;
 		}
 
