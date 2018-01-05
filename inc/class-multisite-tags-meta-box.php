@@ -72,7 +72,7 @@ class Multisite_Tags_Meta_Box {
 	 * @return void
 	 */
 	public function multsite_tags_meta_box_callback( $post, $metabox ) {
-		$taxonomies = get_object_multisite_taxonomies( $post, 'object' );
+		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
 		$tabs         = array();
 		$tab_contents = array();

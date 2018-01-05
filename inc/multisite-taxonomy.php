@@ -863,7 +863,6 @@ function get_multisite_terms( $args = array() ) {
 
 	$args = wp_parse_args( $args, $defaults );
 
-	var_dump( $args );
 	if ( isset( $args['taxonomy'] ) && null !== $args['taxonomy'] ) {
 		$args['taxonomy'] = (array) $args['taxonomy'];
 	}
@@ -4002,14 +4001,13 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 		$checked_terms = array();
 	}
 
-	var_dump( $checked_terms );
-
 	$terms = get_multisite_terms(
-		$taxonomy, array(
+		array(
 			'orderby'      => 'count',
 			'order'        => 'DESC',
 			'number'       => $number,
 			'hierarchical' => false,
+			'taxonomy'     => $taxonomy,
 		)
 	);
 
@@ -4017,12 +4015,12 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 
 	$popular_ids = array();
 	foreach ( (array) $terms as $term ) {
-		$popular_ids[] = $term->term_id;
+		$popular_ids[] = $term->id;
 		if ( ! $echo ) { // Hack for Ajax use.
 			continue;
 		}
-		$id      = "popular-$taxonomy-$term->term_id";
-		$checked = in_array( $term->term_id, $checked_terms, true ) ? 'checked="checked"' : '';
+		$id      = "popular-$taxonomy-$term->id";
+		$checked = in_array( $term->id, $checked_terms, true ) ? 'checked="checked"' : '';
 		?>
 
 		<li id="<?php echo esc_attr( $id ); ?>" class="popular-category">

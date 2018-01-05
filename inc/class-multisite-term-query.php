@@ -166,7 +166,7 @@ class Multisite_Term_Query {
 	 */
 	public function __construct( $query = '' ) {
 		$this->query_var_defaults = array(
-			'multisite_taxonomy'     => null,
+			'taxonomy'               => null,
 			'object_ids'             => null,
 			'orderby'                => 'name',
 			'order'                  => 'ASC',
@@ -216,7 +216,7 @@ class Multisite_Term_Query {
 			$query = $this->query_vars;
 		}
 
-		$multisite_taxonomies = isset( $query['multisite_taxonomy'] ) ? (array) $query['multisite_taxonomy'] : null;
+		$multisite_taxonomies = isset( $query['taxonomy'] ) ? (array) $query['taxonomy'] : null;
 
 		/**
 		 * Filters the multisite terms query default arguments.
@@ -246,7 +246,7 @@ class Multisite_Term_Query {
 			$query['pad_counts']   = false;
 		}
 
-		$query['multisite_taxonomy'] = $multisite_taxonomies;
+		$query['taxonomy'] = $multisite_taxonomies;
 
 		$this->query_vars = $query;
 
@@ -297,7 +297,7 @@ class Multisite_Term_Query {
 		 */
 		do_action( 'pre_get_multisite_terms', $this );
 
-		$multisite_taxonomies = $args['multisite_taxonomy'];
+		$multisite_taxonomies = (array) $args['taxonomy'];
 
 		// Save queries by not crawling the tree in the case of multiple taxes or a flat tax.
 		$has_hierarchical_multisite_tax = false;
@@ -821,7 +821,7 @@ class Multisite_Term_Query {
 		 * @param array  $args       An array of multisite terms query arguments.
 		 * @param array  $multisite_taxonomies An array of multisite taxonomies.
 		 */
-		$orderby = apply_filters( 'get_multisite_terms_orderby', $orderby, $this->query_vars, $this->query_vars['multisite_taxonomy'] );
+		$orderby = apply_filters( 'get_multisite_terms_orderby', $orderby, $this->query_vars, $this->query_vars['taxonomy'] );
 
 		// Run after the 'get_multisite_terms_orderby' filter for backward compatibility.
 		if ( $maybe_orderby_meta ) {
