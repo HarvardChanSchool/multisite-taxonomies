@@ -56,9 +56,9 @@ $multi_admin = new Multisite_Tags_Meta_Box();
 function testing_custom_taxonomy() {
 
 	$labels = array(
-		'name'                       => _x( 'Taxonomies', 'Taxonomy General Name', 'multitaxo' ),
-		'singular_name'              => _x( 'Taxonomy', 'Taxonomy Singular Name', 'multitaxo' ),
-		'menu_name'                  => __( 'Taxonomy', 'multitaxo' ),
+		'name'                       => _x( 'Colors', 'Color General Name', 'multitaxo' ),
+		'singular_name'              => _x( 'Color', 'Color Singular Name', 'multitaxo' ),
+		'menu_name'                  => __( 'Color', 'multitaxo' ),
 		'all_items'                  => __( 'All Items', 'multitaxo' ),
 		'parent_item'                => __( 'Parent Item', 'multitaxo' ),
 		'parent_item_colon'          => __( 'Parent Item:', 'multitaxo' ),
@@ -87,12 +87,12 @@ function testing_custom_taxonomy() {
 		'show_in_nav_menus' => true,
 		'show_tagcloud'     => true,
 	);
-	register_multisite_taxonomy( 'taxonomy', array( 'post' ), $args );
+	register_multisite_taxonomy( 'colors', array( 'post' ), $args );
 
 	$labels = array(
-		'name'                       => _x( 'Cartegories', 'Taxonomy General Name', 'multitaxo' ),
-		'singular_name'              => _x( 'Category', 'Taxonomy Singular Name', 'multitaxo' ),
-		'menu_name'                  => __( 'TCategory', 'multitaxo' ),
+		'name'                       => _x( 'Animals', 'Taxonomy General Name', 'multitaxo' ),
+		'singular_name'              => _x( 'Animal', 'Taxonomy Singular Name', 'multitaxo' ),
+		'menu_name'                  => __( 'Animal', 'multitaxo' ),
 		'all_items'                  => __( 'All Items', 'multitaxo' ),
 		'parent_item'                => __( 'Parent Item', 'multitaxo' ),
 		'parent_item_colon'          => __( 'Parent Item:', 'multitaxo' ),
@@ -121,7 +121,7 @@ function testing_custom_taxonomy() {
 		'show_in_nav_menus' => true,
 		'show_tagcloud'     => true,
 	);
-	register_multisite_taxonomy( 'categoryb', array( 'post', 'page' ), $args );
+	register_multisite_taxonomy( 'animals', array( 'post', 'page' ), $args );
 
 }
 add_action( 'init', 'testing_custom_taxonomy', 0 );
