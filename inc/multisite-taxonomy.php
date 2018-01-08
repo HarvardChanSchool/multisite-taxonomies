@@ -3896,8 +3896,7 @@ function dropdown_multisite_categories( $args = '' ) {
 	// Avoid clashes with the 'name' param of get_terms().
 	$get_terms_args = $r;
 	unset( $get_terms_args['name'] );
-	$categories = get_terms( $r['taxonomy'], $get_terms_args );
-
+	$categories = get_multisite_terms( $get_terms_args );
 	$name     = esc_attr( $r['name'] );
 	$class    = esc_attr( $r['class'] );
 	$id       = $r['id'] ? esc_attr( $r['id'] ) : $name;
@@ -3929,7 +3928,7 @@ function dropdown_multisite_categories( $args = '' ) {
 		$output          .= "\t<option value='" . esc_attr( $option_none_value ) . "' selected='selected'>$show_option_none</option>\n";
 	}
 
-	if ( ! empty( $categories ) ) {
+	if ( is_array( $categories ) && ! empty( $categories ) ) {
 
 		if ( $r['show_option_all'] ) {
 
@@ -3969,7 +3968,13 @@ function dropdown_multisite_categories( $args = '' ) {
 	$output = apply_filters( 'wp_dropdown_cats', $output, $r );
 
 	if ( $r['echo'] ) {
-		echo wp_kses_post( $output );
+
+		$dropdown_allowed_html = array(
+			'select' => array( 'class', 'id', 'name' ),
+			'option' => array( 'class', 'id', 'name', 'value', 'type', 'selected' ),
+		);
+
+		echo wp_kses( $output, $dropdown_allowed_html );
 	}
 	return $output;
 }
