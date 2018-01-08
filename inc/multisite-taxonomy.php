@@ -3929,7 +3929,7 @@ function dropdown_multisite_categories( $args = '' ) {
 		$output          .= "\t<option value='" . esc_attr( $option_none_value ) . "' selected='selected'>$show_option_none</option>\n";
 	}
 
-	if ( ! empty( $categories ) ) {
+	if ( is_array( $categories ) && ! empty( $categories ) ) {
 
 		if ( $r['show_option_all'] ) {
 
