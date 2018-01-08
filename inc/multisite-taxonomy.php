@@ -3896,8 +3896,7 @@ function dropdown_multisite_categories( $args = '' ) {
 	// Avoid clashes with the 'name' param of get_terms().
 	$get_terms_args = $r;
 	unset( $get_terms_args['name'] );
-	$categories = get_terms( $r['taxonomy'], $get_terms_args );
-
+	$categories = get_multisite_terms( $get_terms_args );
 	$name     = esc_attr( $r['name'] );
 	$class    = esc_attr( $r['class'] );
 	$id       = $r['id'] ? esc_attr( $r['id'] ) : $name;
