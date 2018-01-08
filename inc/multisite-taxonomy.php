@@ -3897,10 +3897,10 @@ function dropdown_multisite_categories( $args = '' ) {
 	$get_terms_args = $r;
 	unset( $get_terms_args['name'] );
 	$categories = get_multisite_terms( $get_terms_args );
-	$name     = esc_attr( $r['name'] );
-	$class    = esc_attr( $r['class'] );
-	$id       = $r['id'] ? esc_attr( $r['id'] ) : $name;
-	$required = $r['required'] ? 'required' : '';
+	$name       = esc_attr( $r['name'] );
+	$class      = esc_attr( $r['class'] );
+	$id         = $r['id'] ? esc_attr( $r['id'] ) : $name;
+	$required   = $r['required'] ? 'required' : '';
 
 	if ( ! $r['hide_if_empty'] || ! empty( $categories ) ) {
 		$output = "<select $required name='$name' id='$id' class='$class' $tab_index_attribute>\n";
