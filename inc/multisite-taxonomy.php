@@ -3968,7 +3968,13 @@ function dropdown_multisite_categories( $args = '' ) {
 	$output = apply_filters( 'wp_dropdown_cats', $output, $r );
 
 	if ( $r['echo'] ) {
-		echo wp_kses_post( $output );
+
+		$dropdown_allowed_html = array(
+			'select' => array( 'class', 'id', 'name' ),
+			'option' => array( 'class', 'id', 'name', 'value', 'type', 'selected' ),
+		);
+
+		echo wp_kses( $output, $dropdown_allowed_html );
 	}
 	return $output;
 }
