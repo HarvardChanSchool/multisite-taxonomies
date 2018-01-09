@@ -3970,8 +3970,19 @@ function dropdown_multisite_categories( $args = '' ) {
 	if ( $r['echo'] ) {
 
 		$dropdown_allowed_html = array(
-			'select' => array( 'class', 'id', 'name' ),
-			'option' => array( 'class', 'id', 'name', 'value', 'type', 'selected' ),
+			'select' => array(
+				'class' => array(),
+				'id'    => array(),
+				'name'  => array(),
+			),
+			'option' => array(
+				'class'    => array(),
+				'id'       => array(),
+				'name'     => array(),
+				'value'    => array(),
+				'type'     => array(),
+				'selected' => array(),
+			),
 		);
 
 		echo wp_kses( $output, $dropdown_allowed_html );
