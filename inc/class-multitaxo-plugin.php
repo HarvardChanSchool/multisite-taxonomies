@@ -1187,7 +1187,7 @@ class Multitaxo_Plugin {
 
 		<div class="edit-tag-actions">
 
-			<?php submit_button( esc_url__( 'Update', 'multitaxo' ), 'primary', null, false ); ?>
+			<?php submit_button( esc_html__( 'Update', 'multitaxo' ), 'primary', null, false ); ?>
 
 			<?php if ( current_user_can( 'delete_multiite_term', $term->multisite_term_id ) ) : ?>
 				<span id="delete-link">
