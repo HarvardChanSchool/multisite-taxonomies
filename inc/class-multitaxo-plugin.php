@@ -1092,12 +1092,14 @@ class Multitaxo_Plugin {
 			<table class="form-table">
 				<tr class="form-field form-required term-name-wrap">
 					<th scope="row"><label for="name"><?php echo esc_html_x( 'Name', 'term name', 'multitaxo' ); ?></label></th>
-					<td><input name="name" id="name" type="text" value="
 					<?php
 					if ( isset( $term->name ) ) {
-						echo esc_attr( $term->name );}
-?>
-" size="40" aria-required="true" />
+						$term_name = $term->name;
+					} else {
+						$term_name = '';
+					}
+					?>
+					<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $term_name ); ?>" size="40" aria-required="true" />
 					<p class="description"><?php esc_html_e( 'The name is how it appears on your site.', 'multitaxo' ); ?></p></td>
 				</tr>
 				<tr class="form-field term-slug-wrap">
