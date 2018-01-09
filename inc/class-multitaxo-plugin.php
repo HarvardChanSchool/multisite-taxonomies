@@ -218,16 +218,16 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function add_network_menu_terms() {
-		$screen = add_menu_page( esc_html__( 'Multisite Tags', 'multitaxo' ), esc_html__( 'Multisite Tags', 'multitaxo' ), 'manage_network_options', 'multisite_tags_list', array( $this, 'display_multisite_network_tax' ), 'dashicons-tag', 22 );
-		add_action( 'load-' . $screen, array( $this, 'load_multisite_network_tax' ) );
+		$screen = add_menu_page( esc_html__( 'Multisite Taxonomies', 'multitaxo' ), esc_html__( 'Taxonomies', 'multitaxo' ), 'manage_network_options', 'multisite_term_list', array( $this, 'display_multisite_taxonomy' ), 'dashicons-tag', 22 );
+		add_action( 'load-' . $screen, array( $this, 'load_multisite_taxonomy' ) );
 
 		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
-		add_submenu_page( 'multisite_tags_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_network_tax_edit_screen' ) );
+		add_submenu_page( 'multisite_term_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_taxonomy_edit_screen' ) );
 
 		foreach ( $taxonomies as $tax_slug => $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_tags_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_tags_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
-			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_network_tax' ) );
+			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
+			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_taxonomy' ) );
 		}
 	}
 
@@ -238,7 +238,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function hide_network_menu_terms() {
-		remove_submenu_page( 'multisite_tags_list', 'multisite_term_edit' );
+		remove_submenu_page( 'multisite_term_list', 'multisite_term_edit' );
 	}
 
 	/**
@@ -264,27 +264,27 @@ class Multitaxo_Plugin {
 	 * @access public
 	 * @return void
 	 */
-	public function load_multisite_network_tax() {
+	public function load_multisite_taxonomy() {
 		$taxnow = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
 		if ( empty( $taxnow ) ) {
-			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 		}
 
 		$tax = get_multisite_taxonomy( $taxnow );
 
 		if ( ! $tax ) {
-			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 		}
 
 		if ( ! in_array( $tax->name, get_multisite_taxonomies( array( 'show_ui' => true ) ), true ) ) {
-			wp_die( esc_html__( 'Sorry, you are not allowed to edit terms in this taxonomy.', 'multitaxo' ) );
+			wp_die( esc_html__( 'Sorry, you are not allowed to edit multisite terms in this multisite taxonomy.', 'multitaxo' ) );
 		}
 
 		if ( ! current_user_can( $tax->cap->manage_multisite_terms ) ) {
 			wp_die(
 				'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
-				'<p>' . esc_html__( 'Sorry, you are not allowed to manage terms in this taxonomy.', 'multitaxo' ) . '</p>',
+				'<p>' . esc_html__( 'Sorry, you are not allowed to manage multisite terms in this multisite taxonomy.', 'multitaxo' ) . '</p>',
 				403
 			);
 		}
@@ -385,7 +385,7 @@ class Multitaxo_Plugin {
 				// When deleting a term, prevent the action from redirecting back to a term that no longer exists.
 				$location = remove_query_arg( array( 'multisite_term_id', 'action', 'page' ), $location );
 
-				$location = add_query_arg( 'page', 'multisite_tags_list', $location );
+				$location = add_query_arg( 'page', 'multisite_term_list', $location );
 
 				break;
 			case 'bulk-delete':
@@ -694,7 +694,7 @@ class Multitaxo_Plugin {
 	 * @access public
 	 * @return void
 	 */
-	public function display_multisite_network_tax() {
+	public function display_multisite_taxonomy() {
 		$current_screen = get_current_screen();
 
 		if ( empty( $current_screen->taxonomy ) ) {
@@ -755,7 +755,7 @@ class Multitaxo_Plugin {
 		<div id="ajax-response"></div>
 
 		<form class="search-form wp-clearfix" method="get">
-		<input type="hidden" name="page" value="multisite_tags_list" />
+		<input type="hidden" name="page" value="multisite_term_list" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 
 		<?php $this->list_table->search_box( $tax->labels->search_items, 'tag' ); ?>
@@ -796,7 +796,7 @@ class Multitaxo_Plugin {
 		?>
 		>
 		<input type="hidden" name="action" value="add-multisite-tag" />
-		<input type="hidden" name="page" value="multisite_tags_list" />
+		<input type="hidden" name="page" value="multisite_term_list" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<?php wp_nonce_field( 'add-multisite-tag', 'nonce-add-multisite-tag' ); ?>
@@ -980,7 +980,7 @@ class Multitaxo_Plugin {
 	 * @access public
 	 * @return void
 	 */
-	public function display_multisite_network_tax_edit_screen() {
+	public function display_multisite_taxonomy_edit_screen() {
 		$taxonomy = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
 		if ( empty( $taxonomy ) ) {
@@ -1018,7 +1018,7 @@ class Multitaxo_Plugin {
 		$class   = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated'; // WPCS: input var ok, CSRF ok.
 
 		$args = array(
-			'page'               => 'multisite_tags_list',
+			'page'               => 'multisite_term_list',
 			'multisite_taxonomy' => $taxonomy,
 		);
 
@@ -1055,7 +1055,7 @@ class Multitaxo_Plugin {
 
 		<div id="ajax-response"></div>
 
-		<form name="edittag" id="edittag" method="post" action="admin.php?page=multisite_tags_list&multisite_taxonomy=<?php echo esc_attr( $taxonomy ); ?>" class="validate"
+		<form name="edittag" id="edittag" method="post" action="admin.php?page=multisite_term_list&multisite_taxonomy=<?php echo esc_attr( $taxonomy ); ?>" class="validate"
 																																	<?php
 																																	/**
 																																	 * Fires inside the Edit Term form tag.
@@ -1068,7 +1068,7 @@ class Multitaxo_Plugin {
 		?>
 		>
 		<input type="hidden" name="action" value="editedtag"/>
-		<input type="hidden" name="page" value="multisite_tags_list"/>
+		<input type="hidden" name="page" value="multisite_term_list"/>
 		<input type="hidden" name="multisite_term_id" value="<?php echo esc_attr( $term->multisite_term_id ); ?>"/>
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $taxonomy ); ?>"/>
 		<?php
@@ -1197,7 +1197,7 @@ class Multitaxo_Plugin {
 						wp_nonce_url(
 							add_query_arg(
 								array(
-									'page'               => 'multisite_tags_list',
+									'page'               => 'multisite_term_list',
 									'action'             => 'delete',
 									'multisite_taxonomy' => $taxonomy,
 									'multisite_term_id'  => $term->multisite_term_id,
