@@ -31,17 +31,17 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 // Loading Classes.
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multitaxo-plugin.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-taxonomy.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tags-meta-box.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multitaxo-plugin.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tax-query.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term-query.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-terms-list-table.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tags-meta-box.php';
 /** Walker_Category_Checklist class */
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-walker-multisite-category-checklist.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-multisite-category-checklist.php';
 // Loading multisite taxonomy and multisite term API.
-require_once plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy.php';
 
 
 // Plugin init.
