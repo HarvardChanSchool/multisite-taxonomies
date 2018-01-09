@@ -4013,6 +4013,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 			'number'       => $number,
 			'hierarchical' => false,
 			'taxonomy'     => $taxonomy,
+			'hide_empty'   => false,
 		)
 	);
 
@@ -4030,7 +4031,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 
 		<li id="<?php echo esc_attr( $id ); ?>" class="popular-category">
 			<label class="selectit">
-				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // WPCS: XSS ok. ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_terms ) ); ?> />
+				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // WPCS: XSS ok. ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_multisite_terms ) ); ?> />
 				<?php
 				/** This filter is documented in wp-includes/category-template.php */
 				echo esc_html( apply_filters( 'the_category', $term->name ) );
