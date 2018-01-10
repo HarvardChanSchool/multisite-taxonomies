@@ -43,6 +43,7 @@ require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-tax
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy-dropdown.php';
 // Loading multisite taxonomy and multisite term API.
 require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy-template.php';
 
 
 // Plugin init.
