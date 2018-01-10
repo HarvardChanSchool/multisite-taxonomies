@@ -6,38 +6,6 @@
  */
 
 /**
- * Output an unordered list of checkbox input elements labeled with category names.
- *
- * @since 2.5.1
- *
- * @see wp_terms_checklist()
- *
- * @param int    $post_id              Optional. Post to generate a categories checklist for. Default 0.
- *                                     $selected_cats must not be an array. Default 0.
- * @param int    $descendants_and_self Optional. ID of the category to output along with its descendants.
- *                                     Default 0.
- * @param array  $selected_cats        Optional. List of categories to mark as checked. Default false.
- * @param array  $popular_cats         Optional. List of categories to receive the "popular-category" class.
- *                                     Default false.
- * @param object $walker               Optional. Walker object to use to build the output.
- *                                     Default is a Walker_Category_Checklist instance.
- * @param bool   $checked_ontop        Optional. Whether to move checked items out of the hierarchy and to
- *                                     the top of the list. Default true.
- */
-function multisite_category_checklist( $post_id = 0, $descendants_and_self = 0, $selected_cats = false, $popular_cats = false, $walker = null, $checked_ontop = true ) {
-	wp_terms_checklist(
-		$post_id, array(
-			'taxonomy'             => 'category',
-			'descendants_and_self' => $descendants_and_self,
-			'selected_cats'        => $selected_cats,
-			'popular_cats'         => $popular_cats,
-			'walker'               => $walker,
-			'checked_ontop'        => $checked_ontop,
-		)
-	);
-}
-
-/**
  * Output an unordered list of checkbox input elements labelled with term names.
  *
  * Taxonomy-independent version of wp_category_checklist().
@@ -345,8 +313,19 @@ function dropdown_multisite_categories( $args = '' ) {
 	if ( $r['echo'] ) {
 
 		$dropdown_allowed_html = array(
-			'select' => array( 'class', 'id', 'name' ),
-			'option' => array( 'class', 'id', 'name', 'value', 'type', 'selected' ),
+			'select' => array(
+				'class' => array(),
+				'id'    => array(),
+				'name'  => array(),
+			),
+			'option' => array(
+				'class'    => array(),
+				'id'       => array(),
+				'name'     => array(),
+				'value'    => array(),
+				'type'     => array(),
+				'selected' => array(),
+			),
 		);
 
 		echo wp_kses( $output, $dropdown_allowed_html );
