@@ -898,10 +898,10 @@ function get_multisite_terms( $args = array() ) {
 	 *
 	 * @param array         $terms      Array of found terms.
 	 * @param array         $taxonomies An array of taxonomies.
-	 * @param array         $args       An array of get_terms() arguments.
+	 * @param array         $args       An array of get_multisite_terms() arguments.
 	 * @param WP_Term_Query $term_query The WP_Term_Query object.
 	 */
-	return apply_filters( 'get_terms', $multisite_terms, $multisite_term_query->query_vars['taxonomy'], $multisite_term_query->query_vars, $multisite_term_query );
+	return apply_filters( 'get_multisite_terms', $multisite_terms, $multisite_term_query->query_vars['taxonomy'], $multisite_term_query->query_vars, $multisite_term_query );
 }
 
 /**
@@ -3207,17 +3207,17 @@ function get_multisite_term_link( $multisite_term, $multisite_taxonomy = '' ) {
  *
  * @since 3.1.0
  *
- * @param integer $term_id Term ID for display.
+ * @param integer $multisite_term_id Term ID for display.
  * @param string  $taxonomy Term taxonomy for display.
  * @return string|void HTML content.
  */
-function get_edit_multisite_term_link( $term_id, $taxonomy ) {
+function get_edit_multisite_term_link( $multisite_term_id, $taxonomy ) {
 	$tax = get_multisite_taxonomy( $taxonomy );
-	if ( ! $tax || ! current_user_can( 'edit_multisite_term', $term_id ) ) {
+	if ( ! $tax || ! current_user_can( 'edit_multisite_term', $multisite_term_id ) ) {
 		return;
 	}
 
-	$term = get_multisite_term( $term_id, $taxonomy );
+	$term = get_multisite_term( $multisite_term_id, $taxonomy );
 	if ( ! $term || is_wp_error( $term ) ) {
 		return;
 	}
@@ -3225,7 +3225,7 @@ function get_edit_multisite_term_link( $term_id, $taxonomy ) {
 	$args = array(
 		'page'               => 'multisite_term_edit',
 		'multisite_taxonomy' => $taxonomy,
-		'multisite_term_id'  => $term_id,
+		'multisite_term_id'  => $multisite_term_id,
 	);
 
 	if ( $tax->show_ui ) {
@@ -3240,11 +3240,11 @@ function get_edit_multisite_term_link( $term_id, $taxonomy ) {
 	 * @since 3.1.0
 	 *
 	 * @param string $location    The edit link.
-	 * @param int    $term_id     Term ID.
+	 * @param int    $multisite_term_id     Term ID.
 	 * @param string $taxonomy    Taxonomy name.
 	 * @param string $object_type The object type (eg. the post type).
 	 */
-	return apply_filters( 'get_edit_multisite_term_link', $location, $term_id, $taxonomy );
+	return apply_filters( 'get_edit_multisite_term_link', $location, $multisite_term_id, $taxonomy );
 }
 
 /**

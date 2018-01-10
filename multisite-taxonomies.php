@@ -38,10 +38,12 @@ require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-terms-list-table.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tags-meta-box.php';
-/** Walker_Category_Checklist class */
-require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-multisite-category-checklist.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy-checklist.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy-dropdown.php';
 // Loading multisite taxonomy and multisite term API.
 require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy-template.php';
 
 
 // Plugin init.

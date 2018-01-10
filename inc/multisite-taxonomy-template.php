@@ -23,7 +23,7 @@
  *     @type array  $popular_cats         List of categories to receive the "popular-category" class.
  *                                        Default false.
  *     @type object $walker               Walker object to use to build the output.
- *                                        Default is a Walker_Category_Checklist instance.
+ *                                        Default is a Walker_Hierarchical_Multisite_Taxonomy_Checklist instance.
  *     @type string $taxonomy             Taxonomy to generate the checklist for. Default 'category'.
  *     @type bool   $checked_ontop        Whether to move checked items out of the hierarchy and to
  *                                        the top of the list. Default true.
@@ -58,7 +58,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$r = wp_parse_args( $params, $defaults );
 
 	if ( empty( $r['walker'] ) || ! ( $r['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Multisite_Category_Checklist();
+		$walker = new Walker_Hierarchical_Multisite_Taxonomy_Checklist();
 	} else {
 		$walker = $r['walker'];
 	}
@@ -110,12 +110,12 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$output = '';
 
 	if ( $r['checked_ontop'] ) {
-		// Post process $categories rather than adding an exclude to the get_terms() query to keep the query the same across all posts (for any query cache).
+		// Post process $categories rather than adding an exclude to the get_multisite_terms() query to keep the query the same across all posts (for any query cache).
 		$checked_categories = array();
 		$keys               = array_keys( $categories );
 
 		foreach ( $keys as $k ) {
-			if ( in_array( $categories[ $k ]->term_id, $args['selected_cats'], true ) ) {
+			if ( in_array( $categories[ $k ]->multisite_term_id, $args['selected_cats'], true ) ) {
 				$checked_categories[] = $categories[ $k ];
 				unset( $categories[ $k ] );
 			}
@@ -153,9 +153,9 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  *     @type string       $show_option_all   Text to display for showing all categories. Default empty.
  *     @type string       $show_option_none  Text to display for showing no categories. Default empty.
  *     @type string       $option_none_value Value to use when no category is selected. Default empty.
- *     @type string       $orderby           Which column to use for ordering categories. See get_terms() for a list
- *                                           of accepted values. Default 'id' (term_id).
- *     @type bool         $pad_counts        See get_terms() for an argument description. Default false.
+ *     @type string       $orderby           Which column to use for ordering categories. See get_multisite_terms() for a list
+ *                                           of accepted values. Default 'id' (multisite_term_id).
+ *     @type bool         $pad_counts        See get_multisite_terms() for an argument description. Default false.
  *     @type bool|int     $show_count        Whether to include post counts. Accepts 0, 1, or their bool equivalents.
  *                                           Default 0.
  *     @type bool|int     $echo              Whether to echo or return the generated markup. Accepts 0, 1, or their
@@ -170,9 +170,9 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  *     @type string       $class             Value for the 'class' attribute of the select element. Default 'postform'.
  *     @type int|string   $selected          Value of the option that should be selected. Default 0.
  *     @type string       $value_field       Term field that should be used to populate the 'value' attribute
- *                                           of the option elements. Accepts any valid term field: 'term_id', 'name',
+ *                                           of the option elements. Accepts any valid term field: 'multisite_term_id', 'name',
  *                                           'slug', 'term_group', 'term_taxonomy_id', 'taxonomy', 'description',
- *                                           'parent', 'count'. Default 'term_id'.
+ *                                           'parent', 'count'. Default 'multisite_term_id'.
  *     @type string|array $taxonomy          Name of the category or categories to retrieve. Default 'category'.
  *     @type bool         $hide_if_empty     True to skip generating markup if no categories are found.
  *                                           Default false (create select element even if no categories are found).
@@ -181,7 +181,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  * }
  * @return string HTML content only if 'echo' argument is 0.
  */
-function dropdown_multisite_categories( $args = '' ) {
+function dropdown_hierarchical_multisite_taxonomy( $args = '' ) {
 	$defaults = array(
 		'show_option_all'   => '',
 		'show_option_none'  => '',
@@ -202,25 +202,11 @@ function dropdown_multisite_categories( $args = '' ) {
 		'taxonomy'          => 'category',
 		'hide_if_empty'     => false,
 		'option_none_value' => -1,
-		'value_field'       => 'term_id',
+		'value_field'       => 'multisite_term_id',
 		'required'          => false,
 	);
 
 	$defaults['selected'] = ( is_category() ) ? get_query_var( 'cat' ) : 0;
-
-	// Back compat.
-	if ( isset( $args['type'] ) && 'link' === $args['type'] ) {
-		_deprecated_argument(
-			__FUNCTION__, '3.0.0',
-			sprintf(
-				/* translators: 1: code block type link, 2: code block link category" */
-				wp_kses_post( __( '%1$s is deprecated. Use %2$s instead.', 'multitaxo' ) ),
-				'<code>type => link</code>',
-				'<code>taxonomy => link_category</code>'
-			)
-		);
-		$args['taxonomy'] = 'link_category';
-	}
 
 	$r                 = wp_parse_args( $args, $defaults );
 	$option_none_value = $r['option_none_value'];
@@ -236,10 +222,10 @@ function dropdown_multisite_categories( $args = '' ) {
 		$tab_index_attribute = " tabindex=\"$tab_index\"";
 	}
 
-	// Avoid clashes with the 'name' param of get_terms().
-	$get_terms_args = $r;
-	unset( $get_terms_args['name'] );
-	$categories = get_multisite_terms( $get_terms_args );
+	// Avoid clashes with the 'name' param of get_multisite_terms().
+	$get_multisite_terms_args = $r;
+	unset( $get_multisite_terms_args['name'] );
+	$categories = get_multisite_terms( $get_multisite_terms_args );
 	$name       = esc_attr( $r['name'] );
 	$class      = esc_attr( $r['class'] );
 	$id         = $r['id'] ? esc_attr( $r['id'] ) : $name;
@@ -294,7 +280,7 @@ function dropdown_multisite_categories( $args = '' ) {
 		} else {
 			$depth = -1; // Flat.
 		}
-		$output .= walk_category_dropdown_tree( $categories, $depth, $r );
+		$output .= walk_hierarchical_multisite_taxonomy_dropdown_tree( $categories, $depth, $r );
 	}
 
 	if ( ! $r['hide_if_empty'] || ! empty( $categories ) ) {
@@ -385,7 +371,7 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 
 		<li id="<?php echo esc_attr( $id ); ?>" class="popular-category">
 			<label class="selectit">
-				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // WPCS: XSS ok. ?> value="<?php echo (int) $term->term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_multisite_terms ) ); ?> />
+				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // WPCS: XSS ok. ?> value="<?php echo (int) $term->multisite_term_id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_multisite_terms ) ); ?> />
 				<?php
 				/** This filter is documented in wp-includes/category-template.php */
 				echo esc_html( apply_filters( 'the_category', $term->name ) );
@@ -399,13 +385,13 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 }
 
 /**
- * Outputs a link category checklist element.
+ * Outputs a link hierarchical multisite taxonomy checklist element.
  *
  * @since 2.5.1
  *
  * @param int $link_id Link ID for category.
  */
-function link_multisite_category_checklist( $link_id = 0 ) {
+function link_hierarchical_multisite_taxonomy_checklist( $link_id = 0 ) {
 	$default = 1;
 
 	$checked_categories = array();
@@ -420,7 +406,7 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 		$checked_categories[] = $default;
 	}
 
-	$categories = get_terms(
+	$categories = get_multisite_terms(
 		'link_category', array(
 			'orderby'    => 'name',
 			'hide_empty' => 0,
@@ -432,7 +418,7 @@ function link_multisite_category_checklist( $link_id = 0 ) {
 	}
 
 	foreach ( $categories as $category ) {
-		$cat_id = $category->term_id;
+		$cat_id = $category->multisite_term_id;
 
 		/** This filter is documented in wp-includes/category-template.php */
 		$name    = esc_html( apply_filters( 'the_category', $category->name ) );
@@ -493,15 +479,15 @@ function get_multisite_inline_data( $post ) {
 			$terms = get_object_term_cache( $post->ID, $taxonomy_name );
 			if ( false === $terms ) {
 				$terms = wp_get_object_terms( $post->ID, $taxonomy_name );
-				wp_cache_add( $post->ID, wp_list_pluck( $terms, 'term_id' ), $taxonomy_name . '_relationships' );
+				wp_cache_add( $post->ID, wp_list_pluck( $terms, 'multisite_term_id' ), $taxonomy_name . '_relationships' );
 			}
-			$term_ids = empty( $terms ) ? array() : wp_list_pluck( $terms, 'term_id' );
+			$multisite_term_ids = empty( $terms ) ? array() : wp_list_pluck( $terms, 'multisite_term_id' );
 
-			echo '<div class="post_category" id="' . esc_attr( $taxonomy_name ) . '_' . esc_attr( $post->ID ) . '">' . esc_html( implode( ',', $term_ids ) ) . '</div>';
+			echo '<div class="post_category" id="' . esc_attr( $taxonomy_name ) . '_' . esc_attr( $post->ID ) . '">' . esc_html( implode( ',', $multisite_term_ids ) ) . '</div>';
 
 		} elseif ( $taxonomy->show_ui ) {
 
-			$terms_to_edit = get_terms_to_edit( $post->ID, $taxonomy_name );
+			$terms_to_edit = get_multisite_terms_to_edit( $post->ID, $taxonomy_name );
 			if ( ! is_string( $terms_to_edit ) ) {
 				$terms_to_edit = '';
 			}
@@ -533,28 +519,28 @@ function get_multisite_inline_data( $post ) {
  * @param string|array $args {
  *     Array of optional arguments.
  *
- *     @type int          $child_of              Term ID to retrieve child terms of. See get_terms(). Default 0.
+ *     @type int          $child_of              Term ID to retrieve child terms of. See get_multisite_terms(). Default 0.
  *     @type int|array    $current_category      ID of category, or array of IDs of categories, that should get the
  *                                               'current-cat' class. Default 0.
  *     @type int          $depth                 Category depth. Used for tab indentation. Default 0.
  *     @type bool|int     $echo                  True to echo markup, false to return it. Default 1.
  *     @type array|string $exclude               Array or comma/space-separated string of term IDs to exclude.
  *                                               If `$hierarchical` is true, descendants of `$exclude` terms will also
- *                                               be excluded; see `$exclude_tree`. See get_terms().
+ *                                               be excluded; see `$exclude_tree`. See get_multisite_terms().
  *                                               Default empty string.
  *     @type array|string $exclude_tree          Array or comma/space-separated string of term IDs to exclude, along
- *                                               with their descendants. See get_terms(). Default empty string.
+ *                                               with their descendants. See get_multisite_terms(). Default empty string.
  *     @type string       $feed                  Text to use for the feed link. Default 'Feed for all posts filed
  *                                               under [cat name]'.
  *     @type string       $feed_image            URL of an image to use for the feed link. Default empty string.
- *     @type string       $feed_type             Feed type. Used to build feed link. See get_term_feed_link().
+ *     @type string       $feed_type             Feed type. Used to build feed link. See get_multisite_term_feed_link().
  *                                               Default empty string (default feed).
  *     @type bool|int     $hide_empty            Whether to hide categories that don't have any posts attached to them.
  *                                               Default 1.
  *     @type bool         $hide_title_if_empty   Whether to hide the `$title_li` element if there are no terms in
  *                                               the list. Default false (title will always be shown).
  *     @type bool         $hierarchical          Whether to include terms that have non-empty descendants.
- *                                               See get_terms(). Default true.
+ *                                               See get_multisite_terms(). Default true.
  *     @type string       $order                 Which direction to order categories. Accepts 'ASC' or 'DESC'.
  *                                               Default 'ASC'.
  *     @type string       $orderby               The column to use for ordering categories. Default 'name'.
@@ -593,10 +579,10 @@ function multisite_list_categories( $args = '' ) {
 		'separator'           => '<br />',
 		'show_count'          => 0,
 		'show_option_all'     => '',
-		'show_option_none'    => __( 'No categories' ),
+		'show_option_none'    => __( 'No multisite hierarchical taxonomy', 'multitaxo' ),
 		'style'               => 'list',
 		'taxonomy'            => 'category',
-		'title_li'            => __( 'Categories' ),
+		'title_li'            => __( 'Multisite hierarchical Taxonomy', 'multitaxo' ),
 		'use_desc_for_title'  => 1,
 	);
 
@@ -607,7 +593,7 @@ function multisite_list_categories( $args = '' ) {
 	}
 
 	// Descendants of exclusions should be excluded too.
-	if ( true == $r['hierarchical'] ) {
+	if ( true === $r['hierarchical'] ) {
 		$exclude_tree = array();
 
 		if ( $r['exclude_tree'] ) {
@@ -623,25 +609,25 @@ function multisite_list_categories( $args = '' ) {
 	}
 
 	if ( ! isset( $r['class'] ) ) {
-		$r['class'] = ( 'category' == $r['taxonomy'] ) ? 'categories' : $r['taxonomy'];
+		$r['class'] = ( 'category' === $r['taxonomy'] ) ? 'categories' : $r['taxonomy'];
 	}
 
-	if ( ! taxonomy_exists( $r['taxonomy'] ) ) {
+	if ( ! multisite_taxonomy_exists( $r['taxonomy'] ) ) {
 		return false;
 	}
 
 	$show_option_all  = $r['show_option_all'];
 	$show_option_none = $r['show_option_none'];
 
-	$categories = get_categories( $r );
+	$categories = get_multisite_taxonomies( $r );
 
 	$output = '';
-	if ( $r['title_li'] && 'list' == $r['style'] && ( ! empty( $categories ) || ! $r['hide_title_if_empty'] ) ) {
+	if ( $r['title_li'] && 'list' === $r['style'] && ( ! empty( $categories ) || ! $r['hide_title_if_empty'] ) ) {
 		$output = '<li class="' . esc_attr( $r['class'] ) . '">' . $r['title_li'] . '<ul>';
 	}
 	if ( empty( $categories ) ) {
 		if ( ! empty( $show_option_none ) ) {
-			if ( 'list' == $r['style'] ) {
+			if ( 'list' === $r['style'] ) {
 				$output .= '<li class="cat-item-none">' . $show_option_none . '</li>';
 			} else {
 				$output .= $show_option_none;
@@ -653,9 +639,9 @@ function multisite_list_categories( $args = '' ) {
 			$posts_page = '';
 
 			// For taxonomies that belong only to custom post types, point to a valid archive.
-			$taxonomy_object = get_taxonomy( $r['taxonomy'] );
-			if ( ! in_array( 'post', $taxonomy_object->object_type ) && ! in_array( 'page', $taxonomy_object->object_type ) ) {
-				foreach ( $taxonomy_object->object_type as $object_type ) {
+			$multisite_taxonomy_object = get_multisite_taxonomy( $r['taxonomy'] );
+			if ( ! in_array( 'post', $multisite_taxonomy_object->object_type, true ) && ! in_array( 'page', $multisite_taxonomy_object->object_type, true ) ) {
+				foreach ( $multisite_taxonomy_object->object_type as $object_type ) {
 					$_object_type = get_post_type_object( $object_type );
 
 					// Grab the first one.
@@ -668,7 +654,7 @@ function multisite_list_categories( $args = '' ) {
 
 			// Fallback for the 'All' link is the posts page.
 			if ( ! $posts_page ) {
-				if ( 'page' == get_option( 'show_on_front' ) && get_option( 'page_for_posts' ) ) {
+				if ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_for_posts' ) ) {
 					$posts_page = get_permalink( get_option( 'page_for_posts' ) );
 				} else {
 					$posts_page = home_url( '/' );
@@ -676,7 +662,7 @@ function multisite_list_categories( $args = '' ) {
 			}
 
 			$posts_page = esc_url( $posts_page );
-			if ( 'list' == $r['style'] ) {
+			if ( 'list' === $r['style'] ) {
 				$output .= "<li class='cat-item-all'><a href='$posts_page'>$show_option_all</a></li>";
 			} else {
 				$output .= "<a href='$posts_page'>$show_option_all</a>";
@@ -698,7 +684,7 @@ function multisite_list_categories( $args = '' ) {
 		$output .= walk_category_tree( $categories, $depth, $r );
 	}
 
-	if ( $r['title_li'] && 'list' == $r['style'] && ( ! empty( $categories ) || ! $r['hide_title_if_empty'] ) ) {
+	if ( $r['title_li'] && 'list' === $r['style'] && ( ! empty( $categories ) || ! $r['hide_title_if_empty'] ) ) {
 		$output .= '</ul></li>';
 	}
 
@@ -713,7 +699,7 @@ function multisite_list_categories( $args = '' ) {
 	$html = apply_filters( 'wp_list_categories', $output, $args );
 
 	if ( $r['echo'] ) {
-		echo $html;
+		echo $html; // WPCS: XSS ok.
 	} else {
 		return $html;
 	}
@@ -774,7 +760,7 @@ function multisite_tag_cloud( $args = '' ) {
 	);
 	$args     = wp_parse_args( $args, $defaults );
 
-	$tags = get_terms(
+	$tags = get_multisite_terms(
 		$args['taxonomy'], array_merge(
 			$args, array(
 				'orderby' => 'count',
@@ -788,20 +774,20 @@ function multisite_tag_cloud( $args = '' ) {
 	}
 
 	foreach ( $tags as $key => $tag ) {
-		if ( 'edit' == $args['link'] ) {
-			$link = get_edit_term_link( $tag->term_id, $tag->taxonomy, $args['post_type'] );
+		if ( 'edit' === $args['link'] ) {
+			$link = get_edit_term_link( $tag->multisite_term_id, $tag->taxonomy, $args['post_type'] );
 		} else {
-			$link = get_term_link( intval( $tag->term_id ), $tag->taxonomy );
+			$link = get_multisite_term_link( intval( $tag->multisite_term_id ), $tag->taxonomy );
 		}
 		if ( is_wp_error( $link ) ) {
 			return;
 		}
 
 		$tags[ $key ]->link = $link;
-		$tags[ $key ]->id   = $tag->term_id;
+		$tags[ $key ]->id   = $tag->multisite_term_id;
 	}
 
-	$return = generate_multisite_tag_cloud( $tags, $args ); // Here's where those top tags get sorted according to $args
+	$return = generate_multisite_tag_cloud( $tags, $args ); // Here's where those top tags get sorted according to $args .
 
 	/**
 	 * Filters the tag cloud output.
@@ -813,11 +799,11 @@ function multisite_tag_cloud( $args = '' ) {
 	 */
 	$return = apply_filters( 'wp_tag_cloud', $return, $args );
 
-	if ( 'array' == $args['format'] || empty( $args['echo'] ) ) {
+	if ( 'array' === $args['format'] || empty( $args['echo'] ) ) {
 		return $return;
 	}
 
-	echo $return;
+	echo $return; // WPCS: XSS ok.
 }
 
 /**
@@ -897,17 +883,17 @@ function generate_multisite_tag_cloud( $tags, $args = '' ) {
 		$translate_nooped_plural = $args['topic_count_text'];
 	} elseif ( ! empty( $args['topic_count_text_callback'] ) ) {
 		// Look for the alternative callback style. Ignore the previous default.
-		if ( $args['topic_count_text_callback'] === 'default_topic_count_text' ) {
-			$translate_nooped_plural = _n_noop( '%s item', '%s items' );
+		if ( 'default_topic_count_text' === $args['topic_count_text_callback'] ) {
+			$translate_nooped_plural = _n_noop( '%s term', '%s terms', 'multitaxo' ); // phpcs:ignore WordPress.WP.I18n
 		} else {
 			$translate_nooped_plural = false;
 		}
 	} elseif ( isset( $args['single_text'] ) && isset( $args['multiple_text'] ) ) {
 		// If no callback exists, look for the old-style single_text and multiple_text arguments.
-		$translate_nooped_plural = _n_noop( $args['single_text'], $args['multiple_text'] );
+		$translate_nooped_plural = _n_noop( $args['single_text'], $args['multiple_text'], 'multitaxo' ); // phpcs:ignore WordPress.WP.I18n
 	} else {
 		// This is the default for when no callback, plural, or argument is passed in.
-		$translate_nooped_plural = _n_noop( '%s item', '%s items' );
+		$translate_nooped_plural = _n_noop( '%s term', '%s terms', 'multitaxo' ); // phpcs:ignore WordPress.WP.I18n
 	}
 
 	/**
@@ -948,7 +934,7 @@ function generate_multisite_tag_cloud( $tags, $args = '' ) {
 	}
 
 	$counts      = array();
-	$real_counts = array(); // For the alt tag
+	$real_counts = array(); // For the alt tag.
 	foreach ( (array) $tags as $key => $tag ) {
 		$real_counts[ $key ] = $tag->count;
 		$counts[ $key ]      = call_user_func( $args['topic_count_scale_callback'], $tag->count );
@@ -966,6 +952,7 @@ function generate_multisite_tag_cloud( $tags, $args = '' ) {
 	$font_step = $font_spread / $spread;
 
 	$aria_label = false;
+
 	/*
 	 * Determine whether to output an 'aria-label' attribute with the tag name and count.
 	 * When tags have a different font size, they visually convey an important information
@@ -997,8 +984,8 @@ function generate_multisite_tag_cloud( $tags, $args = '' ) {
 
 		$tags_data[] = array(
 			'id'              => $tag_id,
-			'url'             => '#' != $tag->link ? $tag->link : '#',
-			'role'            => '#' != $tag->link ? '' : ' role="button"',
+			'url'             => '#' !== $tag->link ? $tag->link : '#',
+			'role'            => '#' !== $tag->link ? '' : ' role="button"',
 			'name'            => $tag->name,
 			'formatted_count' => $formatted_count,
 			'slug'            => $tag->slug,
@@ -1079,7 +1066,7 @@ function generate_multisite_tag_cloud( $tags, $args = '' ) {
 }
 
 //
-// Helper functions
+// Helper functions.
 //
 /**
  * Retrieve HTML list content for category list.
@@ -1089,11 +1076,11 @@ function generate_multisite_tag_cloud( $tags, $args = '' ) {
  * @see Walker_Category::walk() for parameters and return description.
  * @return string
  */
-function walk_multisite_category_tree() {
+function walk_hierarchical_multisite_taxonomy_tree() {
 	$args = func_get_args();
 	// the user's options are the third parameter.
 	if ( empty( $args[2]['walker'] ) || ! ( $args[2]['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Multisite_Category();
+		$walker = new Walker_Multisite_Hierarchical_Taxonomy();
 	} else {
 		$walker = $args[2]['walker'];
 	}
@@ -1108,11 +1095,11 @@ function walk_multisite_category_tree() {
  * @see Walker_CategoryDropdown::walk() for parameters and return description.
  * @return string
  */
-function walk_multisite_category_dropdown_tree() {
+function walk_hierarchical_multisite_taxonomy_dropdown_tree() {
 	$args = func_get_args();
 	// the user's options are the third parameter.
 	if ( empty( $args[2]['walker'] ) || ! ( $args[2]['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Multisite_CategoryDropdown();
+		$walker = new Walker_Hierarchical_Multisite_Taxonomy_Dropdown();
 	} else {
 		$walker = $args[2]['walker'];
 	}
@@ -1133,10 +1120,10 @@ function multisite_term_description( $term = 0, $taxonomy = 'post_tag' ) {
 		$term = get_queried_object();
 		if ( $term ) {
 			$taxonomy = $term->taxonomy;
-			$term     = $term->term_id;
+			$term     = $term->multisite_term_id;
 		}
 	}
-	$description = get_term_field( 'description', $term, $taxonomy );
+	$description = get_multisite_term_field( 'description', $term, $taxonomy );
 	return is_wp_error( $description ) ? '' : $description;
 }
 
@@ -1151,7 +1138,8 @@ function multisite_term_description( $term = 0, $taxonomy = 'post_tag' ) {
  *                              or the post does not exist, WP_Error on failure.
  */
 function get_the_multisite_terms( $post, $taxonomy ) {
-	if ( ! $post = get_post( $post ) ) {
+	$post = get_post( $post );
+	if ( is_null( $post ) ) {
 		return false;
 	}
 
@@ -1159,8 +1147,8 @@ function get_the_multisite_terms( $post, $taxonomy ) {
 	if ( false === $terms ) {
 		$terms = wp_get_object_terms( $post->ID, $taxonomy );
 		if ( ! is_wp_error( $terms ) ) {
-			$term_ids = wp_list_pluck( $terms, 'term_id' );
-			wp_cache_add( $post->ID, $term_ids, $taxonomy . '_relationships' );
+			$multisite_term_ids = wp_list_pluck( $terms, 'multisite_term_id' );
+			wp_cache_add( $post->ID, $multisite_term_ids, $taxonomy . '_relationships' );
 		}
 	}
 
@@ -1195,7 +1183,7 @@ function get_the_multisite_terms( $post, $taxonomy ) {
  * @return string|false|WP_Error A list of terms on success, false if there are no terms, WP_Error on failure.
  */
 function get_the_multisite_term_list( $id, $taxonomy, $before = '', $sep = '', $after = '' ) {
-	$terms = get_the_terms( $id, $taxonomy );
+	$terms = get_the_multisite_terms( $id, $taxonomy );
 
 	if ( is_wp_error( $terms ) ) {
 		return $terms;
@@ -1208,7 +1196,7 @@ function get_the_multisite_term_list( $id, $taxonomy, $before = '', $sep = '', $
 	$links = array();
 
 	foreach ( $terms as $term ) {
-		$link = get_term_link( $term, $taxonomy );
+		$link = get_multisite_term_link( $term, $taxonomy );
 		if ( is_wp_error( $link ) ) {
 			return $link;
 		}
@@ -1225,7 +1213,7 @@ function get_the_multisite_term_list( $id, $taxonomy, $before = '', $sep = '', $
 	 *
 	 * @param array $links An array of term links.
 	 */
-	$term_links = apply_filters( "term_links-{$taxonomy}", $links );
+	$term_links = apply_filters( "multisite_term_links-{$taxonomy}", $links ); // phpcs:ignore WordPress.NamingConventions.ValidHookName
 
 	return $before . join( $sep, $term_links ) . $after;
 }
@@ -1235,7 +1223,7 @@ function get_the_multisite_term_list( $id, $taxonomy, $before = '', $sep = '', $
  *
  * @since 4.8.0
  *
- * @param int          $term_id  Term ID.
+ * @param int          $multisite_term_id  Term ID.
  * @param string       $taxonomy Taxonomy name.
  * @param string|array $args {
  *     Array of optional arguments.
@@ -1248,9 +1236,9 @@ function get_the_multisite_term_list( $id, $taxonomy, $before = '', $sep = '', $
  * }
  * @return string|WP_Error A list of term parents on success, WP_Error or empty string on failure.
  */
-function get_multisite_term_parents_list( $term_id, $taxonomy, $args = array() ) {
+function get_multisite_term_parents_list( $multisite_term_id, $taxonomy, $args = array() ) {
 	$list = '';
-	$term = get_term( $term_id, $taxonomy );
+	$term = get_multisite_term( $multisite_term_id, $taxonomy );
 
 	if ( is_wp_error( $term ) ) {
 		return $term;
@@ -1260,7 +1248,7 @@ function get_multisite_term_parents_list( $term_id, $taxonomy, $args = array() )
 		return $list;
 	}
 
-	$term_id = $term->term_id;
+	$multisite_term_id = $term->multisite_term_id;
 
 	$defaults = array(
 		'format'    => 'name',
@@ -1275,18 +1263,18 @@ function get_multisite_term_parents_list( $term_id, $taxonomy, $args = array() )
 		$args[ $bool ] = wp_validate_boolean( $args[ $bool ] );
 	}
 
-	$parents = get_ancestors( $term_id, $taxonomy, 'taxonomy' );
+	$parents = get_ancestors( $multisite_term_id, $taxonomy, 'taxonomy' );
 
 	if ( $args['inclusive'] ) {
-		array_unshift( $parents, $term_id );
+		array_unshift( $parents, $multisite_term_id );
 	}
 
-	foreach ( array_reverse( $parents ) as $term_id ) {
-		$parent = get_term( $term_id, $taxonomy );
+	foreach ( array_reverse( $parents ) as $multisite_term_id ) {
+		$parent = get_multisite_term( $multisite_term_id, $taxonomy );
 		$name   = ( 'slug' === $args['format'] ) ? $parent->slug : $parent->name;
 
 		if ( $args['link'] ) {
-			$list .= '<a href="' . esc_url( get_term_link( $parent->term_id, $taxonomy ) ) . '">' . $name . '</a>' . $args['separator'];
+			$list .= '<a href="' . esc_url( get_multisite_term_link( $parent->multisite_term_id, $taxonomy ) ) . '">' . $name . '</a>' . $args['separator'];
 		} else {
 			$list .= $name . $args['separator'];
 		}
@@ -1308,7 +1296,7 @@ function get_multisite_term_parents_list( $term_id, $taxonomy, $args = array() )
  * @return false|void False on WordPress error.
  */
 function the_multisite_terms( $id, $taxonomy, $before = '', $sep = ', ', $after = '' ) {
-	$term_list = get_the_term_list( $id, $taxonomy, $before, $sep, $after );
+	$term_list = get_the_multisite_term_list( $id, $taxonomy, $before, $sep, $after );
 
 	if ( is_wp_error( $term_list ) ) {
 		return false;
@@ -1325,20 +1313,20 @@ function the_multisite_terms( $id, $taxonomy, $before = '', $sep = ', ', $after 
 	 * @param string $sep       String to use between the terms.
 	 * @param string $after     String to use after the terms.
 	 */
-	echo apply_filters( 'the_terms', $term_list, $taxonomy, $before, $sep, $after );
+	echo apply_filters( 'the_terms', $term_list, $taxonomy, $before, $sep, $after ); // WPCS: XSS ok.
 }
 
 /**
  * Check if the current post has any of given terms.
  *
- * The given terms are checked against the post's terms' term_ids, names and slugs.
- * Terms given as integers will only be checked against the post's terms' term_ids.
+ * The given terms are checked against the post's terms' multisite_term_ids, names and slugs.
+ * Terms given as integers will only be checked against the post's terms' multisite_term_ids.
  * If no terms are given, determines if post has any terms.
  *
  * @since 3.1.0
  *
- * @param string|int|array $term Optional. The term name/term_id/slug or array of them to check for.
- * @param string           $taxonomy Taxonomy name
+ * @param string|int|array $term Optional. The term name/multisite_term_id/slug or array of them to check for.
+ * @param string           $taxonomy Taxonomy name.
  * @param int|object       $post Optional. Post to check instead of the current post.
  * @return bool True if the current post has any of the given tags (or any tag, if no tag specified).
  */
@@ -1349,7 +1337,7 @@ function has_multistite_term( $term = '', $taxonomy = '', $post = null ) {
 		return false;
 	}
 
-	$r = is_object_in_term( $post->ID, $taxonomy, $term );
+	$r = is_object_in_multisite_term( $post->ID, $taxonomy, $term );
 	if ( is_wp_error( $r ) ) {
 		return false;
 	}

@@ -417,14 +417,14 @@ class Multitaxo_Plugin {
 					break;
 				}
 
-				$term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // WPCS: input var ok.
-				$term    = get_term( $term_id );
+				$multisite_term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // WPCS: input var ok.
+				$term              = get_multisite_term( $multisite_term_id );
 
 				if ( ! $term instanceof WP_Term ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $term_id, $tax->name ) ) );
+				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $multisite_term_id, $tax->name ) ) );
 
 				exit;
 			case 'editedtag':
@@ -440,7 +440,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				$tag = get_term( $tag_id, $tax->name );
+				$tag = get_multisite_term( $tag_id, $tax->name );
 
 				if ( ! $tag ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
@@ -846,7 +846,7 @@ class Multitaxo_Plugin {
 			 * @param string $context  Filter context. Accepts 'new' or 'edit'.
 			 */
 			$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $tax->name, 'new' );
-			dropdown_multisite_categories( $dropdown_args );
+			dropdown_hierarchical_multisite_taxonomy( $dropdown_args );
 			?>
 			<?php if ( 'category' === $tax->name ) : ?>
 				<p><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
@@ -1005,9 +1005,9 @@ class Multitaxo_Plugin {
 			);
 		}
 
-		$term_id = ( isset( $_GET['multisite_term_id'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_term_id'] ) ) : null; // WPCS: input var ok, CSRF ok.
+		$multisite_term_id = ( isset( $_GET['multisite_term_id'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_term_id'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
-		$term = get_multisite_term( $term_id, $taxonomy );
+		$term = get_multisite_term( $multisite_term_id, $taxonomy );
 
 		if ( ! $term || is_wp_error( $term ) ) {
 			wp_die( esc_html__( 'Invalid term.', 'multitaxo' ) );
@@ -1142,7 +1142,7 @@ class Multitaxo_Plugin {
 
 						/** This filter is documented in wp-admin/edit-tags.php */
 						$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $taxonomy, 'edit' );
-						dropdown_multisite_categories( $dropdown_args );
+						dropdown_hierarchical_multisite_taxonomy( $dropdown_args );
 						?>
 						<?php if ( 'category' === $taxonomy ) : ?>
 							<p class="description"><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
