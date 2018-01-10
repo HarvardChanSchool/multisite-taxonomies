@@ -898,10 +898,10 @@ function get_multisite_terms( $args = array() ) {
 	 *
 	 * @param array         $terms      Array of found terms.
 	 * @param array         $taxonomies An array of taxonomies.
-	 * @param array         $args       An array of get_terms() arguments.
+	 * @param array         $args       An array of get_multisite_terms() arguments.
 	 * @param WP_Term_Query $term_query The WP_Term_Query object.
 	 */
-	return apply_filters( 'get_terms', $multisite_terms, $multisite_term_query->query_vars['taxonomy'], $multisite_term_query->query_vars, $multisite_term_query );
+	return apply_filters( 'get_multisite_terms', $multisite_terms, $multisite_term_query->query_vars['taxonomy'], $multisite_term_query->query_vars, $multisite_term_query );
 }
 
 /**

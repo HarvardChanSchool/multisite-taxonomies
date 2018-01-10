@@ -418,7 +418,7 @@ class Multitaxo_Plugin {
 				}
 
 				$multisite_term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // WPCS: input var ok.
-				$term    = get_term( $multisite_term_id );
+				$term    = get_multisite_term( $multisite_term_id );
 
 				if ( ! $term instanceof WP_Term ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
@@ -440,7 +440,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				$tag = get_term( $tag_id, $tax->name );
+				$tag = get_multisite_term( $tag_id, $tax->name );
 
 				if ( ! $tag ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );

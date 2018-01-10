@@ -110,7 +110,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$output = '';
 
 	if ( $r['checked_ontop'] ) {
-		// Post process $categories rather than adding an exclude to the get_terms() query to keep the query the same across all posts (for any query cache).
+		// Post process $categories rather than adding an exclude to the get_multisite_terms() query to keep the query the same across all posts (for any query cache).
 		$checked_categories = array();
 		$keys               = array_keys( $categories );
 
@@ -153,9 +153,9 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  *     @type string       $show_option_all   Text to display for showing all categories. Default empty.
  *     @type string       $show_option_none  Text to display for showing no categories. Default empty.
  *     @type string       $option_none_value Value to use when no category is selected. Default empty.
- *     @type string       $orderby           Which column to use for ordering categories. See get_terms() for a list
+ *     @type string       $orderby           Which column to use for ordering categories. See get_multisite_terms() for a list
  *                                           of accepted values. Default 'id' (multisite_term_id).
- *     @type bool         $pad_counts        See get_terms() for an argument description. Default false.
+ *     @type bool         $pad_counts        See get_multisite_terms() for an argument description. Default false.
  *     @type bool|int     $show_count        Whether to include post counts. Accepts 0, 1, or their bool equivalents.
  *                                           Default 0.
  *     @type bool|int     $echo              Whether to echo or return the generated markup. Accepts 0, 1, or their
@@ -222,10 +222,10 @@ function dropdown_hierarchical_multisite_taxonomy( $args = '' ) {
 		$tab_index_attribute = " tabindex=\"$tab_index\"";
 	}
 
-	// Avoid clashes with the 'name' param of get_terms().
-	$get_terms_args = $r;
-	unset( $get_terms_args['name'] );
-	$categories = get_multisite_terms( $get_terms_args );
+	// Avoid clashes with the 'name' param of get_multisite_terms().
+	$get_multisite_terms_args = $r;
+	unset( $get_multisite_terms_args['name'] );
+	$categories = get_multisite_terms( $get_multisite_terms_args );
 	$name       = esc_attr( $r['name'] );
 	$class      = esc_attr( $r['class'] );
 	$id         = $r['id'] ? esc_attr( $r['id'] ) : $name;
@@ -406,7 +406,7 @@ function link_hierarchical_multisite_taxonomy_checklist( $link_id = 0 ) {
 		$checked_categories[] = $default;
 	}
 
-	$categories = get_terms(
+	$categories = get_multisite_terms(
 		'link_category', array(
 			'orderby'    => 'name',
 			'hide_empty' => 0,
@@ -487,7 +487,7 @@ function get_multisite_inline_data( $post ) {
 
 		} elseif ( $taxonomy->show_ui ) {
 
-			$terms_to_edit = get_terms_to_edit( $post->ID, $taxonomy_name );
+			$terms_to_edit = get_multisite_terms_to_edit( $post->ID, $taxonomy_name );
 			if ( ! is_string( $terms_to_edit ) ) {
 				$terms_to_edit = '';
 			}
@@ -519,28 +519,28 @@ function get_multisite_inline_data( $post ) {
  * @param string|array $args {
  *     Array of optional arguments.
  *
- *     @type int          $child_of              Term ID to retrieve child terms of. See get_terms(). Default 0.
+ *     @type int          $child_of              Term ID to retrieve child terms of. See get_multisite_terms(). Default 0.
  *     @type int|array    $current_category      ID of category, or array of IDs of categories, that should get the
  *                                               'current-cat' class. Default 0.
  *     @type int          $depth                 Category depth. Used for tab indentation. Default 0.
  *     @type bool|int     $echo                  True to echo markup, false to return it. Default 1.
  *     @type array|string $exclude               Array or comma/space-separated string of term IDs to exclude.
  *                                               If `$hierarchical` is true, descendants of `$exclude` terms will also
- *                                               be excluded; see `$exclude_tree`. See get_terms().
+ *                                               be excluded; see `$exclude_tree`. See get_multisite_terms().
  *                                               Default empty string.
  *     @type array|string $exclude_tree          Array or comma/space-separated string of term IDs to exclude, along
- *                                               with their descendants. See get_terms(). Default empty string.
+ *                                               with their descendants. See get_multisite_terms(). Default empty string.
  *     @type string       $feed                  Text to use for the feed link. Default 'Feed for all posts filed
  *                                               under [cat name]'.
  *     @type string       $feed_image            URL of an image to use for the feed link. Default empty string.
- *     @type string       $feed_type             Feed type. Used to build feed link. See get_term_feed_link().
+ *     @type string       $feed_type             Feed type. Used to build feed link. See get_multisite_term_feed_link().
  *                                               Default empty string (default feed).
  *     @type bool|int     $hide_empty            Whether to hide categories that don't have any posts attached to them.
  *                                               Default 1.
  *     @type bool         $hide_title_if_empty   Whether to hide the `$title_li` element if there are no terms in
  *                                               the list. Default false (title will always be shown).
  *     @type bool         $hierarchical          Whether to include terms that have non-empty descendants.
- *                                               See get_terms(). Default true.
+ *                                               See get_multisite_terms(). Default true.
  *     @type string       $order                 Which direction to order categories. Accepts 'ASC' or 'DESC'.
  *                                               Default 'ASC'.
  *     @type string       $orderby               The column to use for ordering categories. Default 'name'.
@@ -760,7 +760,7 @@ function multisite_tag_cloud( $args = '' ) {
 	);
 	$args     = wp_parse_args( $args, $defaults );
 
-	$tags = get_terms(
+	$tags = get_multisite_terms(
 		$args['taxonomy'], array_merge(
 			$args, array(
 				'orderby' => 'count',
@@ -777,7 +777,7 @@ function multisite_tag_cloud( $args = '' ) {
 		if ( 'edit' === $args['link'] ) {
 			$link = get_edit_term_link( $tag->multisite_term_id, $tag->taxonomy, $args['post_type'] );
 		} else {
-			$link = get_term_link( intval( $tag->multisite_term_id ), $tag->taxonomy );
+			$link = get_multisite_term_link( intval( $tag->multisite_term_id ), $tag->taxonomy );
 		}
 		if ( is_wp_error( $link ) ) {
 			return;
@@ -1123,7 +1123,7 @@ function multisite_term_description( $term = 0, $taxonomy = 'post_tag' ) {
 			$term     = $term->multisite_term_id;
 		}
 	}
-	$description = get_term_field( 'description', $term, $taxonomy );
+	$description = get_multisite_term_field( 'description', $term, $taxonomy );
 	return is_wp_error( $description ) ? '' : $description;
 }
 
@@ -1274,7 +1274,7 @@ function get_multisite_term_parents_list( $multisite_term_id, $taxonomy, $args =
 		$name   = ( 'slug' === $args['format'] ) ? $parent->slug : $parent->name;
 
 		if ( $args['link'] ) {
-			$list .= '<a href="' . esc_url( get_term_link( $parent->multisite_term_id, $taxonomy ) ) . '">' . $name . '</a>' . $args['separator'];
+			$list .= '<a href="' . esc_url( get_multisite_term_link( $parent->multisite_term_id, $taxonomy ) ) . '">' . $name . '</a>' . $args['separator'];
 		} else {
 			$list .= $name . $args['separator'];
 		}
