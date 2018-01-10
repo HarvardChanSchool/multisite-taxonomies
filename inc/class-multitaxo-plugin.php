@@ -417,14 +417,14 @@ class Multitaxo_Plugin {
 					break;
 				}
 
-				$term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // WPCS: input var ok.
-				$term    = get_term( $term_id );
+				$multisite_term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // WPCS: input var ok.
+				$term    = get_term( $multisite_term_id );
 
 				if ( ! $term instanceof WP_Term ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $term_id, $tax->name ) ) );
+				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $multisite_term_id, $tax->name ) ) );
 
 				exit;
 			case 'editedtag':
@@ -1005,9 +1005,9 @@ class Multitaxo_Plugin {
 			);
 		}
 
-		$term_id = ( isset( $_GET['multisite_term_id'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_term_id'] ) ) : null; // WPCS: input var ok, CSRF ok.
+		$multisite_term_id = ( isset( $_GET['multisite_term_id'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_term_id'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
-		$term = get_multisite_term( $term_id, $taxonomy );
+		$term = get_multisite_term( $multisite_term_id, $taxonomy );
 
 		if ( ! $term || is_wp_error( $term ) ) {
 			wp_die( esc_html__( 'Invalid term.', 'multitaxo' ) );

@@ -33,7 +33,7 @@ class Walker_Hierarchical_Multisite_Taxonomy_Dropdown extends Walker {
 	 */
 	public $db_fields = array(
 		'parent' => 'parent',
-		'id'     => 'term_id',
+		'id'     => 'multisite_term_id',
 	);
 
 	/**
@@ -58,7 +58,7 @@ class Walker_Hierarchical_Multisite_Taxonomy_Dropdown extends Walker {
 		if ( isset( $args['value_field'] ) && isset( $multisite_taxonomy->{$args['value_field']} ) ) {
 			$value_field = $args['value_field'];
 		} else {
-			$value_field = 'term_id';
+			$value_field = 'multisite_term_id';
 		}
 
 		$output .= "\t<option class=\"level-$depth\" value=\"" . esc_attr( $multisite_taxonomy->{$value_field} ) . '"';

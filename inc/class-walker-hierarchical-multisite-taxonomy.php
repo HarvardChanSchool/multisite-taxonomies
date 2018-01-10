@@ -33,7 +33,7 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 	 */
 	public $db_fields = array(
 		'parent' => 'parent',
-		'id'     => 'term_id',
+		'id'     => 'multisite_term_id',
 	);
 
 	/**
@@ -125,7 +125,7 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 				$link .= '(';
 			}
 
-			$link .= '<a href="' . esc_url( get_multisite_term_feed_link( $multisite_taxonomy->term_id, $multisite_taxonomy->taxonomy, $args['feed_type'] ) ) . '"';
+			$link .= '<a href="' . esc_url( get_multisite_term_feed_link( $multisite_taxonomy->multisite_term_id, $multisite_taxonomy->taxonomy, $args['feed_type'] ) ) . '"';
 
 			if ( empty( $args['feed'] ) ) {
 				/* translators: %s: multisite term name */
@@ -157,7 +157,7 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 			$output     .= "\t<li";
 			$css_classes = array(
 				'cat-item',
-				'cat-item-' . $multisite_taxonomy->term_id,
+				'cat-item-' . $multisite_taxonomy->multisite_term_id,
 			);
 
 			if ( ! empty( $args['current_category'] ) ) {
@@ -170,13 +170,13 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 				);
 
 				foreach ( $_current_terms as $_current_term ) {
-					if ( $multisite_taxonomy->term_id === $_current_term->term_id ) {
+					if ( $multisite_taxonomy->multisite_term_id === $_current_term->multisite_term_id ) {
 						$css_classes[] = 'current-cat';
-					} elseif ( $multisite_taxonomy->term_id === $_current_term->parent ) {
+					} elseif ( $multisite_taxonomy->multisite_term_id === $_current_term->parent ) {
 						$css_classes[] = 'current-cat-parent';
 					}
 					while ( $_current_term->parent ) {
-						if ( $multisite_taxonomy->term_id === $_current_term->parent ) {
+						if ( $multisite_taxonomy->multisite_term_id === $_current_term->parent ) {
 							$css_classes[] = 'current-cat-ancestor';
 							break;
 						}

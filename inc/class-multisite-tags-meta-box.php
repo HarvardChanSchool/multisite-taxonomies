@@ -506,7 +506,7 @@ p.popular-multitags a {
 
 		foreach ( $tags as $key => $tag ) {
 			$tags[ $key ]->link = '#';
-			$tags[ $key ]->id   = $tag->term_id;
+			$tags[ $key ]->id   = $tag->multisite_term_id;
 		}
 
 		// We need raw tag names here, so don't filter the output.

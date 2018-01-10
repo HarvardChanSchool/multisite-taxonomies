@@ -27,7 +27,7 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 	 */
 	public $db_fields = array(
 		'parent' => 'parent',
-		'id'     => 'term_id',
+		'id'     => 'multisite_term_id',
 	); // TODO: decouple this.
 
 	/**
@@ -89,7 +89,7 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 		}
 
 		$args['popular_cats'] = empty( $args['popular_cats'] ) ? array() : $args['popular_cats'];
-		$class                = in_array( $category->term_id, $args['popular_cats'], true ) ? ' class="popular-category"' : '';
+		$class                = in_array( $category->multisite_term_id, $args['popular_cats'], true ) ? ' class="popular-category"' : '';
 
 		$args['selected_cats'] = empty( $args['selected_cats'] ) ? array() : $args['selected_cats'];
 
@@ -97,21 +97,21 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 			$aria_checked = 'false';
 			$inner_class  = 'category';
 
-			if ( in_array( $category->term_id, $args['selected_cats'], true ) ) {
+			if ( in_array( $category->multisite_term_id, $args['selected_cats'], true ) ) {
 				$inner_class .= ' selected';
 				$aria_checked = 'true';
 			}
 
 			/** This filter is documented in wp-includes/category-template.php */
 			$output .= "\n" . '<li' . $class . '>' .
-				'<div class="' . $inner_class . '" data-term-id=' . $category->term_id .
+				'<div class="' . $inner_class . '" data-term-id=' . $category->multisite_term_id .
 				' tabindex="0" role="checkbox" aria-checked="' . $aria_checked . '">' .
 				esc_html( apply_filters( 'the_category', $category->name ) ) . '</div>';
 		} else {
 			/** This filter is documented in wp-includes/category-template.php */
-			$output .= "\n<li id='{$taxonomy}-{$category->term_id}'$class>" .
-				'<label class="selectit"><input value="' . $category->term_id . '" type="checkbox" name="' . $name . '[]" id="in-' . $taxonomy . '-' . $category->term_id . '"' .
-				checked( in_array( $category->term_id, $args['selected_cats'], true ), true, false ) .
+			$output .= "\n<li id='{$taxonomy}-{$category->multisite_term_id}'$class>" .
+				'<label class="selectit"><input value="' . $category->multisite_term_id . '" type="checkbox" name="' . $name . '[]" id="in-' . $taxonomy . '-' . $category->multisite_term_id . '"' .
+				checked( in_array( $category->multisite_term_id, $args['selected_cats'], true ), true, false ) .
 				disabled( empty( $args['disabled'] ), false, false ) . ' /> ' .
 				esc_html( apply_filters( 'the_category', $category->name ) ) . '</label>';
 		}
