@@ -44,7 +44,7 @@ var tagBox, array_unique_noempty;
 			var id = el.id,
 				num = id.split('-check-num-')[1],
 				taxbox = $(el).closest('.multitagsdiv'),
-				thetags = taxbox.find('.the-tags'),
+				thetags = taxbox.find('.the-multi-tags'),
 				current_tags = thetags.val().split( tagDelimiter ),
 				new_tags = [];
 
@@ -64,8 +64,8 @@ var tagBox, array_unique_noempty;
 		},
 
 		quickClicks : function( el ) {
-			var thetags = $('.the-tags', el),
-				tagchecklist = $('.tagchecklist', el),
+			var thetags = $('.the-multi-tags', el),
+				tagchecklist = $('.multitagchecklist', el),
 				id = $(el).attr('id'),
 				current_tags, disabled;
 
@@ -95,7 +95,7 @@ var tagBox, array_unique_noempty;
 					 * use visually hidden text for screen readers.
 					 */
 					xbutton = $( '<button type="button" id="' + id + '-check-num-' + key + '" class="ntdelbutton">' +
-						'<span class="remove-tag-icon" aria-hidden="true"></span>' +
+						'<span class="remove-multi-tag-icon" aria-hidden="true"></span>' +
 						'<span class="screen-reader-text">' + window.tagsSuggestL10n.removeTerm + ' ' + listItem.html() + '</span>' +
 						'</button>' );
 
@@ -128,7 +128,7 @@ var tagBox, array_unique_noempty;
 
 		flushTags : function( el, a, f ) {
 			var tagsval, newtags, text,
-				tags = $( '.the-tags', el ),
+				tags = $( '.the-multi-tags', el ),
 				newtag = $( 'input.newtag', el );
 
 			a = a || false;
@@ -165,12 +165,12 @@ var tagBox, array_unique_noempty;
 		get : function( id ) {
 			var tax = id.substr( id.indexOf('-') + 1 );
 
-			$.post( ajaxurl, { 'action': 'get-tagcloud', 'tax': tax }, function( r, stat ) {
+			$.post( ajaxurl, { 'action': 'ajax-get-multisite-tagcloud', 'tax': tax }, function( r, stat ) {
 				if ( 0 === r || 'success' != stat ) {
 					return;
 				}
 
-				r = $( '<div id="tagcloud-' + tax + '" class="the-tagcloud">' + r + '</div>' );
+				r = $( '<div id="multitagcloud-' + tax + '" class="the-multitagcloud">' + r + '</div>' );
 
 				$( 'a', r ).click( function() {
 					tagBox.userAction = 'add';
@@ -214,21 +214,21 @@ var tagBox, array_unique_noempty;
 		},
 
 		init : function() {
-			var ajaxtag = $('div.ajaxtag');
+			var ajaxtag = $('div.ajaxmultitag');
 
-			$('.tagsdiv').each( function() {
+			$('.multitagsdiv').each( function() {
 				tagBox.quickClicks( this );
 			});
 
-			$( '.tagadd', ajaxtag ).click( function() {
+			$( '.multitagadd', ajaxtag ).click( function() {
 				tagBox.userAction = 'add';
-				tagBox.flushTags( $( this ).closest( '.tagsdiv' ) );
+				tagBox.flushTags( $( this ).closest( '.multitagsdiv' ) );
 			});
 
-			$( 'input.newtag', ajaxtag ).keypress( function( event ) {
+			$( 'input.newmultitag', ajaxtag ).keypress( function( event ) {
 				if ( 13 == event.which ) {
 					tagBox.userAction = 'add';
-					tagBox.flushTags( $( this ).closest( '.tagsdiv' ) );
+					tagBox.flushTags( $( this ).closest( '.multitagsdiv' ) );
 					event.preventDefault();
 					event.stopPropagation();
 				}
@@ -243,13 +243,13 @@ var tagBox, array_unique_noempty;
 
 			// save tags on post save/publish
 			$('#post').submit(function(){
-				$('div.tagsdiv').each( function() {
+				$('div.multitagsdiv').each( function() {
 					tagBox.flushTags(this, false, 1);
 				});
 			});
 
 			// Fetch and toggle the Tag cloud.
-			$('.tagcloud-link').click(function(){
+			$('.multitagcloud-link').click(function(){
 				// On the first click, fetch the tag cloud and insert it in the DOM.
 				tagBox.get( $( this ).attr( 'id' ) );
 				// Update button state, remove previous click event and attach a new one to toggle the cloud.
@@ -259,7 +259,7 @@ var tagBox, array_unique_noempty;
 					.click( function() {
 						$( this )
 							.attr( 'aria-expanded', 'false' === $( this ).attr( 'aria-expanded' ) ? 'true' : 'false' )
-							.siblings( '.the-tagcloud' ).toggle();
+							.siblings( '.the-multitagcloud' ).toggle();
 					});
 			});
 		}

@@ -54,7 +54,7 @@
 				term = getLast( request.term );
 
 				$.get( window.ajaxurl, {
-					action: 'ajax-tag-search',
+					action: 'ajax-multisite-tag-search',
 					tax: taxonomy,
 					q: term
 				} ).always( function() {
