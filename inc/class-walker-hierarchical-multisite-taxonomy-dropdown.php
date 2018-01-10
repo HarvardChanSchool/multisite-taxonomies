@@ -1,6 +1,6 @@
 <?php
 /**
- * Multisite Taxonomies API: Walker_Multisite_Hierarchical_Taxonomy_Dropdown class
+ * Multisite Taxonomies API: Walker_Hierarchical_Multisite_Taxonomy_Dropdown class
  *
  * @package multitaxo
  */
@@ -10,7 +10,7 @@
  *
  * @see Walker
  */
-class Walker_Multisite_Hierarchical_Taxonomy_Dropdown extends Walker {
+class Walker_Hierarchical_Multisite_Taxonomy_Dropdown extends Walker {
 
 	/**
 	 * What the class handles.
