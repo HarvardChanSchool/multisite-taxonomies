@@ -31,97 +31,19 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 // Loading Classes.
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multitaxo-plugin.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-taxonomy.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tax-query.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-term-query.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-terms-list-table.php';
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-multisite-tags-meta-box.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multitaxo-plugin.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tax-query.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term-query.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-terms-list-table.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tags-meta-box.php';
 /** Walker_Category_Checklist class */
-require_once plugin_dir_path( __FILE__ ) . 'inc/class-walker-multisite-category-checklist.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-multisite-category-checklist.php';
 // Loading multisite taxonomy and multisite term API.
-require_once plugin_dir_path( __FILE__ ) . 'inc/multisite-taxonomy.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy.php';
 
 
 // Plugin init.
 $multitaxo   = new Multitaxo_Plugin();
 $multi_admin = new Multisite_Tags_Meta_Box();
-
-/**
- * Load in a testing tax.
- *
- * @return void
- */
-function testing_custom_taxonomy() {
-
-	$labels = array(
-		'name'                       => _x( 'Colors', 'Color General Name', 'multitaxo' ),
-		'singular_name'              => _x( 'Color', 'Color Singular Name', 'multitaxo' ),
-		'menu_name'                  => __( 'Color', 'multitaxo' ),
-		'all_items'                  => __( 'All Items', 'multitaxo' ),
-		'parent_item'                => __( 'Parent Item', 'multitaxo' ),
-		'parent_item_colon'          => __( 'Parent Item:', 'multitaxo' ),
-		'new_item_name'              => __( 'New Item Name', 'multitaxo' ),
-		'add_new_item'               => __( 'Add New Item', 'multitaxo' ),
-		'edit_item'                  => __( 'Edit Item', 'multitaxo' ),
-		'update_item'                => __( 'Update Item', 'multitaxo' ),
-		'view_item'                  => __( 'View Item', 'multitaxo' ),
-		'separate_items_with_commas' => __( 'Separate items with commas', 'multitaxo' ),
-		'add_or_remove_items'        => __( 'Add or remove items', 'multitaxo' ),
-		'choose_from_most_used'      => __( 'Choose from the most used', 'multitaxo' ),
-		'popular_items'              => __( 'Popular Items', 'multitaxo' ),
-		'search_items'               => __( 'Search Items', 'multitaxo' ),
-		'not_found'                  => __( 'Not Found', 'multitaxo' ),
-		'no_terms'                   => __( 'No items', 'multitaxo' ),
-		'most_used'                  => __( 'Most Used', 'multitaxo' ),
-		'items_list'                 => __( 'Items list', 'multitaxo' ),
-		'items_list_navigation'      => __( 'Items list navigation', 'multitaxo' ),
-	);
-	$args   = array(
-		'labels'            => $labels,
-		'hierarchical'      => false,
-		'public'            => true,
-		'show_ui'           => true,
-		'show_admin_column' => true,
-		'show_in_nav_menus' => true,
-		'show_tagcloud'     => true,
-	);
-	register_multisite_taxonomy( 'color', array( 'post' ), $args );
-
-	$labels = array(
-		'name'                       => _x( 'Animals', 'Taxonomy General Name', 'multitaxo' ),
-		'singular_name'              => _x( 'Animal', 'Taxonomy Singular Name', 'multitaxo' ),
-		'menu_name'                  => __( 'Animal', 'multitaxo' ),
-		'all_items'                  => __( 'All Items', 'multitaxo' ),
-		'parent_item'                => __( 'Parent Item', 'multitaxo' ),
-		'parent_item_colon'          => __( 'Parent Item:', 'multitaxo' ),
-		'new_item_name'              => __( 'New Item Name', 'multitaxo' ),
-		'add_new_item'               => __( 'Add New Item', 'multitaxo' ),
-		'edit_item'                  => __( 'Edit Item', 'multitaxo' ),
-		'update_item'                => __( 'Update Item', 'multitaxo' ),
-		'view_item'                  => __( 'View Item', 'multitaxo' ),
-		'separate_items_with_commas' => __( 'Separate items with commas', 'multitaxo' ),
-		'add_or_remove_items'        => __( 'Add or remove items', 'multitaxo' ),
-		'choose_from_most_used'      => __( 'Choose from the most used', 'multitaxo' ),
-		'popular_items'              => __( 'Popular Items', 'multitaxo' ),
-		'search_items'               => __( 'Search Items', 'multitaxo' ),
-		'not_found'                  => __( 'Not Found', 'multitaxo' ),
-		'no_terms'                   => __( 'No items', 'multitaxo' ),
-		'most_used'                  => __( 'Most Used', 'multitaxo' ),
-		'items_list'                 => __( 'Items list', 'multitaxo' ),
-		'items_list_navigation'      => __( 'Items list navigation', 'multitaxo' ),
-	);
-	$args   = array(
-		'labels'            => $labels,
-		'hierarchical'      => true,
-		'public'            => true,
-		'show_ui'           => true,
-		'show_admin_column' => true,
-		'show_in_nav_menus' => true,
-		'show_tagcloud'     => true,
-	);
-	register_multisite_taxonomy( 'animal', array( 'post', 'page' ), $args );
-
-}
-add_action( 'init', 'testing_custom_taxonomy', 0 );
