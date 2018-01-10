@@ -49,8 +49,11 @@ class Multisite_Tags_Meta_Box {
 	 * @return void
 	 */
 	public function load_wp_admin_scripts( $hook ) {
+		if ( 'post.php' !== $hook ) {
+			return;
+		}
 
-		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
+		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-tags-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
 		wp_localize_script(
 			'multisite-tags-suggest', 'tagsSuggestL10n', array(
 				'tagDelimiter' => _x( ',', 'tag delimiter', 'multitaxo' ),
@@ -61,7 +64,7 @@ class Multisite_Tags_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-box.js', array( 'multisite-tags-suggest', 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_ASSETS_URL . '/js/multisite-tags-box.js', array( 'multisite-tags-suggest', 'jquery-ui-tabs' ), false, 1 );
 	}
 
 	/**
