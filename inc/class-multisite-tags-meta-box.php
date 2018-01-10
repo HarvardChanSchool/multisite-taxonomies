@@ -120,7 +120,7 @@ class Multisite_Tags_Meta_Box {
 }
 
 /*------------------------------------------------------------------------------
-  13.0 - Tags
+13.0 - Tags
 ------------------------------------------------------------------------------*/
 
 #poststuff .multitagsdiv .howto {
@@ -405,11 +405,11 @@ p.popular-multitags a {
 	public function wp_ajax_ajax_multisite_tag_search() {
 		check_ajax_referer( 'add-multisite-tag', 'nonce-add-multisite-tag' );
 
-		if ( ! isset( $_GET['tax'] ) ) {
+		if ( ! isset( $_GET['tax'] ) ) { // WPCS: input var ok.
 			wp_die( 0 );
 		}
 
-		$taxonomy = sanitize_key( wp_unslash( $_GET['tax'] ) );
+		$taxonomy = sanitize_key( wp_unslash( $_GET['tax'] ) ); // WPCS: input var ok.
 		$tax      = get_multisite_taxonomy( $taxonomy );
 		if ( ! $tax ) {
 			wp_die( 0 );
@@ -419,9 +419,13 @@ p.popular-multitags a {
 			wp_die( -1 );
 		}
 
-		$s = wp_unslash( $_GET['q'] );
+		if ( ! isset( $_GET['q'] ) ) { // WPCS: input var ok.
+			$s = sanitize_text_field( wp_unslash( $_GET['q'] ) ); // WPCS: input var ok.
+		} else {
+			$s = '';
+		}
 
-		$comma = _x( ',', 'tag delimiter' );
+		$comma = _x( ',', 'tag delimiter', 'multitaxo' );
 		if ( ',' !== $comma ) {
 			$s = str_replace( $comma, ',', $s );
 		}
@@ -470,11 +474,11 @@ p.popular-multitags a {
 	public function wp_ajax_get_multisite_tagcloud() {
 		check_ajax_referer( 'add-multisite-tag', 'nonce-add-multisite-tag' );
 
-		if ( ! isset( $_POST['tax'] ) ) {
+		if ( ! isset( $_POST['tax'] ) ) { // WPCS: input var ok.
 			wp_die( 0 );
 		}
 
-		$taxonomy = sanitize_key( $_POST['tax'] );
+		$taxonomy = sanitize_key( $_POST['tax'] ); // WPCS: input var ok.
 		$tax      = get_multisite_taxonomy( $taxonomy );
 		if ( ! $tax ) {
 			wp_die( 0 );
@@ -517,7 +521,7 @@ p.popular-multitags a {
 			wp_die( 0 );
 		}
 
-		echo $return;
+		echo $return; // WPCS: XSS ok.
 
 		wp_die();
 	}

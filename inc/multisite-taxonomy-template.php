@@ -1113,7 +1113,7 @@ function walk_hierarchical_multisite_taxonomy_dropdown_tree() {
 	$args = func_get_args();
 	// the user's options are the third parameter.
 	if ( empty( $args[2]['walker'] ) || ! ( $args[2]['walker'] instanceof Walker ) ) {
-		$walker = new Walker_Multisite_Hierarchical_Taxonomy_Dropdown();
+		$walker = new Walker_Hierarchical_Multisite_Taxonomy_Dropdown();
 	} else {
 		$walker = $args[2]['walker'];
 	}
