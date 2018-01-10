@@ -21,6 +21,10 @@ class Multisite_Tags_Meta_Box {
 
 		// Add the admin scripts to the posts pages.
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_wp_admin_scripts' ) );
+
+		// register the ajax response for creating new tags.
+		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_tag_search' ) );
+		add_action( 'wp_ajax_ajax-get-multisite-tagcloud', array( $this, 'wp_ajax_get_multisite_tagcloud' ) );
 	}
 
 	/**
@@ -45,13 +49,8 @@ class Multisite_Tags_Meta_Box {
 	 * @return void
 	 */
 	public function load_wp_admin_scripts( $hook ) {
-		if ( 'post.php' !== $hook ) {
-			return;
-		}
 
-		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-box.js', array( 'jquery', 'multisite-tags-suggest', 'jquery-ui-core', 'jquery-ui-tabs' ), false, 1 );
-
-		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-suggest.js', array( 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
+		wp_enqueue_script( 'multisite-tags-suggest', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
 		wp_localize_script(
 			'multisite-tags-suggest', 'tagsSuggestL10n', array(
 				'tagDelimiter' => _x( ',', 'tag delimiter', 'multitaxo' ),
@@ -61,6 +60,8 @@ class Multisite_Tags_Meta_Box {
 				'termRemoved'  => __( 'Term removed.', 'multitaxo' ),
 			)
 		);
+
+		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_PLUGIN_URL . '/assets/js/multisite-tags-box.js', array( 'multisite-tags-suggest', 'jquery-ui-tabs' ), false, 1 );
 	}
 
 	/**
@@ -116,6 +117,63 @@ class Multisite_Tags_Meta_Box {
 	width: 80%;
 	border-left: solid 1px #ddd;
 
+}
+
+/*------------------------------------------------------------------------------
+  13.0 - Tags
+------------------------------------------------------------------------------*/
+
+#poststuff .multitagsdiv .howto {
+	margin: 0 0 6px 0;
+}
+
+.ajaxtag .newmultitag {
+	position: relative;
+}
+
+.multitagsdiv .newmultitag {
+	width: 180px;
+}
+
+.multitagsdiv .the-multitags {
+	display: block;
+	height: 60px;
+	margin: 0 auto;
+	overflow: auto;
+	width: 260px;
+}
+
+#post-body-content .multitagsdiv .the-multitags {
+	margin: 0 5px;
+}
+
+p.popular-multitags {
+	border: none;
+	line-height: 2em;
+	padding: 8px 12px 12px;
+	text-align: justify;
+}
+
+p.popular-multitags a {
+	padding: 0 3px;
+}
+
+.multitagcloud {
+	width: 97%;
+	margin: 0 0 40px;
+	text-align: justify;
+}
+
+.multitagcloud h2 {
+	margin: 2px 0 12px;
+}
+
+.the-multitagcloud ul {
+	margin: 0;
+}
+
+.the-multitagcloud ul li {
+	display: inline-block;
 }
 		</style>
 		<div id="multisite-tax-picker">
@@ -200,23 +258,23 @@ class Multisite_Tags_Meta_Box {
 		<div class="jaxtag">
 		<div class="nojs-tags hide-if-js">
 			<label for="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_or_remove_items ); ?></label>
-			<p><textarea name="<?php echo esc_attr( "multi_tax_input[$tax_name]" ); ?>" rows="3" cols="20" class="the-tags" id="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>" <?php disabled( ! $user_can_assign_terms ); ?> aria-describedby="new-tag-<?php echo esc_attr( $tax_name ); ?>-desc"><?php echo esc_textarea( str_replace( ',', $comma . ' ', $terms_to_edit ) ); ?></textarea></p>
+			<p><textarea name="<?php echo esc_attr( "multi_tax_input[$tax_name]" ); ?>" rows="3" cols="20" class="the-multi-tags" id="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>" <?php disabled( ! $user_can_assign_terms ); ?> aria-describedby="new-tag-<?php echo esc_attr( $tax_name ); ?>-desc"><?php echo esc_textarea( str_replace( ',', $comma . ' ', $terms_to_edit ) ); ?></textarea></p>
 		</div>
 		<?php if ( $user_can_assign_terms ) : ?>
-		<div class="ajaxtag hide-if-no-js">
+		<div class="ajaxmultitag hide-if-no-js">
 			<label class="screen-reader-text" for="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
-			<p><input data-multi-taxonomy="<?php echo esc_attr( $tax_name ); ?>" type="text" id="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>" name="new_multi_tag[<?php echo esc_attr( $tax_name ); ?>]" class="newtag form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>-desc" value="" />
-			<input type="button" class="button tagadd" value="<?php esc_attr_e( 'Add', 'multitaxo' ); ?>" /></p>
+			<p><input data-multi-taxonomy="<?php echo esc_attr( $tax_name ); ?>" type="text" id="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>" name="new_multi_tag[<?php echo esc_attr( $tax_name ); ?>]" class="newmultitag form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>-desc" value="" />
+			<input type="button" class="button multitagadd" value="<?php esc_attr_e( 'Add', 'multitaxo' ); ?>" /></p>
 		</div>
 		<p class="howto" id="new-multi-tag-<?php echo esc_attr( $tax_name ); ?>-desc"><?php echo esc_html( $taxonomy->labels->separate_items_with_commas ); ?></p>
 		<?php elseif ( empty( $terms_to_edit ) ) : ?>
 			<p><?php echo esc_html( $taxonomy->labels->no_terms ); ?></p>
 		<?php endif; ?>
 		</div>
-		<ul class="tagchecklist" role="list"></ul>
+		<ul class="multitagchecklist" role="list"></ul>
 	</div>
 	<?php if ( $user_can_assign_terms ) : ?>
-	<p class="hide-if-no-js"><button type="button" class="button-link tagcloud-link" id="link-<?php echo esc_attr( $tax_name ); ?>" aria-expanded="false"><?php echo esc_html( $taxonomy->labels->choose_from_most_used ); ?></button></p>
+	<p class="hide-if-no-js"><button type="button" class="button-link multitagcloud-link" id="link-<?php echo esc_attr( $tax_name ); ?>" aria-expanded="false"><?php echo esc_html( $taxonomy->labels->choose_from_most_used ); ?></button></p>
 	<?php endif; ?>
 	<?php
 	}
@@ -284,17 +342,17 @@ class Multisite_Tags_Meta_Box {
 							printf( esc_html__( '+ %s', 'multitaxo' ), esc_html( $taxonomy->labels->add_new_item ) );
 						?>
 					</a>
-					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="category-add wp-hidden-child">
-						<label class="screen-reader-text" for="new<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
-						<input type="text" name="new<?php echo esc_attr( $tax_name ); ?>" id="new<?php echo esc_attr( $tax_name ); ?>" class="form-required form-input-tip" value="<?php echo esc_attr( $taxonomy->labels->new_item_name ); ?>" aria-required="true"/>
-						<label class="screen-reader-text" for="new<?php echo esc_attr( $tax_name ); ?>_parent">
+					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="multisite-category-add wp-hidden-child">
+						<label class="screen-reader-text" for="new_multisite_<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
+						<input type="text" name="new_multisite_<?php echo esc_attr( $tax_name ); ?>" id="new_multisite_<?php echo esc_attr( $tax_name ); ?>" class="form-required form-input-tip" value="<?php echo esc_attr( $taxonomy->labels->new_item_name ); ?>" aria-required="true"/>
+						<label class="screen-reader-text" for="new_multisite_<?php echo esc_attr( $tax_name ); ?>_parent">
 							<?php echo esc_html( $taxonomy->labels->parent_item_colon ); ?>
 						</label>
 						<?php
 						$parent_dropdown_args = array(
 							'taxonomy'         => $tax_name,
 							'hide_empty'       => 0,
-							'name'             => 'new' . $tax_name . '_parent',
+							'name'             => 'new_multisite_' . $tax_name . '_parent',
 							'orderby'          => 'name',
 							'hierarchical'     => 1,
 							'show_option_none' => '&mdash; ' . $taxonomy->labels->parent_item . ' &mdash;',
@@ -326,15 +384,141 @@ class Multisite_Tags_Meta_Box {
 						 */
 						$parent_dropdown_args = apply_filters( 'post_edit_category_parent_dropdown_args', $parent_dropdown_args );
 
-						wp_dropdown_categories( $parent_dropdown_args );
+						dropdown_multisite_categories( $parent_dropdown_args );
 						?>
-						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button category-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
-						<?php wp_nonce_field( 'add-' . $tax_name, '_ajax_nonce-add-' . $tax_name, false ); ?>
+						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button multisite-category-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
+						<?php wp_nonce_field( 'add-multisite-' . $tax_name, '_ajax_nonce-add-' . $tax_name, false ); ?>
 						<span id="<?php echo esc_attr( $tax_name ); ?>-ajax-response"></span>
 					</p>
 				</div>
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+
+	/**
+	 * Search through the multisite tags.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_ajax_multisite_tag_search() {
+		check_ajax_referer( 'add-multisite-tag', 'nonce-add-multisite-tag' );
+
+		if ( ! isset( $_GET['tax'] ) ) {
+			wp_die( 0 );
+		}
+
+		$taxonomy = sanitize_key( wp_unslash( $_GET['tax'] ) );
+		$tax      = get_multisite_taxonomy( $taxonomy );
+		if ( ! $tax ) {
+			wp_die( 0 );
+		}
+
+		if ( ! current_user_can( $tax->cap->assign_multisite_terms ) ) {
+			wp_die( -1 );
+		}
+
+		$s = wp_unslash( $_GET['q'] );
+
+		$comma = _x( ',', 'tag delimiter' );
+		if ( ',' !== $comma ) {
+			$s = str_replace( $comma, ',', $s );
+		}
+		if ( false !== strpos( $s, ',' ) ) {
+			$s = explode( ',', $s );
+			$s = $s[ count( $s ) - 1 ];
+		}
+		$s = trim( $s );
+
+		/**
+		 * Filters the minimum number of characters required to fire a tag search via Ajax.
+		 *
+		 * @since 4.0.0
+		 *
+		 * @param int                $characters The minimum number of characters required. Default 2.
+		 * @param Multisite_Taxonomy $tax        The taxonomy object.
+		 * @param string             $s          The search term.
+		 */
+		$term_search_min_chars = (int) apply_filters( 'term_search_min_chars', 2, $tax, $s );
+
+		/*
+		* Require $term_search_min_chars chars for matching (default: 2)
+		* ensure it's a non-negative, non-zero integer.
+		*/
+		if ( ( 0 === $term_search_min_chars ) || ( strlen( $s ) < $term_search_min_chars ) ) {
+			wp_die();
+		}
+
+		$results = get_multisite_terms(
+			$taxonomy, array(
+				'name__like' => $s,
+				'fields'     => 'names',
+				'hide_empty' => false,
+			)
+		);
+
+		echo join( esc_html( $results ), "\n" );
+		wp_die();
+	}
+
+	/**
+	 * Ajax Get the tag cloud.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_get_multisite_tagcloud() {
+		check_ajax_referer( 'add-multisite-tag', 'nonce-add-multisite-tag' );
+
+		if ( ! isset( $_POST['tax'] ) ) {
+			wp_die( 0 );
+		}
+
+		$taxonomy = sanitize_key( $_POST['tax'] );
+		$tax      = get_multisite_taxonomy( $taxonomy );
+		if ( ! $tax ) {
+			wp_die( 0 );
+		}
+
+		if ( ! current_user_can( $tax->cap->assign_terms ) ) {
+			wp_die( -1 );
+		}
+
+		$tags = get_multisite_terms(
+			$taxonomy, array(
+				'number'  => 45,
+				'orderby' => 'count',
+				'order'   => 'DESC',
+			)
+		);
+
+		if ( empty( $tags ) ) {
+			wp_die( esc_html( $tax->labels->not_found ) );
+		}
+
+		if ( is_wp_error( $tags ) ) {
+			wp_die( esc_html( $tags->get_error_message() ) );
+		}
+
+		foreach ( $tags as $key => $tag ) {
+			$tags[ $key ]->link = '#';
+			$tags[ $key ]->id   = $tag->term_id;
+		}
+
+		// We need raw tag names here, so don't filter the output.
+		$return = generate_multisite_tag_cloud(
+			$tags, array(
+				'filter' => 0,
+				'format' => 'list',
+			)
+		);
+
+		if ( empty( $return ) ) {
+			wp_die( 0 );
+		}
+
+		echo $return;
+
+		wp_die();
 	}
 }
