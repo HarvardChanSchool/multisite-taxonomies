@@ -181,7 +181,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  * }
  * @return string HTML content only if 'echo' argument is 0.
  */
-function dropdown_multisite_categories( $args = '' ) {
+function dropdown_hierarchical_multisite_taxonomy( $args = '' ) {
 	$defaults = array(
 		'show_option_all'   => '',
 		'show_option_none'  => '',
@@ -207,20 +207,6 @@ function dropdown_multisite_categories( $args = '' ) {
 	);
 
 	$defaults['selected'] = ( is_category() ) ? get_query_var( 'cat' ) : 0;
-
-	// Back compat.
-	if ( isset( $args['type'] ) && 'link' === $args['type'] ) {
-		_deprecated_argument(
-			__FUNCTION__, '3.0.0',
-			sprintf(
-				/* translators: 1: code block type link, 2: code block link category" */
-				wp_kses_post( __( '%1$s is deprecated. Use %2$s instead.', 'multitaxo' ) ),
-				'<code>type => link</code>',
-				'<code>taxonomy => link_category</code>'
-			)
-		);
-		$args['taxonomy'] = 'link_category';
-	}
 
 	$r                 = wp_parse_args( $args, $defaults );
 	$option_none_value = $r['option_none_value'];
