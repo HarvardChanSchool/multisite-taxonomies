@@ -12,7 +12,7 @@ jQuery(document).ready(function($) {
 				if ( '1' == r ) {
 					$('#ajax-response').empty();
 					tr.fadeOut('normal', function(){ tr.remove(); });
-					// Remove the term from the parent box and tag cloud
+					// Remove the multisite term from the parent box and tag cloud
 					$('select#parent option[value="' + data.match(/tag_ID=(\d+)/)[1] + '"]').remove();
 					$('a.tag-link-' + data.match(/tag_ID=(\d+)/)[1]).remove();
 				} else if ( '-1' == r ) {
@@ -46,7 +46,7 @@ jQuery(document).ready(function($) {
 			return false;
 
 		$.post(ajaxurl, $('#addtag').serialize(), function(r){
-			var res, parent, term, indent, i;
+			var res, parent, multisite_term, indent, i;
 
 			$('#ajax-response').empty();
 			res = wpAjax.parseAjaxResponse( r, 'ajax-response' );
@@ -58,20 +58,20 @@ jQuery(document).ready(function($) {
 			if ( parent > 0 && $('#tag-' + parent ).length > 0 ) // If the parent exists on this page, insert it below. Else insert it at the top of the list.
 				$( '.tags #tag-' + parent ).after( res.responses[0].supplemental.noparents ); // As the parent exists, Insert the version with - - - prefixed
 			else
-				$( '.tags' ).prepend( res.responses[0].supplemental.parents ); // As the parent is not visible, Insert the version with Parent - Child - ThisTerm
+				$( '.tags' ).prepend( res.responses[0].supplemental.parents ); // As the parent is not visible, Insert the version with Parent - Child - This Multisite multisite_term
 
 			$('.tags .no-items').remove();
 
 			if ( form.find('select#parent') ) {
-				// Parents field exists, Add new term to the list.
-				term = res.responses[1].supplemental;
+				// Parents field exists, Add new multisite_term to the list.
+				multisite_term = res.responses[1].supplemental;
 
 				// Create an indent for the Parent field
 				indent = '';
 				for ( i = 0; i < res.responses[1].position; i++ )
 					indent += '&nbsp;&nbsp;&nbsp;';
 
-				form.find( 'select#parent option:selected' ).after( '<option value="' + term.term_id + '">' + indent + term.name + '</option>' );
+				form.find( 'select#parent option:selected' ).after( '<option value="' + multisite_term.multisite_term_id + '">' + indent + multisite_term.name + '</option>' );
 			}
 
 			$('input[type="text"]:visible, textarea:visible', form).val('');
