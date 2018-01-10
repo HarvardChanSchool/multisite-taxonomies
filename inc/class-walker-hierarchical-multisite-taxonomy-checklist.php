@@ -1,22 +1,16 @@
 <?php
 /**
- * Taxonomy API: Walker_Category_Checklist class
+ * Multisite Taxonomies API: Walker_Hierarchical_Multisite_Taxonomy_Checklist class
  *
- * @package WordPress
- * @subpackage Administration
- * @since 4.4.0
+ * @package multitaxo
  */
 
 /**
- * Core walker class to output an unordered list of category checkbox input elements.
- *
- * @since 2.5.1
+ * Class to output an unordered list of hierarchical multisite taxonomies checkbox input elements.
  *
  * @see Walker
- * @see wp_category_checklist()
- * @see wp_terms_checklist()
  */
-class Walker_Multisite_Category_Checklist extends Walker {
+class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 	/**
 	 * Type of tree we are waling over.
 	 *
