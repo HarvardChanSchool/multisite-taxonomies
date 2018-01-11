@@ -33,7 +33,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 // Loading Classes.
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multitaxo-plugin.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy.php';
-require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tax-query.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-terms-list-table.php';
