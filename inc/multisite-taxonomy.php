@@ -482,16 +482,16 @@ function get_objects_in_multisite_term( $multisite_term_ids, $multisite_taxonomi
 /**
  * Given a multisite taxonomy query, generates SQL to be appended to a main query.
  *
- * @see Multisite_Tax_Query
+ * @see Multisite_Taxonomy_Query
  *
- * @param array  $multisite_tax_query A compact multisite tax query.
+ * @param array  $multisite_taxonomy_query A compact multisite tax query.
  * @param string $primary_table The primary table.
  * @param string $primary_id_column The primary id column.
  * @return array
  */
-function get_multisite_tax_sql( $multisite_tax_query, $primary_table, $primary_id_column ) {
-	$multisite_tax_query_obj = new Multisite_Tax_Query( $multisite_tax_query );
-	return $multisite_tax_query_obj->get_sql( $primary_table, $primary_id_column );
+function get_multisite_tax_sql( $multisite_taxonomy_query, $primary_table, $primary_id_column ) {
+	$multisite_taxonomy_query_obj = new Multisite_Taxonomy_Query( $multisite_taxonomy_query );
+	return $multisite_taxonomy_query_obj->get_sql( $primary_table, $primary_id_column );
 }
 
 /**
