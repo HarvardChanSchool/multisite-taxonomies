@@ -1344,3 +1344,20 @@ function has_multistite_term( $term = '', $taxonomy = '', $post = null ) {
 
 	return $r;
 }
+
+/**
+ * Is the query for an existing multisite taxonomy archive page?
+ *
+ * @param mixed $multisite_taxonomy Optional. Multisite Taxonomy slug or slugs.
+ * @param mixed $multisite_term     Optional. Multisite Term ID, name, slug or array of Multisite Term IDs, names, and slugs.
+ * @return bool True for multisite taxonomy archive pages.
+ */
+function is_multitaxo( $multisite_taxonomy = '', $multisite_term = '' ) {
+	global $wp_query;
+	if ( ! isset( $wp_query ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_attr__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'multitaxo' ), '3.1.0' );
+		return false;
+	}
+	// TO DO: actually check if it is.
+	return true;
+}
