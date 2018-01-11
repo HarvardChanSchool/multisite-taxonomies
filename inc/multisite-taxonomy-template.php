@@ -84,7 +84,8 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 		$args['popular_cats'] = $r['popular_cats'];
 	} else {
 		$args['popular_cats'] = get_multisite_terms(
-			$taxonomy, array(
+			array(
+				'taxonomy'     => $taxonomy,
 				'fields'       => 'ids',
 				'orderby'      => 'count',
 				'order'        => 'DESC',
@@ -95,7 +96,8 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	}
 	if ( $descendants_and_self ) {
 		$categories = (array) get_multisite_terms(
-			$taxonomy, array(
+			array(
+				'taxonomy'     => $taxonomy,
 				'child_of'     => $descendants_and_self,
 				'hierarchical' => 0,
 				'hide_empty'   => 0,
@@ -104,7 +106,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 		$self       = get_multisite_term( $descendants_and_self, $taxonomy );
 		array_unshift( $categories, $self );
 	} else {
-		$categories = (array) get_multisite_terms( $taxonomy, array( 'get' => 'all' ) );
+		$categories = (array) get_multisite_terms( array( 'taxonomy' => $taxonomy, 'get' => 'all' ) );
 	}
 
 	$output = '';
@@ -361,11 +363,11 @@ function popular_multisite_terms_checklist( $taxonomy, $default = 0, $number = 1
 
 	$popular_ids = array();
 	foreach ( (array) $terms as $term ) {
-		$popular_ids[] = $term->id;
+		$popular_ids[] = $term->multisite_term_id;
 		if ( ! $echo ) { // Hack for Ajax use.
 			continue;
 		}
-		$id      = "popular-$taxonomy-$term->id";
+		$id      = "popular-$taxonomy-$term->multisite_term_id";
 		$checked = in_array( $term->id, $checked_terms, true ) ? 'checked="checked"' : '';
 		?>
 
