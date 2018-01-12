@@ -111,4 +111,5 @@
 		});
 
 	}); // end cats
-    
+
+}); // end Jquery
