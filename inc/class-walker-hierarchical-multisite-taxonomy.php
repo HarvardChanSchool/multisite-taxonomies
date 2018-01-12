@@ -160,11 +160,11 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 				'cat-item-' . $multisite_taxonomy->multisite_term_id,
 			);
 
-			if ( ! empty( $args['current_category'] ) ) {
-				// 'current_category' can be an array, so we use `get_multisite_terms()`.
+			if ( ! empty( $args['current_multisite_taxonomy'] ) ) {
+				// 'current_multisite_taxonomy' can be an array, so we use `get_multisite_terms()`.
 				$_current_terms = get_multisite_terms(
 					$multisite_taxonomy->taxonomy, array(
-						'include'    => $args['current_category'],
+						'include'    => $args['current_multisite_taxonomy'],
 						'hide_empty' => false,
 					)
 				);
