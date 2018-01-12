@@ -309,8 +309,8 @@ p.popular-multitags a {
 		$tax_name = esc_attr( $r['taxonomy'] );
 		$taxonomy = get_multisite_taxonomy( $r['taxonomy'] );
 		?>
-		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="categorydiv">
-			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="category-tabs">
+		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multicategorydiv">
+			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="multi-category-tabs">
 				<li class="tabs"><a href="#<?php echo esc_attr( $tax_name ); ?>-all"><?php echo esc_html( $taxonomy->labels->all_items ); ?></a></li>
 				<li class="hide-if-no-js"><a href="#<?php echo esc_attr( $tax_name ); ?>-pop"><?php echo esc_html( $taxonomy->labels->most_used ); ?></a></li>
 			</ul>
