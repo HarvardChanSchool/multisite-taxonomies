@@ -29,8 +29,8 @@
 function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$defaults = array(
 		'descendants_and_self' => 0,
-		'selected_terms'        => false,
-		'selected_terms'         => false,
+		'selected_terms'       => false,
+		'selected_terms'       => false,
 		'walker'               => null,
 		'taxonomy'             => '',
 		'checked_ontop'        => true,
@@ -54,12 +54,12 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 		$walker = $r['walker'];
 	}
 
-	$multisite_taxonomy             = $r['taxonomy'];
+	$multisite_taxonomy   = $r['taxonomy'];
 	$descendants_and_self = (int) $r['descendants_and_self'];
 
 	$args = array( 'taxonomy' => $multisite_taxonomy );
 
-	$multi_tax              = get_multisite_taxonomy( $multisite_taxonomy );
+	$multi_tax        = get_multisite_taxonomy( $multisite_taxonomy );
 	$args['disabled'] = ! current_user_can( $multi_tax->cap->assign_multisite_terms );
 
 	$args['list_only'] = ! empty( $r['list_only'] );
@@ -94,10 +94,15 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 				'hide_empty'   => 0,
 			)
 		);
-		$self       = get_multisite_term( $descendants_and_self, $multisite_taxonomy );
+		$self            = get_multisite_term( $descendants_and_self, $multisite_taxonomy );
 		array_unshift( $multisite_terms, $self );
 	} else {
-		$multisite_terms = (array) get_multisite_terms( array( 'taxonomy' => $multisite_taxonomy, 'get' => 'all' ) );
+		$multisite_terms = (array) get_multisite_terms(
+			array(
+				'taxonomy' => $multisite_taxonomy,
+				'get'      => 'all',
+			)
+		);
 	}
 
 	$output = '';
@@ -105,7 +110,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	if ( $r['checked_ontop'] ) {
 		// Post process $multisite_terms rather than adding an exclude to the get_multisite_terms() query to keep the query the same across all posts (for any query cache).
 		$checked_terms = array();
-		$keys               = array_keys( $multisite_terms );
+		$keys          = array_keys( $multisite_terms );
 
 		foreach ( $keys as $k ) {
 			if ( in_array( $multisite_terms[ $k ]->multisite_term_id, $args['$selected_terms'], true ) ) {
@@ -215,10 +220,10 @@ function dropdown_multisite_taxonomy( $args = '' ) {
 	$get_multisite_terms_args = $r;
 	unset( $get_multisite_terms_args['name'] );
 	$multisite_terms = get_multisite_terms( $get_multisite_terms_args );
-	$name       = esc_attr( $r['name'] );
-	$class      = esc_attr( $r['class'] );
-	$id         = $r['id'] ? esc_attr( $r['id'] ) : $name;
-	$required   = $r['required'] ? 'required' : '';
+	$name            = esc_attr( $r['name'] );
+	$class           = esc_attr( $r['class'] );
+	$id              = $r['id'] ? esc_attr( $r['id'] ) : $name;
+	$required        = $r['required'] ? 'required' : '';
 
 	if ( ! $r['hide_if_empty'] || ! empty( $multisite_terms ) ) {
 		$output = "<select $required name='$name' id='$id' class='$class' $tab_index_attribute>\n";
@@ -410,28 +415,28 @@ function popular_multisite_terms_checklist( $multisite_taxonomy, $default = 0, $
  */
 function list_multisite_taxonomies( $args = '' ) {
 	$defaults = array(
-		'child_of'            => 0,
-		'current_multisite_taxonomy'    => 0,
-		'depth'               => 0,
-		'echo'                => 1,
-		'exclude'             => '',
-		'exclude_tree'        => '',
-		'feed'                => '',
-		'feed_image'          => '',
-		'feed_type'           => '',
-		'hide_empty'          => 1,
-		'hide_title_if_empty' => false,
-		'hierarchical'        => true,
-		'order'               => 'ASC',
-		'orderby'             => 'name',
-		'separator'           => '<br />',
-		'show_count'          => 0,
-		'show_option_all'     => '',
-		'show_option_none'    => __( 'No multisite hierarchical taxonomy', 'multitaxo' ),
-		'style'               => 'list',
-		'taxonomy'            => '',
-		'title_li'            => __( 'Multisite hierarchical Taxonomy', 'multitaxo' ),
-		'use_desc_for_title'  => 1,
+		'child_of'                   => 0,
+		'current_multisite_taxonomy' => 0,
+		'depth'                      => 0,
+		'echo'                       => 1,
+		'exclude'                    => '',
+		'exclude_tree'               => '',
+		'feed'                       => '',
+		'feed_image'                 => '',
+		'feed_type'                  => '',
+		'hide_empty'                 => 1,
+		'hide_title_if_empty'        => false,
+		'hierarchical'               => true,
+		'order'                      => 'ASC',
+		'orderby'                    => 'name',
+		'separator'                  => '<br />',
+		'show_count'                 => 0,
+		'show_option_all'            => '',
+		'show_option_none'           => __( 'No multisite hierarchical taxonomy', 'multitaxo' ),
+		'style'                      => 'list',
+		'taxonomy'                   => '',
+		'title_li'                   => __( 'Multisite hierarchical Taxonomy', 'multitaxo' ),
+		'use_desc_for_title'         => 1,
 	);
 
 	$r = wp_parse_args( $args, $defaults );
