@@ -387,7 +387,7 @@ p.popular-multitags a {
 						 */
 						$parent_dropdown_args = apply_filters( 'post_edit_category_parent_dropdown_args', $parent_dropdown_args );
 
-						dropdown_hierarchical_multisite_taxonomy( $parent_dropdown_args );
+						dropdown_multisite_taxonomy( $parent_dropdown_args );
 						?>
 						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button multisite-category-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
 						<?php wp_nonce_field( 'add-multisite-' . $tax_name, '_ajax_nonce-add-' . $tax_name, false ); ?>
@@ -513,7 +513,7 @@ p.popular-multitags a {
 		}
 
 		// We need raw tag names here, so don't filter the output.
-		$return = generate_multisite_tag_cloud(
+		$return = generate_multisite_term_cloud(
 			$tags, array(
 				'filter' => 0,
 				'format' => 'list',

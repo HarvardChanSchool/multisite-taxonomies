@@ -846,7 +846,7 @@ class Multitaxo_Plugin {
 			 * @param string $context  Filter context. Accepts 'new' or 'edit'.
 			 */
 			$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $tax->name, 'new' );
-			dropdown_hierarchical_multisite_taxonomy( $dropdown_args );
+			dropdown_multisite_taxonomy( $dropdown_args );
 			?>
 			<?php if ( 'category' === $tax->name ) : ?>
 				<p><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
@@ -1142,7 +1142,7 @@ class Multitaxo_Plugin {
 
 						/** This filter is documented in wp-admin/edit-tags.php */
 						$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $taxonomy, 'edit' );
-						dropdown_hierarchical_multisite_taxonomy( $dropdown_args );
+						dropdown_multisite_taxonomy( $dropdown_args );
 						?>
 						<?php if ( 'category' === $taxonomy ) : ?>
 							<p class="description"><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
