@@ -1,6 +1,6 @@
 <?php
 /**
- * Multisite Taxonomy API: Multisite_Tax_Query class
+ * Multisite Taxonomy API: Multisite_Taxonomy_Query class
  *
  * @package multitaxo
  * @since 0.1
@@ -12,16 +12,16 @@
  * Used for generating SQL clauses that filter a primary query according to object
  * multisite taxonomy terms.
  *
- * Multisite_Tax_Query is a helper that allows primary query classes, such as WP_Query, to filter
+ * Multisite_Taxonomy_Query is a helper that allows primary query classes, such as WP_Query, to filter
  * their results by object metadata, by generating `JOIN` and `WHERE` subclauses to be
  * attached to the primary SQL query string.
  */
-class Multisite_Tax_Query {
+class Multisite_Taxonomy_Query {
 
 	/**
 	 * Array of multisite taxonomy queries.
 	 *
-	 * See Multisite_Tax_Query::__construct() for information on multisite tax query arguments.
+	 * See Multisite_Taxonomy_Query::__construct() for information on multisite tax query arguments.
 	 *
 	 * @since 3.1.0
 	 * @access public
@@ -98,7 +98,7 @@ class Multisite_Tax_Query {
 	 * @since 4.1.0 Added support for `$operator` 'NOT EXISTS' and 'EXISTS' values.
 	 * @access public
 	 *
-	 * @param array $multisite_tax_query {
+	 * @param array $multisite_taxonomy_query {
 	 *     Array of multisite taxonomy query clauses.
 	 *
 	 *     @type string $relation Optional. The MySQL keyword used to join
@@ -118,18 +118,18 @@ class Multisite_Tax_Query {
 	 *     }
 	 * }
 	 */
-	public function __construct( $multisite_tax_query ) {
-		if ( isset( $multisite_tax_query['relation'] ) ) {
-			$this->relation = $this->sanitize_relation( $multisite_tax_query['relation'] );
+	public function __construct( $multisite_taxonomy_query ) {
+		if ( isset( $multisite_taxonomy_query['relation'] ) ) {
+			$this->relation = $this->sanitize_relation( $multisite_taxonomy_query['relation'] );
 		} else {
 			$this->relation = 'AND';
 		}
 
-		$this->queries = $this->sanitize_query( $multisite_tax_query );
+		$this->queries = $this->sanitize_query( $multisite_taxonomy_query );
 	}
 
 	/**
-	 * Ensure the 'multisite_tax_query' argument passed to the class constructor is well-formed.
+	 * Ensure the 'multisite_taxonomy_query' argument passed to the class constructor is well-formed.
 	 *
 	 * Ensures that each query-level clause has a 'relation' key, and that
 	 * each first-order clause contains all the necessary keys from `$defaults`.
@@ -264,7 +264,7 @@ class Multisite_Tax_Query {
 	/**
 	 * Generate SQL clauses to be appended to a main query.
 	 *
-	 * Called by the public Multisite_Tax_Query::get_sql(), this method
+	 * Called by the public Multisite_Taxonomy_Query::get_sql(), this method
 	 * is abstracted out to maintain parity with the other Query classes.
 	 *
 	 * @since 4.1.0
@@ -503,7 +503,7 @@ class Multisite_Tax_Query {
 	 * An existing alias is compatible if (a) it is a sibling of `$clause`
 	 * (ie, it's under the scope of the same relation), and (b) the combination
 	 * of operator and relation between the clauses allows for a shared table
-	 * join. In the case of Multisite_Tax_Query, this only applies to 'IN'
+	 * join. In the case of Multisite_Taxonomy_Query, this only applies to 'IN'
 	 * clauses that are connected by the relation 'OR'.
 	 *
 	 * @since 4.1.0
