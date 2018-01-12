@@ -156,8 +156,8 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 		if ( 'list' === $args['style'] ) {
 			$output     .= "\t<li";
 			$css_classes = array(
-				'cat-item',
-				'cat-item-' . $multisite_taxonomy->multisite_term_id,
+				'tax-item',
+				'tax-item-' . $multisite_taxonomy->multisite_term_id,
 			);
 
 			if ( ! empty( $args['current_multisite_taxonomy'] ) ) {
@@ -173,11 +173,11 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 					if ( $multisite_taxonomy->multisite_term_id === $_current_term->multisite_term_id ) {
 						$css_classes[] = 'current-cat';
 					} elseif ( $multisite_taxonomy->multisite_term_id === $_current_term->parent ) {
-						$css_classes[] = 'current-cat-parent';
+						$css_classes[] = 'current-tax-parent';
 					}
 					while ( $_current_term->parent ) {
 						if ( $multisite_taxonomy->multisite_term_id === $_current_term->parent ) {
-							$css_classes[] = 'current-cat-ancestor';
+							$css_classes[] = 'current-tax-ancestor';
 							break;
 						}
 						$_current_term = get_multisite_term( $_current_term->parent, $multisite_taxonomy->taxonomy );
