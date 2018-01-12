@@ -65,6 +65,7 @@ class Multisite_Tags_Meta_Box {
 		);
 
 		wp_enqueue_script( 'multisite-tags-box', MULTITAXO_ASSETS_URL . '/js/multisite-tags-box.js', array( 'multisite-tags-suggest', 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'multisite-categories-post-box', MULTITAXO_ASSETS_URL . '/js/multisite-categories-post.js', array( 'jquery-ui-tabs' ), false, 1 );
 	}
 
 	/**
