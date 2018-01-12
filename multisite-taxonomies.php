@@ -37,7 +37,7 @@ require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-terms-list-table.php';
-require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-tags-meta-box.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy-meta-box.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy-checklist.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy-dropdown.php';
@@ -48,4 +48,4 @@ require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy-template.php';
 
 // Plugin init.
 $multitaxo   = new Multitaxo_Plugin();
-$multi_admin = new Multisite_Tags_Meta_Box();
+$multi_admin = new Multisite_Taxonomy_Meta_Box();
