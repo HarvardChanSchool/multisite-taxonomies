@@ -247,7 +247,11 @@ p.popular-multitags a {
 	 * }
 	 */
 	public function multisite_taxonomy_meta_box( $post, $args ) {
-		$defaults              = array( 'taxonomy' => 'tag' );
+		if ( ! isset( $args['taxonomy'] ) ) {
+			return false;
+		}
+
+		$defaults              = array();
 		$r                     = wp_parse_args( $args, $defaults );
 		$tax_name              = esc_attr( $r['taxonomy'] );
 		$taxonomy              = get_multisite_taxonomy( $r['taxonomy'] );
@@ -284,7 +288,7 @@ p.popular-multitags a {
 	}
 
 	/**
-	 * Display post categories form fields.
+	 * Display post heirarchical form fields.
 	 *
 	 * @since 2.6.0
 	 *
@@ -292,7 +296,7 @@ p.popular-multitags a {
 	 *
 	 * @param WP_Post $post Post object.
 	 * @param array   $args {
-	 *     Categories meta box arguments.
+	 *     Heirarchical meta box arguments.
 	 *
 	 *     @type string   $id       Meta box 'id' attribute.
 	 *     @type string   $title    Meta box title.
@@ -300,34 +304,38 @@ p.popular-multitags a {
 	 *     @type array    $args {
 	 *         Extra meta box arguments.
 	 *
-	 *         @type string $taxonomy Taxonomy. Default 'category'.
+	 *         @type string $taxonomy Taxonomy. Default 'heirarchical'.
 	 *     }
 	 * }
 	 */
 	public function hierarchical_multisite_taxonomy_meta_box( $post, $args ) {
-		$defaults = array( 'taxonomy' => 'category' );
+		if ( ! isset( $args['taxonomy'] ) ) {
+			return false;
+		}
+
+		$defaults = array();
+
 		$r        = wp_parse_args( $args, $defaults );
 		$tax_name = esc_attr( $r['taxonomy'] );
 		$taxonomy = get_multisite_taxonomy( $r['taxonomy'] );
 		?>
-		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multicategorydiv">
-			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="category-tabs">
+		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multiheirarchicaldiv">
+			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="heirarchical-tabs">
 				<li class="tabs"><a href="#<?php echo esc_attr( $tax_name ); ?>-all"><?php echo esc_html( $taxonomy->labels->all_items ); ?></a></li>
 				<li class="hide-if-no-js"><a href="#<?php echo esc_attr( $tax_name ); ?>-pop"><?php echo esc_html( $taxonomy->labels->most_used ); ?></a></li>
 			</ul>
 
 			<div id="<?php echo esc_attr( $tax_name ); ?>-pop" class="tabs-panel" style="display: none;">
-				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="categorychecklist form-no-clear" >
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="heirarchicalchecklist form-no-clear" >
 					<?php $popular_ids = popular_multisite_terms_checklist( $tax_name ); ?>
 				</ul>
 			</div>
 
 			<div id="<?php echo esc_attr( $tax_name ); ?>-all" class="tabs-panel">
 				<?php
-				$name = ( 'category' === $tax_name ) ? 'post_category' : 'tax_input[' . $tax_name . ']';
-				echo '<input type="hidden" name="' . esc_attr( $name ) . '[]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
+				echo '<input type="hidden" name="tax_input[' . esc_attr( $tax_name ) . '][]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
 				?>
-				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="categorychecklist form-no-clear">
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="heirarchicalchecklist form-no-clear">
 					<?php
 					multisite_terms_checklist(
 						$post->ID, array(
@@ -346,7 +354,7 @@ p.popular-multitags a {
 							printf( esc_html__( '+ %s', 'multitaxo' ), esc_html( $taxonomy->labels->add_new_item ) );
 						?>
 					</a>
-					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="multisite-category-add wp-hidden-child">
+					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="multisite-heirarchical-add wp-hidden-child">
 						<label class="screen-reader-text" for="new_multisite_<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
 						<input type="text" name="new_multisite_<?php echo esc_attr( $tax_name ); ?>" id="new_multisite_<?php echo esc_attr( $tax_name ); ?>" class="form-required form-input-tip" value="<?php echo esc_attr( $taxonomy->labels->new_item_name ); ?>" aria-required="true"/>
 						<label class="screen-reader-text" for="new_multisite_<?php echo esc_attr( $tax_name ); ?>_parent">
@@ -372,7 +380,7 @@ p.popular-multitags a {
 						 *
 						 *     @type string   $taxonomy         Name of the taxonomy to retrieve.
 						 *     @type bool     $hide_if_empty    True to skip generating markup if no
-						 *                                      categories are found. Default 0.
+						 *                                      tags are found. Default 0.
 						 *     @type string   $name             Value for the 'name' attribute
 						 *                                      of the select element.
 						 *                                      Default "new{$tax_name}_parent".
@@ -386,11 +394,11 @@ p.popular-multitags a {
 						 *                                      taxonomy label.
 						 * }
 						 */
-						$parent_dropdown_args = apply_filters( 'post_edit_category_parent_dropdown_args', $parent_dropdown_args );
+						$parent_dropdown_args = apply_filters( 'edit_multisite_heirarchical_parent_dropdown_args', $parent_dropdown_args );
 
 						dropdown_multisite_taxonomy( $parent_dropdown_args );
 						?>
-						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button multisite-category-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
+						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button multisite-heirarchical-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
 						<?php wp_nonce_field( 'add-multisite-' . $tax_name, '_ajax_nonce-add-' . $tax_name, false ); ?>
 						<span id="<?php echo esc_attr( $tax_name ); ?>-ajax-response"></span>
 					</p>
