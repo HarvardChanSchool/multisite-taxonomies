@@ -65,7 +65,7 @@ class Multisite_Taxonomy_Meta_Box {
 		);
 
 		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), false, 1 );
-		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-categories-post.js', array( 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-heirarchical-box.js', array( 'jquery-ui-tabs' ), false, 1 );
 	}
 
 	/**
@@ -475,8 +475,8 @@ p.popular-multitags a {
 	 *
 	 * @return void
 	 */
-	public function wp_ajax_get_multisite_tagcloud() {
-		check_ajax_referer( 'add-multisite-tag', 'nonce-add-multisite-tag' );
+	public function wp_ajax_get_multisite_term_cloud() {
+		check_ajax_referer( 'add-multisite-term', 'nonce-add-multisite-term' );
 
 		if ( ! isset( $_POST['tax'] ) ) { // WPCS: input var ok.
 			wp_die( 0 );
@@ -508,9 +508,9 @@ p.popular-multitags a {
 			wp_die( esc_html( $terms->get_error_message() ) );
 		}
 
-		foreach ( $terms as $key => $tag ) {
+		foreach ( $terms as $key => $term ) {
 			$terms[ $key ]->link = '#';
-			$terms[ $key ]->id   = $tag->multisite_term_id;
+			$terms[ $key ]->id   = $term->multisite_term_id;
 		}
 
 		// We need raw tag names here, so don't filter the output.
