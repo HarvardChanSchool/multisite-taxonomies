@@ -31,7 +31,7 @@ jQuery(document).ready(function( $ ) {
 			$('a[href="#' + taxonomy + '-pop"]', '#' + taxonomy + '-tabs').click();
 
 		// Add category button controls.
-		$('#newnew_multisite_' + taxonomy).one( 'focus', function() {
+		$('#new_multisite_' + taxonomy).one( 'focus', function() {
 			$( this ).val( '' ).removeClass( 'form-input-tip' );
 		});
 
@@ -56,7 +56,7 @@ jQuery(document).ready(function( $ ) {
 		 * @returns {Object}
 		 */
 		catAddBefore = function( s ) {
-			if ( !$('#newnew_multisite_'+taxonomy).val() ) {
+			if ( !$('#new_multisite_' + taxonomy).val() ) {
 				return false;
 			}
 
@@ -77,7 +77,7 @@ jQuery(document).ready(function( $ ) {
 		 * @returns void
 		 */
 		catAddAfter = function( r, s ) {
-			var sup, drop = $('#new'+taxonomy+'_parent');
+			var sup, drop = $('#new_multisite_' + taxonomy + '_parent');
 
 			$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', false );
 			if ( 'undefined' != s.parsed.responses[0] && (sup = s.parsed.responses[0].supplemental.newcat_parent) ) {
@@ -87,7 +87,8 @@ jQuery(document).ready(function( $ ) {
 		};
 
 		$('#' + taxonomy + 'checklist').wpList({
-			alt: '',
+            alt: '',
+            what: 'multisite-heirarchical-term',
 			response: taxonomy + '-ajax-response',
 			addBefore: catAddBefore,
 			addAfter: catAddAfter

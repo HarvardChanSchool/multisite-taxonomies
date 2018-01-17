@@ -3629,3 +3629,131 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
 	}
 	return insert_multisite_term( $multisite_term_name, $multisite_taxonomy );
 }
+
+/**
+ * Ajax handler for adding a hierarchical term.
+ *
+ * @access private
+ * @since 3.1.0
+ */
+function ajax_add_multisite_heirarchical_term() {
+	$action   = $_POST['action'];
+	$taxonomy = get_taxonomy( substr( $action, 4 ) );
+	check_ajax_referer( $action, '_ajax_nonce-add-' . $taxonomy->name );
+	if ( ! current_user_can( $taxonomy->cap->edit_terms ) ) {
+			wp_die( -1 );
+	}
+
+	$names  = explode( ',', $_POST[ 'new' . $taxonomy->name ] );
+	$parent = isset( $_POST[ 'new' . $taxonomy->name . '_parent' ] ) ? (int) $_POST[ 'new' . $taxonomy->name . '_parent' ] : 0;
+	if ( 0 > $parent ) {
+			$parent = 0;
+	}
+
+	if ( $taxonomy->name == 'category' ) {
+		$post_category = isset( $_POST['post_category'] ) ? (array) $_POST['post_category'] : array();
+	} else {
+		$post_category = ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input'][ $taxonomy->name ] ) ) ? (array) $_POST['tax_input'][ $taxonomy->name ] : array();
+	}
+
+	$checked_categories = array_map( 'absint', (array) $post_category );
+	$popular_ids        = wp_popular_terms_checklist( $taxonomy->name, 0, 10, false );
+
+	foreach ( $names as $cat_name ) {
+		$cat_name          = trim( $cat_name );
+		$category_nicename = sanitize_title( $cat_name );
+
+		if ( '' === $category_nicename ) {
+			continue;
+		}
+
+		$cat_id = wp_insert_term( $cat_name, $taxonomy->name, array( 'parent' => $parent ) );
+
+		if ( ! $cat_id || is_wp_error( $cat_id ) ) {
+			continue;
+		} else {
+			$cat_id = $cat_id['term_id'];
+		}
+
+		$checked_categories[] = $cat_id;
+
+		if ( $parent ) { // Do these all at once in a second.
+			continue;
+		}
+
+		ob_start();
+
+		wp_terms_checklist(
+			0, array(
+				'taxonomy'             => $taxonomy->name,
+				'descendants_and_self' => $cat_id,
+				'selected_cats'        => $checked_categories,
+				'popular_cats'         => $popular_ids,
+			)
+		);
+
+		$data = ob_get_clean();
+
+		$add = array(
+			'what'     => $taxonomy->name,
+			'id'       => $cat_id,
+			'data'     => str_replace( array( "\n", "\t" ), '', $data ),
+			'position' => -1,
+		);
+	}
+
+	if ( $parent ) { // Foncy - replace the parent and all its children.
+		$parent  = get_term( $parent, $taxonomy->name );
+		$term_id = $parent->term_id;
+
+		while ( $parent->parent ) { // get the top parent.
+			$parent = get_term( $parent->parent, $taxonomy->name );
+
+			if ( is_wp_error( $parent ) ) {
+				break;
+			}
+
+			$term_id = $parent->term_id;
+		}
+
+		ob_start();
+
+		wp_terms_checklist(
+			0, array(
+				'taxonomy'             => $taxonomy->name,
+				'descendants_and_self' => $term_id,
+				'selected_cats'        => $checked_categories,
+				'popular_cats'         => $popular_ids,
+			)
+		);
+
+		$data = ob_get_clean();
+
+		$add = array(
+			'what'     => $taxonomy->name,
+			'id'       => $term_id,
+			'data'     => str_replace( array( "\n", "\t" ), '', $data ),
+			'position' => -1,
+		);
+	}
+
+	ob_start();
+
+	wp_dropdown_categories(
+		array(
+			'taxonomy'         => $taxonomy->name,
+			'hide_empty'       => 0,
+			'name'             => 'new' . $taxonomy->name . '_parent',
+			'orderby'          => 'name',
+			'hierarchical'     => 1,
+			'show_option_none' => '&mdash; ' . $taxonomy->labels->parent_item . ' &mdash;',
+		)
+	);
+
+	$sup = ob_get_clean();
+
+	$add['supplemental'] = array( 'newcat_parent' => $sup );
+
+	$x = new WP_Ajax_Response( $add );
+	$x->send();
+}
