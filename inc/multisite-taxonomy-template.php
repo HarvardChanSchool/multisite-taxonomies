@@ -72,6 +72,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	} else {
 		$args['selected_terms'] = array();
 	}
+
 	if ( is_array( $r['popular_terms'] ) ) {
 		$args['popular_terms'] = $r['popular_terms'];
 	} else {

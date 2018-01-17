@@ -31,12 +31,12 @@ jQuery(document).ready(function( $ ) {
 			$('a[href="#' + taxonomy + '-pop"]', '#' + taxonomy + '-tabs').click();
 
 		// Add category button controls.
-		$('#new' + taxonomy).one( 'focus', function() {
+		$('#newnew_multisite_' + taxonomy).one( 'focus', function() {
 			$( this ).val( '' ).removeClass( 'form-input-tip' );
 		});
 
 		// On [enter] submit the taxonomy.
-		$('#new' + taxonomy).keypress( function(event){
+		$('#new_multisite_' + taxonomy).keypress( function(event){
 			if( 13 === event.keyCode ) {
 				event.preventDefault();
 				$('#' + taxonomy + '-add-submit').click();
@@ -56,7 +56,7 @@ jQuery(document).ready(function( $ ) {
 		 * @returns {Object}
 		 */
 		catAddBefore = function( s ) {
-			if ( !$('#new'+taxonomy).val() ) {
+			if ( !$('#newnew_multisite_'+taxonomy).val() ) {
 				return false;
 			}
 
