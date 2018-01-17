@@ -84,142 +84,141 @@ class Multisite_Taxonomy_Meta_Box {
 
 		?>
 		<style>
-.ui-tabs-vertical {
-	clear: both;
-	overflow: hidden;
-}
+			.ui-tabs-vertical {
+				clear: both;
+				overflow: hidden;
+			}
 
-.ui-tabs-vertical .ui-tabs-nav {
-	padding: .2em 1% .2em 1%;
-	float: left;
-	width: 15%;
-	margin-left: 2%;
-	margin-right: -2%;
-}
+			.ui-tabs-vertical .ui-tabs-nav {
+				padding: .2em 1% .2em 1%;
+				float: left;
+				width: 15%;
+				margin-left: 2%;
+				margin-right: -2%;
+			}
 
-.ui-tabs-vertical .ui-tabs-nav li {
-	clear: left;
-	margin: 5px 0 5px 0;
-	border: solid 1px #ddd;
-	background-color: #fdfdfd;
-	padding: 7px 0 7px 7px;
-	z-index: 9;
-}
+			.ui-tabs-vertical .ui-tabs-nav li {
+				clear: left;
+				margin: 5px 0 5px 0;
+				border: solid 1px #ddd;
+				background-color: #fdfdfd;
+				padding: 7px 0 7px 7px;
+				z-index: 9;
+			}
 
-.ui-tabs-vertical .ui-tabs-nav li a {
-	display: block;
-}
+			.ui-tabs-vertical .ui-tabs-nav li a {
+				display: block;
+			}
 
-.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
-	background-color: #fff;
-	border-right-color: #fff;
-}
+			.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+				background-color: #fff;
+				border-right-color: #fff;
+			}
 
-.ui-tabs-vertical .ui-tabs-panel {
-	padding: 1%;
-	float: right;
-	width: 80%;
-	border-left: solid 1px #ddd;
+			.ui-tabs-vertical .ui-tabs-panel {
+				padding: 1%;
+				float: right;
+				width: 80%;
+				border-left: solid 1px #ddd;
+			}
 
-}
+			/*------------------------------------------------------------------------------
+			13.0 - Tags
+			------------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------------
-13.0 - Tags
-------------------------------------------------------------------------------*/
+			#poststuff .multitagsdiv .howto {
+				margin: 0 0 6px 0;
+			}
 
-#poststuff .multitagsdiv .howto {
-	margin: 0 0 6px 0;
-}
+			.ajaxtag .newmultitag {
+				position: relative;
+			}
 
-.ajaxtag .newmultitag {
-	position: relative;
-}
+			.multitagsdiv .newmultitag {
+				width: 180px;
+			}
 
-.multitagsdiv .newmultitag {
-	width: 180px;
-}
+			.multitagsdiv .the-multitags {
+				display: block;
+				height: 60px;
+				margin: 0 auto;
+				overflow: auto;
+				width: 260px;
+			}
 
-.multitagsdiv .the-multitags {
-	display: block;
-	height: 60px;
-	margin: 0 auto;
-	overflow: auto;
-	width: 260px;
-}
+			#post-body-content .multitagsdiv .the-multitags {
+				margin: 0 5px;
+			}
 
-#post-body-content .multitagsdiv .the-multitags {
-	margin: 0 5px;
-}
+			p.popular-multitags {
+				border: none;
+				line-height: 2em;
+				padding: 8px 12px 12px;
+				text-align: justify;
+			}
 
-p.popular-multitags {
-	border: none;
-	line-height: 2em;
-	padding: 8px 12px 12px;
-	text-align: justify;
-}
+			p.popular-multitags a {
+				padding: 0 3px;
+			}
 
-p.popular-multitags a {
-	padding: 0 3px;
-}
+			.multitagcloud {
+				width: 97%;
+				margin: 0 0 40px;
+				text-align: justify;
+			}
 
-.multitagcloud {
-	width: 97%;
-	margin: 0 0 40px;
-	text-align: justify;
-}
+			.multitagcloud h2 {
+				margin: 2px 0 12px;
+			}
 
-.multitagcloud h2 {
-	margin: 2px 0 12px;
-}
+			.the-multitagcloud ul {
+				margin: 0;
+			}
 
-.the-multitagcloud ul {
-	margin: 0;
-}
+			.the-multitagcloud ul li {
+				display: inline-block;
+			}
 
-.the-multitagcloud ul li {
-	display: inline-block;
-}
+			ul.heirarchical-tabs {
+				margin: 12px 0 5px;
+			}
 
-ul.heirarchical-tabs {
-	margin: 12px 0 5px;
-}
+			ul.heirarchical-tabs li {
+				display: inline;
+				line-height: 1.35em;
+				border: solid 1px transparent;
+				position: relative;
+			}
 
-ul.heirarchical-tabs li {
-	display: inline;
-	line-height: 1.35em;
-	border: solid 1px transparent;
-	position: relative;
-}
+			ul.heirarchical-tabs li.tabs {
+				border: 1px solid #ddd;
+				border-bottom-color: #fdfdfd;
+				background-color: #fdfdfd;
+			}
 
-ul.heirarchical-tabs li.tabs {
-	border: 1px solid #ddd;
-	border-bottom-color: #fdfdfd;
-	background-color: #fdfdfd;
-}
+			ul.heirarchical-tabs li {
+				padding: 3px 5px 6px;
+			}
 
-ul.heirarchical-tabs li {
-	padding: 3px 5px 6px;
-}
+			.multi-heirarchical-div div.tabs-panel {
+				min-height: 42px;
+				max-height: 200px;
+				overflow: auto;
+				padding: 0 0.9em;
+				border: solid 1px #ddd;
+				background-color: #fdfdfd;
+			}
 
-.multi-heirarchical-div div.tabs-panel {
-	min-height: 42px;
-	max-height: 200px;
-	overflow: auto;
-	padding: 0 0.9em;
-	border: solid 1px #ddd;
-	background-color: #fdfdfd;
-}
+			.multi-heirarchical-div ul.heirarchicalchecklist ul {
+				margin-left: 18px;
+			}
 
-.multi-heirarchical-div ul.heirarchicalchecklist ul {
-	margin-left: 18px;
-}
-
-ul.heirarchicalchecklist li {
-	margin: 0;
-	padding: 0;
-	line-height: 22px;
-	word-wrap: break-word;
-}
+			ul.heirarchicalchecklist li {
+				margin: 0;
+				padding: 0;
+				line-height: 22px;
+				word-wrap: break-word;
+			}
 		</style>
 		<div id="multisite-tax-picker">
 			<ul>

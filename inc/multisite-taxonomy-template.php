@@ -28,8 +28,9 @@
  */
 function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$defaults = array(
+		'taxonomy'             => false,
 		'descendants_and_self' => 0,
-		'selected_terms'       => false,
+		'popular_terms'        => false,
 		'selected_terms'       => false,
 		'walker'               => null,
 		'taxonomy'             => '',
@@ -64,19 +65,19 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 
 	$args['list_only'] = ! empty( $r['list_only'] );
 
-	if ( is_array( $r['$selected_terms'] ) ) {
-		$args['$selected_terms'] = $r['$selected_terms'];
+	if ( is_array( $r['selected_terms'] ) ) {
+		$args['selected_terms'] = $r['selected_terms'];
 	} elseif ( $post_id ) {
-		$args['$selected_terms'] = get_object_multisite_terms( $post_id, $multisite_taxonomy, $r['blog_id'], array_merge( $args, array( 'fields' => 'ids' ) ) );
+		$args['selected_terms'] = get_object_multisite_terms( $post_id, $multisite_taxonomy, $r['blog_id'], array_merge( $args, array( 'fields' => 'ids' ) ) );
 	} else {
-		$args['$selected_terms'] = array();
+		$args['selected_terms'] = array();
 	}
 	if ( is_array( $r['popular_terms'] ) ) {
 		$args['popular_terms'] = $r['popular_terms'];
 	} else {
 		$args['popular_terms'] = get_multisite_terms(
 			array(
-				'taxonomy'     => $taxonomy,
+				'taxonomy'     => $multisite_taxonomy,
 				'fields'       => 'ids',
 				'orderby'      => 'count',
 				'order'        => 'DESC',
@@ -88,7 +89,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	if ( $descendants_and_self ) {
 		$multisite_terms = (array) get_multisite_terms(
 			array(
-				'taxonomy'     => $taxonomy,
+				'taxonomy'     => $multisite_taxonomy,
 				'child_of'     => $descendants_and_self,
 				'hierarchical' => 0,
 				'hide_empty'   => 0,
