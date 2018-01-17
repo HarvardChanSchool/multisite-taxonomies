@@ -179,6 +179,47 @@ p.popular-multitags a {
 .the-multitagcloud ul li {
 	display: inline-block;
 }
+
+ul.heirarchical-tabs {
+	margin: 12px 0 5px;
+}
+
+ul.heirarchical-tabs li {
+	display: inline;
+	line-height: 1.35em;
+	border: solid 1px transparent;
+	position: relative;
+}
+
+ul.heirarchical-tabs li.tabs {
+	border: 1px solid #ddd;
+	border-bottom-color: #fdfdfd;
+	background-color: #fdfdfd;
+}
+
+ul.heirarchical-tabs li {
+	padding: 3px 5px 6px;
+}
+
+.multi-heirarchical-div div.tabs-panel {
+	min-height: 42px;
+	max-height: 200px;
+	overflow: auto;
+	padding: 0 0.9em;
+	border: solid 1px #ddd;
+	background-color: #fdfdfd;
+}
+
+.multi-heirarchical-div ul.heirarchicalchecklist ul {
+	margin-left: 18px;
+}
+
+ul.heirarchicalchecklist li {
+	margin: 0;
+	padding: 0;
+	line-height: 22px;
+	word-wrap: break-word;
+}
 		</style>
 		<div id="multisite-tax-picker">
 			<ul>
@@ -314,12 +355,11 @@ p.popular-multitags a {
 		}
 
 		$defaults = array();
-
 		$r        = wp_parse_args( $args, $defaults );
 		$tax_name = esc_attr( $r['taxonomy'] );
 		$taxonomy = get_multisite_taxonomy( $r['taxonomy'] );
 		?>
-		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multiheirarchicaldiv">
+		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multi-heirarchical-div">
 			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="heirarchical-tabs">
 				<li class="tabs"><a href="#<?php echo esc_attr( $tax_name ); ?>-all"><?php echo esc_html( $taxonomy->labels->all_items ); ?></a></li>
 				<li class="hide-if-no-js"><a href="#<?php echo esc_attr( $tax_name ); ?>-pop"><?php echo esc_html( $taxonomy->labels->most_used ); ?></a></li>
@@ -407,7 +447,6 @@ p.popular-multitags a {
 		</div>
 		<?php
 	}
-
 
 	/**
 	 * Search through the multisite tags.

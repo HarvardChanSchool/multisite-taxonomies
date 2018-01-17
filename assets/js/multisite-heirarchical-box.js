@@ -1,19 +1,17 @@
 /**
  * Default settings for jQuery UI Autocomplete for use with non-hierarchical taxonomies.
  */
-( function( $ ) {
+jQuery(document).ready(function( $ ) {
 	// Handle categories.
-	$('.categorydiv').each( function(){
+	$('.multi-heirarchical-div').each( function(){
 		var this_id = $(this).attr('id'), catAddBefore, catAddAfter, taxonomyParts, taxonomy, settingName;
 
 		taxonomyParts = this_id.split('-');
 		taxonomyParts.shift();
 		taxonomy = taxonomyParts.join('-');
-		settingName = taxonomy + '_tab';
+        settingName = taxonomy + '_tab';
 
-		if ( taxonomy == 'category' ) {
-			settingName = 'cats';
-		}
+        console.log( settingName );
 
 		// TODO: move to jQuery 1.3+, support for multiple hierarchical taxonomies, see wp-lists.js
 		$('a', '#' + taxonomy + '-tabs').click( function( e ) {
