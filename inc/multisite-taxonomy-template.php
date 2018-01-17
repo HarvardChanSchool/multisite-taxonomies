@@ -114,7 +114,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 		$keys          = array_keys( $multisite_terms );
 
 		foreach ( $keys as $k ) {
-			if ( in_array( $multisite_terms[ $k ]->multisite_term_id, $args['$selected_terms'], true ) ) {
+			if ( in_array( $multisite_terms[ $k ]->multisite_term_id, $args['selected_terms'], true ) ) {
 				$checked_terms[] = $multisite_terms[ $k ];
 				unset( $multisite_terms[ $k ] );
 			}
