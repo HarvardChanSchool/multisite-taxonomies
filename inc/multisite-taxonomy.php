@@ -3637,29 +3637,23 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
  * @since 3.1.0
  */
 function ajax_add_multisite_heirarchical_term() {
-	$action   = $_POST['action'];
-	$tax = str_replace( 'add-multisite-heirarchical-term-', '', $action );
+	$action   = sanitize_key( wp_unslash( $_POST['action'] ) );
+	$tax      = str_replace( 'add-multisite-heirarchical-term-', '', $action );
 	$taxonomy = get_multisite_taxonomy( $tax );
 
-	var_dump( $tax );
-	wp_die();
+	check_ajax_referer( 'add-multisite-' . $taxonomy->name, '_ajax_nonce-add-' . $taxonomy->name );
 
-	check_ajax_referer( $action, '_ajax_nonce-add-' . $taxonomy->name );
-	if ( ! current_user_can( $taxonomy->cap->edit_terms ) ) {
-			wp_die( -1 );
+	if ( ! current_user_can( $taxonomy->cap->edit_multisite_terms ) ) {
+		wp_die( -1 );
 	}
 
-	$names  = explode( ',', $_POST[ 'new' . $taxonomy->name ] );
-	$parent = isset( $_POST[ 'new' . $taxonomy->name . '_parent' ] ) ? (int) $_POST[ 'new' . $taxonomy->name . '_parent' ] : 0;
+	$names  = explode( ',', $_POST[ 'new_multisite_' . $taxonomy->name ] );
+	$parent = isset( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ? (int) absint( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ) : 0;
 	if ( 0 > $parent ) {
 			$parent = 0;
 	}
 
-	if ( $taxonomy->name == 'category' ) {
-		$post_category = isset( $_POST['post_category'] ) ? (array) $_POST['post_category'] : array();
-	} else {
-		$post_category = ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input'][ $taxonomy->name ] ) ) ? (array) $_POST['tax_input'][ $taxonomy->name ] : array();
-	}
+	$post_category = ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input'][ $taxonomy->name ] ) ) ? (array) wp_unslash( $_POST['tax_input'][ $taxonomy->name ] ) : array();
 
 	$checked_categories = array_map( 'absint', (array) $post_category );
 	$popular_ids        = popular_multisite_terms_checklist( $taxonomy->name, 0, 10, false );
