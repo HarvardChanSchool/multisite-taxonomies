@@ -88,7 +88,7 @@ jQuery(document).ready(function( $ ) {
 
 		$('#' + taxonomy + 'checklist').wpList({
             alt: '',
-            what: 'multisite-heirarchical-term',
+            what: 'multisite-heirarchical-term-' + taxonomy,
 			response: taxonomy + '-ajax-response',
 			addBefore: catAddBefore,
 			addAfter: catAddAfter

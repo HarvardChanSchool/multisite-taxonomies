@@ -3638,7 +3638,12 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
  */
 function ajax_add_multisite_heirarchical_term() {
 	$action   = $_POST['action'];
-	$taxonomy = get_taxonomy( substr( $action, 4 ) );
+	$tax = str_replace( 'add-multisite-heirarchical-term-', '', $action );
+	$taxonomy = get_multisite_taxonomy( $tax );
+
+	var_dump( $tax );
+	wp_die();
+
 	check_ajax_referer( $action, '_ajax_nonce-add-' . $taxonomy->name );
 	if ( ! current_user_can( $taxonomy->cap->edit_terms ) ) {
 			wp_die( -1 );
@@ -3657,7 +3662,7 @@ function ajax_add_multisite_heirarchical_term() {
 	}
 
 	$checked_categories = array_map( 'absint', (array) $post_category );
-	$popular_ids        = wp_popular_terms_checklist( $taxonomy->name, 0, 10, false );
+	$popular_ids        = popular_multisite_terms_checklist( $taxonomy->name, 0, 10, false );
 
 	foreach ( $names as $cat_name ) {
 		$cat_name          = trim( $cat_name );
@@ -3667,7 +3672,7 @@ function ajax_add_multisite_heirarchical_term() {
 			continue;
 		}
 
-		$cat_id = wp_insert_term( $cat_name, $taxonomy->name, array( 'parent' => $parent ) );
+		$cat_id = insert_multisite_term( $cat_name, $taxonomy->name, array( 'parent' => $parent ) );
 
 		if ( ! $cat_id || is_wp_error( $cat_id ) ) {
 			continue;
@@ -3683,7 +3688,7 @@ function ajax_add_multisite_heirarchical_term() {
 
 		ob_start();
 
-		wp_terms_checklist(
+		multisite_terms_checklist(
 			0, array(
 				'taxonomy'             => $taxonomy->name,
 				'descendants_and_self' => $cat_id,
@@ -3703,11 +3708,11 @@ function ajax_add_multisite_heirarchical_term() {
 	}
 
 	if ( $parent ) { // Foncy - replace the parent and all its children.
-		$parent  = get_term( $parent, $taxonomy->name );
+		$parent  = get_multisite_term( $parent, $taxonomy->name );
 		$term_id = $parent->term_id;
 
 		while ( $parent->parent ) { // get the top parent.
-			$parent = get_term( $parent->parent, $taxonomy->name );
+			$parent = get_multisite_term( $parent->parent, $taxonomy->name );
 
 			if ( is_wp_error( $parent ) ) {
 				break;
@@ -3718,7 +3723,7 @@ function ajax_add_multisite_heirarchical_term() {
 
 		ob_start();
 
-		wp_terms_checklist(
+		multisite_terms_checklist(
 			0, array(
 				'taxonomy'             => $taxonomy->name,
 				'descendants_and_self' => $term_id,
@@ -3739,7 +3744,7 @@ function ajax_add_multisite_heirarchical_term() {
 
 	ob_start();
 
-	wp_dropdown_categories(
+	dropdown_multisite_taxonomy(
 		array(
 			'taxonomy'         => $taxonomy->name,
 			'hide_empty'       => 0,

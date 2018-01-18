@@ -25,9 +25,6 @@ class Multisite_Taxonomy_Meta_Box {
 		// register the ajax response for creating new terms.
 		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_tag_search' ) );
 		add_action( 'wp_ajax_ajax-get-multisite-tagcloud', array( $this, 'wp_ajax_get_multisite_tagcloud' ) );
-
-		// callback for adding a MS term.
-		add_action( 'wp_ajax_add-multisite-heirarchical-term', 'ajax_add_multisite_heirarchical_term' );
 	}
 
 	/**

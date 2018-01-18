@@ -1045,9 +1045,9 @@ class Multitaxo_Plugin {
 		<div id="message" class="updated">
 			<p><strong><?php echo esc_html( $message ); ?></strong></p>
 			<p><a href="<?php echo esc_url( $return_url ); ?>">
-									<?php
-									/* translators: %s: taxonomy name */
-									echo esc_html( sprintf( _x( '&larr; Back to %s', 'admin screen', 'multitaxo' ), $tax->labels->name ) );
+			<?php
+			/* translators: %s: taxonomy name */
+			echo esc_html( sprintf( _x( '&larr; Back to %s', 'admin screen', 'multitaxo' ), $tax->labels->name ) );
 			?>
 			</a></p>
 		</div>
@@ -1056,15 +1056,15 @@ class Multitaxo_Plugin {
 		<div id="ajax-response"></div>
 
 		<form name="edittag" id="edittag" method="post" action="admin.php?page=multisite_term_list&multisite_taxonomy=<?php echo esc_attr( $taxonomy ); ?>" class="validate"
-																																	<?php
-																																	/**
-																																	 * Fires inside the Edit Term form tag.
-																																	 *
-																																	 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
-																																	 *
-																																	 * @since 3.7.0
-																																	 */
-																																	do_action( "{$taxonomy}_multisite_term_edit_form_tag" );
+		<?php
+		/**
+		 * Fires inside the Edit Term form tag.
+		 *
+		 * The dynamic portion of the hook name, `$taxonomy`, refers to the taxonomy slug.
+		 *
+		 * @since 3.7.0
+		 */
+		do_action( "{$taxonomy}_multisite_term_edit_form_tag" );
 		?>
 		>
 		<input type="hidden" name="action" value="editedtag"/>
