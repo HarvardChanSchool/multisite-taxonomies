@@ -163,9 +163,9 @@ var tagBox, array_unique_noempty;
 		},
 
 		get : function( id ) {
-			var tax = id.substr( id.indexOf('-') + 1 );
+            var tax = id.substr( id.indexOf('-') + 1 );
 
-			$.post( ajaxurl, { 'action': 'ajax-get-multisite-tagcloud', 'tax': tax }, function( r, stat ) {
+			$.post( ajaxurl, { 'action': 'ajax-get-multisite-tagcloud', 'tax': tax, 'security': mtaxsecurity.noncecloud }, function( r, stat ) {
 				if ( 0 === r || 'success' != stat ) {
 					return;
 				}
@@ -249,7 +249,7 @@ var tagBox, array_unique_noempty;
 			});
 
 			// Fetch and toggle the Tag cloud.
-			$('.multitagcloud-link').click(function(){
+			$('.multitaxonomycloud-link').click(function(){
 				// On the first click, fetch the tag cloud and insert it in the DOM.
 				tagBox.get( $( this ).attr( 'id' ) );
 				// Update button state, remove previous click event and attach a new one to toggle the cloud.
