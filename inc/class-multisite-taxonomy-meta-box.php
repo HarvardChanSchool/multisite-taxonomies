@@ -546,10 +546,12 @@ class Multisite_Taxonomy_Meta_Box {
 		}
 
 		$terms = get_multisite_terms(
-			$taxonomy, array(
-				'number'  => 45,
-				'orderby' => 'count',
-				'order'   => 'DESC',
+			array(
+				'taxonomy'   => $taxonomy,
+				'number'     => 45,
+				'orderby'    => 'count',
+				'order'      => 'DESC',
+				'hide_empty' => false,
 			)
 		);
 
