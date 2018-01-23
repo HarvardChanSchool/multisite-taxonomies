@@ -58,10 +58,10 @@ class Multitaxo_Plugin {
 	public function register_multisite_tax_tables() {
 		global $wpdb;
 
-		$wpdb->multisite_termmeta                = $wpdb->prefix . 'multisite_termmeta';
-		$wpdb->multisite_terms                   = $wpdb->prefix . 'multisite_terms';
-		$wpdb->multisite_term_relationships      = $wpdb->prefix . 'multisite_term_relationships';
-		$wpdb->multisite_term_multisite_taxonomy = $wpdb->prefix . 'multisite_term_multisite_taxonomy';
+		$wpdb->multisite_termmeta                = $wpdb->base_prefix . 'multisite_termmeta';
+		$wpdb->multisite_terms                   = $wpdb->base_prefix . 'multisite_terms';
+		$wpdb->multisite_term_relationships      = $wpdb->base_prefix . 'multisite_term_relationships';
+		$wpdb->multisite_term_multisite_taxonomy = $wpdb->base_prefix . 'multisite_term_multisite_taxonomy';
 	}
 
 	/**
