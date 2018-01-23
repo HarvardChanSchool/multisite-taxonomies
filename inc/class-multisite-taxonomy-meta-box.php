@@ -49,7 +49,7 @@ class Multisite_Taxonomy_Meta_Box {
 	 * @return void
 	 */
 	public function load_wp_admin_scripts( $hook ) {
-		if ( 'post.php' !== $hook ) {
+		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
 			return;
 		}
 
