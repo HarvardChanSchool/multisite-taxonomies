@@ -214,21 +214,21 @@ var tagBox, array_unique_noempty;
 		},
 
 		init : function() {
-			var ajaxtag = $('div.ajaxmultitag');
+			var ajaxtag = $('div.ajaxmultitaxonomy');
 
-			$('.multitagsdiv').each( function() {
+			$('.multitaxonomydiv').each( function() {
 				tagBox.quickClicks( this );
 			});
 
-			$( '.multitagadd', ajaxtag ).click( function() {
+			$( '.multitermadd', ajaxtag ).click( function() {
 				tagBox.userAction = 'add';
-				tagBox.flushTags( $( this ).closest( '.multitagsdiv' ) );
+				tagBox.flushTags( $( this ).closest( '.multitaxonomydiv' ) );
 			});
 
-			$( 'input.newmultitag', ajaxtag ).keypress( function( event ) {
+			$( 'input.newmultiterm', ajaxtag ).keypress( function( event ) {
 				if ( 13 == event.which ) {
 					tagBox.userAction = 'add';
-					tagBox.flushTags( $( this ).closest( '.multitagsdiv' ) );
+					tagBox.flushTags( $( this ).closest( '.multitaxonomydiv' ) );
 					event.preventDefault();
 					event.stopPropagation();
 				}
@@ -243,7 +243,7 @@ var tagBox, array_unique_noempty;
 
 			// save tags on post save/publish
 			$('#post').submit(function(){
-				$('div.multitagsdiv').each( function() {
+				$('div.multitaxonomydiv').each( function() {
 					tagBox.flushTags(this, false, 1);
 				});
 			});

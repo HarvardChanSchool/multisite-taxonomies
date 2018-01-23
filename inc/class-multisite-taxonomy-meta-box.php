@@ -318,8 +318,8 @@ class Multisite_Taxonomy_Meta_Box {
 		<?php if ( $user_can_assign_terms ) : ?>
 		<div class="ajaxmultitaxonomy hide-if-no-js">
 			<label class="screen-reader-text" for="new-multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
-			<p><input data-multi-taxonomy="<?php echo esc_attr( $tax_name ); ?>" type="text" id="new-multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>" name="new_multi_taxonomy[<?php echo esc_attr( $tax_name ); ?>]" class="newmultitaxonomy form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>-desc" value="" />
-			<input type="button" class="button multitaxonomyadd" value="<?php esc_attr_e( 'Add', 'multitaxo' ); ?>" /></p>
+			<p><input data-multi-taxonomy="<?php echo esc_attr( $tax_name ); ?>" type="text" id="new-multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>" name="new_multi_taxonomy[<?php echo esc_attr( $tax_name ); ?>]" class="newmultiterm form-input-tip" size="16" autocomplete="off" aria-describedby="new-multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>-desc" value="" />
+			<input type="button" class="button multitermadd" value="<?php esc_attr_e( 'Add', 'multitaxo' ); ?>" /></p>
 		</div>
 		<p class="howto" id="new-multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>-desc"><?php echo esc_html( $taxonomy->labels->separate_items_with_commas ); ?></p>
 		<?php elseif ( empty( $terms_to_edit ) ) : ?>
