@@ -11,8 +11,6 @@ jQuery(document).ready(function( $ ) {
 		taxonomy = taxonomyParts.join('-');
         settingName = taxonomy + '_tab';
 
-        console.log( settingName );
-
 		// TODO: move to jQuery 1.3+, support for multiple hierarchical taxonomies, see wp-lists.js
 		$('a', '#' + taxonomy + '-tabs').click( function( e ) {
 			e.preventDefault();

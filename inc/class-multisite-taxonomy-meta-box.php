@@ -23,7 +23,7 @@ class Multisite_Taxonomy_Meta_Box {
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_wp_admin_scripts' ) );
 
 		// register the ajax response for creating new terms.
-		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_tag_search' ) );
+		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_terms_search' ) );
 		add_action( 'wp_ajax_ajax-get-multisite-tagcloud', array( $this, 'wp_ajax_get_multisite_term_cloud' ) );
 	}
 
@@ -476,7 +476,7 @@ class Multisite_Taxonomy_Meta_Box {
 			wp_die( -1 );
 		}
 
-		if ( ! isset( $_GET['q'] ) ) { // WPCS: input var ok.
+		if ( isset( $_GET['q'] ) ) { // WPCS: input var ok.
 			$s = sanitize_text_field( wp_unslash( $_GET['q'] ) ); // WPCS: input var ok.
 		} else {
 			$s = '';
@@ -512,7 +512,8 @@ class Multisite_Taxonomy_Meta_Box {
 		}
 
 		$results = get_multisite_terms(
-			$taxonomy, array(
+			array(
+				'taxonomy'   => $taxonomy,
 				'name__like' => $s,
 				'fields'     => 'names',
 				'hide_empty' => false,

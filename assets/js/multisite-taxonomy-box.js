@@ -128,8 +128,8 @@ var tagBox, array_unique_noempty;
 
 		flushTags : function( el, a, f ) {
 			var tagsval, newtags, text,
-				tags = $( '.the-multi-tags', el ),
-				newtag = $( 'input.newtag', el );
+				tags = $( '.the-multi-taxonomy', el ),
+				newtag = $( 'input.newmultiterm', el );
 
 			a = a || false;
 

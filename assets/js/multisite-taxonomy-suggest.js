@@ -23,7 +23,7 @@
 	 *
 	 * Example: `$( element ).wpTagsSuggest( options )`.
 	 *
-	 * The taxonomy can be passed in a `data-wp-taxonomy` attribute on the element or
+	 * The taxonomy can be passed in a `data-multi-taxonomy` attribute on the element or
 	 * can be in `options.taxonomy`.
 	 *
 	 * @since 4.7.0
@@ -38,7 +38,7 @@
 
 		options = options || {};
 
-		var taxonomy = options.taxonomy || $element.attr( 'data-wp-taxonomy' ) || 'post_tag';
+		var taxonomy = options.taxonomy || $element.attr( 'data-multi-taxonomy' ) || '';
 
 		delete( options.taxonomy );
 
@@ -49,19 +49,22 @@
 				if ( last === request.term ) {
 					response( cache );
 					return;
-				}
+                }
 
 				term = getLast( request.term );
 
 				$.get( window.ajaxurl, {
 					action: 'ajax-multisite-tag-search',
 					tax: taxonomy,
-					q: term
+                    q: term,
+                    'security': mtaxsecurity.noncesearch
 				} ).always( function() {
 					$element.removeClass( 'ui-autocomplete-loading' ); // UI fails to remove this sometimes?
 				} ).done( function( data ) {
 					var tagName;
-					var tags = [];
+                    var tags = [];
+
+                    console.log( data );
 
 					if ( data ) {
 						data = data.split( '\n' );
