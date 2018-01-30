@@ -520,7 +520,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		echo join( esc_html( $results ), "\n" );
+		echo esc_html( implode( '\n', $results ) );
 		wp_die();
 	}
 
