@@ -227,6 +227,14 @@ class Multisite_Taxonomy_Meta_Box {
 				word-wrap: break-word;
 			}
 
+			#poststuff .inside .the-multitagcloud {
+				margin: 5px 0 10px;
+				padding: 8px;
+				border: 1px solid #ddd;
+				line-height: 1.8em;
+				word-spacing: 3px;
+			}
+
 			.multitaxonomychecklist {
 				margin-left: 14px;
 				font-size: 12px;
