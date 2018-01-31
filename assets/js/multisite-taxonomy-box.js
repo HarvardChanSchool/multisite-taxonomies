@@ -1,13 +1,13 @@
 /* jshint curly: false, eqeqeq: false */
 /* global ajaxurl */
 
-var tagBox, array_unique_noempty;
+var multiTagBox, array_multi_unique_noempty;
 
 ( function( $ ) {
 	var tagDelimiter = ( window.tagsSuggestL10n && window.tagsSuggestL10n.tagDelimiter ) || ',';
 
 	// Return an array with any duplicate, whitespace or empty values removed
-	array_unique_noempty = function( array ) {
+	array_multi_unique_noempty = function( array ) {
 		var out = [];
 
 		$.each( array, function( key, val ) {
@@ -25,7 +25,7 @@ var tagBox, array_unique_noempty;
     $( "#multisite-tax-picker" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
     $( "#multisite-tax-picker li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
 
-	tagBox = {
+	multiTagBox = {
 		clean : function( tags ) {
 			if ( ',' !== tagDelimiter ) {
 				tags = tags.replace( new RegExp( tagDelimiter, 'g' ), ',' );
@@ -44,7 +44,7 @@ var tagBox, array_unique_noempty;
 			var id = el.id,
 				num = id.split('-check-num-')[1],
 				taxbox = $(el).closest('.multitagsdiv'),
-				thetags = taxbox.find('.the-multi-tags'),
+				thetags = taxbox.find('.the-multi-taxonomy'),
 				current_tags = thetags.val().split( tagDelimiter ),
 				new_tags = [];
 
@@ -64,8 +64,8 @@ var tagBox, array_unique_noempty;
 		},
 
 		quickClicks : function( el ) {
-			var thetags = $('.the-multi-tags', el),
-				tagchecklist = $('.multitagchecklist', el),
+			var thetags = $('.the-multi-taxonomy', el),
+				tagchecklist = $('.multitaxonomychecklist', el),
 				id = $(el).attr('id'),
 				current_tags, disabled;
 
@@ -94,7 +94,7 @@ var tagBox, array_unique_noempty;
 					 * Build the X buttons, hide the X icon with aria-hidden and
 					 * use visually hidden text for screen readers.
 					 */
-					xbutton = $( '<button type="button" id="' + id + '-check-num-' + key + '" class="ntdelbutton">' +
+					xbutton = $( '<button type="button" id="' + id + '-check-num-' + key + '" class="ntmultidelbutton">' +
 						'<span class="remove-multi-tag-icon" aria-hidden="true"></span>' +
 						'<span class="screen-reader-text">' + window.tagsSuggestL10n.removeTerm + ' ' + listItem.html() + '</span>' +
 						'</button>' );
@@ -108,11 +108,11 @@ var tagBox, array_unique_noempty;
 							 * key this will fire the `keyup` event on the input.
 							 */
 							if ( 13 === e.keyCode || 32 === e.keyCode ) {
- 								$( this ).closest( '.tagsdiv' ).find( 'input.newtag' ).focus();
+ 								$( this ).closest( '.multitagsdiv' ).find( 'input.newmultiterm' ).focus();
  							}
 
-							tagBox.userAction = 'remove';
-							tagBox.parseTags( this );
+							multiTagBox.userAction = 'remove';
+							multiTagBox.parseTags( this );
 						}
 					});
 
@@ -123,13 +123,13 @@ var tagBox, array_unique_noempty;
 				tagchecklist.append( listItem );
 			});
 			// The buttons list is built now, give feedback to screen reader users.
-			tagBox.screenReadersMessage();
+			multiTagBox.screenReadersMessage();
 		},
 
 		flushTags : function( el, a, f ) {
 			var tagsval, newtags, text,
-				tags = $( '.the-multi-tags', el ),
-				newtag = $( 'input.newtag', el );
+				tags = $( '.the-multi-taxonomy', el ),
+				newtag = $( 'input.newmultiterm', el );
 
 			a = a || false;
 
@@ -150,7 +150,7 @@ var tagBox, array_unique_noempty;
 			newtags = tagsval ? tagsval + tagDelimiter + text : text;
 
 			newtags = this.clean( newtags );
-			newtags = array_unique_noempty( newtags.split( tagDelimiter ) ).join( tagDelimiter );
+			newtags = array_multi_unique_noempty( newtags.split( tagDelimiter ) ).join( tagDelimiter );
 			tags.val( newtags );
 			this.quickClicks( el );
 
@@ -173,8 +173,8 @@ var tagBox, array_unique_noempty;
 				r = $( '<div id="multitagcloud-' + tax + '" class="the-multitagcloud">' + r + '</div>' );
 
 				$( 'a', r ).click( function() {
-					tagBox.userAction = 'add';
-					tagBox.flushTags( $( '#' + tax ), this );
+					multiTagBox.userAction = 'add';
+					multiTagBox.flushTags( $( '#' + tax ), this );
 					return false;
 				});
 
@@ -217,18 +217,18 @@ var tagBox, array_unique_noempty;
 			var ajaxtag = $('div.ajaxmultitaxonomy');
 
 			$('.multitaxonomydiv').each( function() {
-				tagBox.quickClicks( this );
+				multiTagBox.quickClicks( this );
 			});
 
 			$( '.multitermadd', ajaxtag ).click( function() {
-				tagBox.userAction = 'add';
-				tagBox.flushTags( $( this ).closest( '.multitaxonomydiv' ) );
+				multiTagBox.userAction = 'add';
+				multiTagBox.flushTags( $( this ).closest( '.multitaxonomydiv' ) );
 			});
 
 			$( 'input.newmultiterm', ajaxtag ).keypress( function( event ) {
 				if ( 13 == event.which ) {
-					tagBox.userAction = 'add';
-					tagBox.flushTags( $( this ).closest( '.multitaxonomydiv' ) );
+					multiTagBox.userAction = 'add';
+					multiTagBox.flushTags( $( this ).closest( '.multitaxonomydiv' ) );
 					event.preventDefault();
 					event.stopPropagation();
 				}
@@ -238,20 +238,20 @@ var tagBox, array_unique_noempty;
 					event.stopPropagation();
 				}
 			}).each( function( i, element ) {
-				$( element ).wpTagsSuggest();
+				$( element ).multiTagsSuggest();
 			});
 
 			// save tags on post save/publish
 			$('#post').submit(function(){
 				$('div.multitaxonomydiv').each( function() {
-					tagBox.flushTags(this, false, 1);
+					multiTagBox.flushTags(this, false, 1);
 				});
 			});
 
 			// Fetch and toggle the Tag cloud.
 			$('.multitaxonomycloud-link').click(function(){
 				// On the first click, fetch the tag cloud and insert it in the DOM.
-				tagBox.get( $( this ).attr( 'id' ) );
+				multiTagBox.get( $( this ).attr( 'id' ) );
 				// Update button state, remove previous click event and attach a new one to toggle the cloud.
 				$( this )
 					.attr( 'aria-expanded', 'true' )
@@ -263,5 +263,12 @@ var tagBox, array_unique_noempty;
 					});
 			});
 		}
-	};
+    };
+
+    // Multiple Taxonomies.
+    $('#multisite-tax-picker').children('div.multi-taxonomy-tab').each(function(){
+        if ( this.id.indexOf('tabs-flat-') === 0 ) {
+            window.multiTagBox && window.multiTagBox.init();
+        }
+    });
 }( jQuery ));

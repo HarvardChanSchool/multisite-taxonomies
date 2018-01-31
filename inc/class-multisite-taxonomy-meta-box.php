@@ -23,7 +23,7 @@ class Multisite_Taxonomy_Meta_Box {
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_wp_admin_scripts' ) );
 
 		// register the ajax response for creating new terms.
-		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_tag_search' ) );
+		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_terms_search' ) );
 		add_action( 'wp_ajax_ajax-get-multisite-tagcloud', array( $this, 'wp_ajax_get_multisite_term_cloud' ) );
 	}
 
@@ -226,15 +226,65 @@ class Multisite_Taxonomy_Meta_Box {
 				line-height: 22px;
 				word-wrap: break-word;
 			}
+
+			.multitaxonomychecklist {
+				margin-left: 14px;
+				font-size: 12px;
+				overflow: auto;
+			}
+
+			.multitaxonomychecklist > li {
+				float: left;
+				margin-right: 25px;
+				font-size: 13px;
+				line-height: 1.8em;
+				cursor: default;
+				max-width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.multitaxonomychecklist .ntmultidelbutton {
+				position: absolute;
+				width: 24px;
+				height: 24px;
+				border: none;
+				margin: 0 0 0 -19px;
+				padding: 0;
+				background: none;
+				cursor: pointer;
+				text-indent: 0;
+			}
+
+			.multitaxonomychecklist .ntmultidelbutton .remove-multi-tag-icon:before {
+				background: none;
+				color: #0073aa;
+				content: "\f153";
+				display: block;
+				font: normal 16px/20px dashicons;
+				line-height: 20px;
+				line-height: 1.28;
+				speak: none;
+				height: 20px;
+				text-align: center;
+				width: 20px;
+				margin-left: 2px;
+				border-radius: 50%;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
 		</style>
 		<div id="multisite-tax-picker">
 			<ul>
 		<?php
 
 		foreach ( $taxonomies as $tax ) {
+			// Are we heirarchical or not?
+			$heirarchical = ( true === $tax->hierarchical ) ? 'heirarchical-' : 'flat-';
+
 			// Set up the tab itself.
 			?>
-			<li><a href="#tabs-<?php echo esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></a></li>
+			<li><a href="#tabs-<?php echo esc_attr( $heirarchical ) . esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></a></li>
 			<?php
 		}
 
@@ -247,8 +297,11 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// loop and loop.
 		foreach ( $taxonomies as $tax ) {
+			// Are we heirarchical or not?
+			$heirarchical = ( true === $tax->hierarchical ) ? 'heirarchical-' : 'flat-';
+
 			?>
-			<div id="tabs-<?php echo esc_attr( $tax->name ); ?>">
+			<div id="tabs-<?php echo esc_attr( $heirarchical ) . esc_attr( $tax->name ); ?>" class="multi-taxonomy-tab">
 				<h2><?php echo esc_html( $tax->labels->name ); ?></h2>
 			<?php
 
@@ -309,7 +362,7 @@ class Multisite_Taxonomy_Meta_Box {
 			$terms_to_edit = '';
 		}
 	?>
-	<div class="multitaxonomydiv" id="<?php echo esc_attr( $tax_name ); ?>">
+	<div class="multitaxonomydiv" id="multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>">
 		<div class="ajaxtaxonomy">
 		<div class="nojs-taxonomy hide-if-js">
 			<label for="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_or_remove_items ); ?></label>
@@ -476,7 +529,7 @@ class Multisite_Taxonomy_Meta_Box {
 			wp_die( -1 );
 		}
 
-		if ( ! isset( $_GET['q'] ) ) { // WPCS: input var ok.
+		if ( isset( $_GET['q'] ) ) { // WPCS: input var ok.
 			$s = sanitize_text_field( wp_unslash( $_GET['q'] ) ); // WPCS: input var ok.
 		} else {
 			$s = '';
@@ -512,14 +565,15 @@ class Multisite_Taxonomy_Meta_Box {
 		}
 
 		$results = get_multisite_terms(
-			$taxonomy, array(
+			array(
+				'taxonomy'   => $taxonomy,
 				'name__like' => $s,
 				'fields'     => 'names',
 				'hide_empty' => false,
 			)
 		);
 
-		echo join( esc_html( $results ), "\n" );
+		echo esc_html( implode( '\n', $results ) );
 		wp_die();
 	}
 

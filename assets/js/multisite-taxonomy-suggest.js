@@ -21,9 +21,9 @@
 	 * Add UI Autocomplete to an input or textarea element with presets for use
 	 * with non-hierarchical taxonomies.
 	 *
-	 * Example: `$( element ).wpTagsSuggest( options )`.
+	 * Example: `$( element ).multiTagsSuggest( options )`.
 	 *
-	 * The taxonomy can be passed in a `data-wp-taxonomy` attribute on the element or
+	 * The taxonomy can be passed in a `data-multi-taxonomy` attribute on the element or
 	 * can be in `options.taxonomy`.
 	 *
 	 * @since 4.7.0
@@ -31,14 +31,14 @@
 	 * @param {object} options Options that are passed to UI Autocomplete. Can be used to override the default settings.
 	 * @returns {object} jQuery instance.
 	 */
-	$.fn.wpTagsSuggest = function( options ) {
+	$.fn.multiTagsSuggest = function( options ) {
 		var cache;
 		var last;
 		var $element = $( this );
 
 		options = options || {};
 
-		var taxonomy = options.taxonomy || $element.attr( 'data-wp-taxonomy' ) || 'post_tag';
+		var taxonomy = options.taxonomy || $element.attr( 'data-multi-taxonomy' ) || '';
 
 		delete( options.taxonomy );
 
@@ -49,19 +49,20 @@
 				if ( last === request.term ) {
 					response( cache );
 					return;
-				}
+                }
 
 				term = getLast( request.term );
 
 				$.get( window.ajaxurl, {
 					action: 'ajax-multisite-tag-search',
 					tax: taxonomy,
-					q: term
+                    q: term,
+                    'security': mtaxsecurity.noncesearch
 				} ).always( function() {
 					$element.removeClass( 'ui-autocomplete-loading' ); // UI fails to remove this sometimes?
 				} ).done( function( data ) {
 					var tagName;
-					var tags = [];
+                    var tags = [];
 
 					if ( data ) {
 						data = data.split( '\n' );
