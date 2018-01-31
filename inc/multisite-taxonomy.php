@@ -2937,8 +2937,7 @@ function _get_multisite_term_children( $multisite_term_id, $multisite_terms, $mu
 		if ( isset( $ancestors[ $multisite_term->multisite_term_id ] ) ) {
 			continue;
 		}
-
-		if ( $multisite_term->parent === $multisite_term_id ) {
+		if ( intval( $multisite_term->parent ) === intval( $multisite_term_id ) ) {
 			if ( $use_id ) {
 				$multisite_term_list[] = $multisite_term->multisite_term_id;
 			} else {
@@ -3636,9 +3635,9 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
  * @access private
  * @since 3.1.0
  */
-function ajax_add_multisite_heirarchical_term() {
+function ajax_add_multisite_hierarchical_term() {
 	$action   = sanitize_key( wp_unslash( $_POST['action'] ) );
-	$tax      = str_replace( 'add-multisite-heirarchical-term-', '', $action );
+	$tax      = str_replace( 'add-multisite-hierarchical-term-', '', $action );
 	$taxonomy = get_multisite_taxonomy( $tax );
 
 	check_ajax_referer( 'add-multisite-' . $taxonomy->name, '_ajax_nonce-add-' . $taxonomy->name );
@@ -3671,7 +3670,7 @@ function ajax_add_multisite_heirarchical_term() {
 		if ( ! $cat_id || is_wp_error( $cat_id ) ) {
 			continue;
 		} else {
-			$cat_id = $cat_id['term_id'];
+			$cat_id = $cat_id['multisite_term_id'];
 		}
 
 		$checked_categories[] = $cat_id;
@@ -3686,8 +3685,8 @@ function ajax_add_multisite_heirarchical_term() {
 			0, array(
 				'taxonomy'             => $taxonomy->name,
 				'descendants_and_self' => $cat_id,
-				'selected_cats'        => $checked_categories,
-				'popular_cats'         => $popular_ids,
+				'selected_terms'        => $checked_categories,
+				'popular_terms'         => $popular_ids,
 			)
 		);
 
@@ -3703,7 +3702,7 @@ function ajax_add_multisite_heirarchical_term() {
 
 	if ( $parent ) { // Foncy - replace the parent and all its children.
 		$parent  = get_multisite_term( $parent, $taxonomy->name );
-		$term_id = $parent->term_id;
+		$term_id = $parent->multisite_term_id;
 
 		while ( $parent->parent ) { // get the top parent.
 			$parent = get_multisite_term( $parent->parent, $taxonomy->name );
@@ -3712,20 +3711,18 @@ function ajax_add_multisite_heirarchical_term() {
 				break;
 			}
 
-			$term_id = $parent->term_id;
+			$term_id = $parent->multisite_term_id;
 		}
 
 		ob_start();
-
-		multisite_terms_checklist(
-			0, array(
-				'taxonomy'             => $taxonomy->name,
-				'descendants_and_self' => $term_id,
-				'selected_cats'        => $checked_categories,
-				'popular_cats'         => $popular_ids,
-			)
+		$checklist_args = array(
+			'taxonomy'             => $taxonomy->name,
+			'descendants_and_self' => $term_id,
+			'selected_terms'        => $checked_categories,
+			'popular_terms'         => $popular_ids,
 		);
 
+		multisite_terms_checklist( 0 , $checklist_args );
 		$data = ob_get_clean();
 
 		$add = array(
@@ -3742,7 +3739,7 @@ function ajax_add_multisite_heirarchical_term() {
 		array(
 			'taxonomy'         => $taxonomy->name,
 			'hide_empty'       => 0,
-			'name'             => 'new' . $taxonomy->name . '_parent',
+			'name'             => 'new_multisite_' . $taxonomy->name . '_parent',
 			'orderby'          => 'name',
 			'hierarchical'     => 1,
 			'show_option_none' => '&mdash; ' . $taxonomy->labels->parent_item . ' &mdash;',
@@ -3751,7 +3748,7 @@ function ajax_add_multisite_heirarchical_term() {
 
 	$sup = ob_get_clean();
 
-	$add['supplemental'] = array( 'newcat_parent' => $sup );
+	$add['supplemental'] = array( 'new_multisite_term_parent' => $sup );
 
 	$x = new WP_Ajax_Response( $add );
 	$x->send();

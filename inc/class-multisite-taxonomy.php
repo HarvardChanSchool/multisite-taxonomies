@@ -190,7 +190,7 @@ class Multisite_Taxonomy {
 		$this->set_props( $object_type, $args );
 
 		// callback for adding a MS term.
-		add_action( 'wp_ajax_add-multisite-heirarchical-term-' . $this->name, 'ajax_add_multisite_heirarchical_term' );
+		add_action( 'wp_ajax_add-multisite-hierarchical-term-' . $this->name, 'ajax_add_multisite_hierarchical_term' );
 	}
 
 	/**

@@ -3,15 +3,13 @@
  */
 jQuery(document).ready(function( $ ) {
 	// Handle categories.
-	$('.multi-heirarchical-div').each( function(){
-		var this_id = $(this).attr('id'), catAddBefore, catAddAfter, taxonomyParts, taxonomy, settingName;
+	$('.multisite-hierarchical-taxonomy-div').each( function(){
+		var this_id = $(this).attr('id'), multisiteTaxonomyAddBefore, multisiteTaxonomyAddAfter, taxonomyParts, taxonomy, settingName;
 
 		taxonomyParts = this_id.split('-');
 		taxonomyParts.shift();
 		taxonomy = taxonomyParts.join('-');
         settingName = taxonomy + '_tab';
-
-        console.log( settingName );
 
 		// TODO: move to jQuery 1.3+, support for multiple hierarchical taxonomies, see wp-lists.js
 		$('a', '#' + taxonomy + '-tabs').click( function( e ) {
@@ -55,13 +53,14 @@ jQuery(document).ready(function( $ ) {
 		 *
 		 * @returns {Object}
 		 */
-		catAddBefore = function( s ) {
+		multisiteTaxonomyAddBefore = function( s ) {
 			if ( !$('#new_multisite_' + taxonomy).val() ) {
 				return false;
 			}
 
 			s.data += '&' + $( ':checked', '#'+taxonomy+'checklist' ).serialize();
-			$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', true );
+            $( '#' + taxonomy + '-add-submit' ).prop( 'disabled', true );
+            console.log(s);
 			return s;
 		};
 
@@ -76,22 +75,23 @@ jQuery(document).ready(function( $ ) {
 		 *
 		 * @returns void
 		 */
-		catAddAfter = function( r, s ) {
+		multisiteTaxonomyAddAfter = function( r, s ) {
 			var sup, drop = $('#new_multisite_' + taxonomy + '_parent');
 
 			$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', false );
-			if ( 'undefined' != s.parsed.responses[0] && (sup = s.parsed.responses[0].supplemental.newcat_parent) ) {
+			if ( 'undefined' != s.parsed.responses[0] && (sup = s.parsed.responses[0].supplemental.new_multisite_term_parent) ) {
 				drop.before(sup);
 				drop.remove();
 			}
 		};
 
+
 		$('#' + taxonomy + 'checklist').wpList({
             alt: '',
-            what: 'multisite-heirarchical-term-' + taxonomy,
+            what: 'multisite-hierarchical-term-' + taxonomy,
 			response: taxonomy + '-ajax-response',
-			addBefore: catAddBefore,
-			addAfter: catAddAfter
+			addBefore: multisiteTaxonomyAddBefore,
+			addAfter: multisiteTaxonomyAddAfter
 		});
 
 		// Add new taxonomy button toggles input form visibility.

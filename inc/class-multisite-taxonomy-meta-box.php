@@ -72,7 +72,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-heirarchical-box.js', array( 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), false, 1 );
 	}
 
 	/**
@@ -186,28 +186,28 @@ class Multisite_Taxonomy_Meta_Box {
 				display: inline-block;
 			}
 
-			ul.heirarchical-tabs {
+			ul.hierarchical-term-tabs {
 				margin: 12px 0 5px;
 			}
 
-			ul.heirarchical-tabs li {
+			ul.hierarchical-term-tabs li {
 				display: inline;
 				line-height: 1.35em;
 				border: solid 1px transparent;
 				position: relative;
 			}
 
-			ul.heirarchical-tabs li.tabs {
+			ul.hierarchical-term-tabs li.tabs {
 				border: 1px solid #ddd;
 				border-bottom-color: #fdfdfd;
 				background-color: #fdfdfd;
 			}
 
-			ul.heirarchical-tabs li {
+			ul.hierarchical-term-tabs li {
 				padding: 3px 5px 6px;
 			}
 
-			.multi-heirarchical-div div.tabs-panel {
+			.multisite-hierarchical-taxonomy-div div.tabs-panel {
 				min-height: 42px;
 				max-height: 200px;
 				overflow: auto;
@@ -216,11 +216,11 @@ class Multisite_Taxonomy_Meta_Box {
 				background-color: #fdfdfd;
 			}
 
-			.multi-heirarchical-div ul.heirarchicalchecklist ul {
+			.multisite-hierarchical-taxonomy-div ul.hierarchical-termchecklist ul {
 				margin-left: 18px;
 			}
 
-			ul.heirarchicalchecklist li {
+			ul.hierarchical-termchecklist li {
 				margin: 0;
 				padding: 0;
 				line-height: 22px;
@@ -258,7 +258,7 @@ class Multisite_Taxonomy_Meta_Box {
 				'args'     => array(),
 			);
 
-			// Are we heirarchical or not?
+			// Are we hierarchical-term or not?
 			if ( true === $tax->hierarchical ) {
 				$this->hierarchical_multisite_taxonomy_meta_box( $post, $args );
 			} else {
@@ -335,7 +335,7 @@ class Multisite_Taxonomy_Meta_Box {
 	}
 
 	/**
-	 * Display post heirarchical form fields.
+	 * Display post hierarchical-term form fields.
 	 *
 	 * @since 2.6.0
 	 *
@@ -343,7 +343,7 @@ class Multisite_Taxonomy_Meta_Box {
 	 *
 	 * @param WP_Post $post Post object.
 	 * @param array   $args {
-	 *     Heirarchical meta box arguments.
+	 *     hierarchical-term meta box arguments.
 	 *
 	 *     @type string   $id       Meta box 'id' attribute.
 	 *     @type string   $title    Meta box title.
@@ -351,7 +351,7 @@ class Multisite_Taxonomy_Meta_Box {
 	 *     @type array    $args {
 	 *         Extra meta box arguments.
 	 *
-	 *         @type string $taxonomy Taxonomy. Default 'heirarchical'.
+	 *         @type string $taxonomy Taxonomy. Default 'hierarchical-term'.
 	 *     }
 	 * }
 	 */
@@ -365,14 +365,14 @@ class Multisite_Taxonomy_Meta_Box {
 		$tax_name = esc_attr( $r['taxonomy'] );
 		$taxonomy = get_multisite_taxonomy( $r['taxonomy'] );
 		?>
-		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multi-heirarchical-div">
-			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="heirarchical-tabs">
+		<div id="taxonomy-<?php echo esc_attr( $tax_name ); ?>" class="multisite-hierarchical-taxonomy-div">
+			<ul id="<?php echo esc_attr( $tax_name ); ?>-tabs" class="hierarchical-term-tabs">
 				<li class="tabs"><a href="#<?php echo esc_attr( $tax_name ); ?>-all"><?php echo esc_html( $taxonomy->labels->all_items ); ?></a></li>
 				<li class="hide-if-no-js"><a href="#<?php echo esc_attr( $tax_name ); ?>-pop"><?php echo esc_html( $taxonomy->labels->most_used ); ?></a></li>
 			</ul>
 
 			<div id="<?php echo esc_attr( $tax_name ); ?>-pop" class="tabs-panel" style="display: none;">
-				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="heirarchicalchecklist form-no-clear" >
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="hierarchical-termchecklist form-no-clear" >
 					<?php $popular_ids = popular_multisite_terms_checklist( $tax_name ); ?>
 				</ul>
 			</div>
@@ -381,12 +381,12 @@ class Multisite_Taxonomy_Meta_Box {
 				<?php
 				echo '<input type="hidden" name="tax_input[' . esc_attr( $tax_name ) . '][]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
 				?>
-				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="heirarchicalchecklist form-no-clear">
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="hierarchical-termchecklist form-no-clear">
 					<?php
 					multisite_terms_checklist(
 						$post->ID, array(
 							'taxonomy'     => $tax_name,
-							'popular_cats' => $popular_ids,
+							'popular_terms' => $popular_ids,
 						)
 					);
 	?>
@@ -400,7 +400,7 @@ class Multisite_Taxonomy_Meta_Box {
 							printf( esc_html__( '+ %s', 'multitaxo' ), esc_html( $taxonomy->labels->add_new_item ) );
 						?>
 					</a>
-					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="multisite-heirarchical-add wp-hidden-child">
+					<p id="<?php echo esc_attr( $tax_name ); ?>-add" class="multisite-hierarchical-term-add wp-hidden-child">
 						<label class="screen-reader-text" for="new_multisite_<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_new_item ); ?></label>
 						<input type="text" name="new_multisite_<?php echo esc_attr( $tax_name ); ?>" id="new_multisite_<?php echo esc_attr( $tax_name ); ?>" class="form-required form-input-tip" value="<?php echo esc_attr( $taxonomy->labels->new_item_name ); ?>" aria-required="true"/>
 						<label class="screen-reader-text" for="new_multisite_<?php echo esc_attr( $tax_name ); ?>_parent">
@@ -429,7 +429,7 @@ class Multisite_Taxonomy_Meta_Box {
 						 *                                      tags are found. Default 0.
 						 *     @type string   $name             Value for the 'name' attribute
 						 *                                      of the select element.
-						 *                                      Default "new{$tax_name}_parent".
+						 *                                      Default "new_multisite_{$tax_name}_parent".
 						 *     @type string   $orderby          Which column to use for ordering
 						 *                                      terms. Default 'name'.
 						 *     @type bool|int $hierarchical     Whether to traverse the taxonomy
@@ -440,11 +440,11 @@ class Multisite_Taxonomy_Meta_Box {
 						 *                                      taxonomy label.
 						 * }
 						 */
-						$parent_dropdown_args = apply_filters( 'edit_multisite_heirarchical_parent_dropdown_args', $parent_dropdown_args );
+						$parent_dropdown_args = apply_filters( 'edit_multisite_hierarchical-term_parent_dropdown_args', $parent_dropdown_args );
 
 						dropdown_multisite_taxonomy( $parent_dropdown_args );
 						?>
-						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button multisite-heirarchical-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
+						<input type="button" id="<?php echo esc_attr( $tax_name ); ?>-add-submit" data-wp-lists="add:<?php echo esc_attr( $tax_name ); ?>checklist:<?php echo esc_attr( $tax_name ); ?>-add" class="button multisite-hierarchical-term-add-submit" value="<?php echo esc_attr( $taxonomy->labels->add_new_item ); ?>" />
 						<?php wp_nonce_field( 'add-multisite-' . $tax_name, '_ajax_nonce-add-' . $tax_name, false ); ?>
 						<span id="<?php echo esc_attr( $tax_name ); ?>-ajax-response"></span>
 					</p>
