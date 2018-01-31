@@ -49,8 +49,3 @@ require_once MULTITAXO_PLUGIN_DIR . 'inc/multisite-taxonomy-template.php';
 // Plugin init.
 $multitaxo   = new Multitaxo_Plugin();
 $multi_admin = new Multisite_Taxonomy_Meta_Box();
-
-add_action( 'init', 'stop_heartbeat', 1 );
-function stop_heartbeat() {
-	wp_deregister_script('heartbeat');
-}
