@@ -43,7 +43,7 @@ var multiTagBox, array_multi_unique_noempty;
 		parseTags : function(el) {
 			var id = el.id,
 				num = id.split('-check-num-')[1],
-				taxbox = $(el).closest('.multitagsdiv'),
+				taxbox = $(el).closest('.multitaxonomydiv'),
 				thetags = taxbox.find('.the-multi-taxonomy'),
 				current_tags = thetags.val().split( tagDelimiter ),
 				new_tags = [];
@@ -174,7 +174,7 @@ var multiTagBox, array_multi_unique_noempty;
 
 				$( 'a', r ).click( function() {
 					multiTagBox.userAction = 'add';
-					multiTagBox.flushTags( $( '#' + tax ), this );
+					multiTagBox.flushTags( $( '#multi-taxonomy-' + tax ), this );
 					return false;
 				});
 

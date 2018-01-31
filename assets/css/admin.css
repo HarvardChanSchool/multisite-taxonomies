@@ -93,28 +93,28 @@ p.popular-multitags a {
     display: inline-block;
 }
 
-ul.hierarchical-term-tabs {
+ul.heirarchical-tabs {
     margin: 12px 0 5px;
 }
 
-ul.hierarchical-term-tabs li {
+ul.heirarchical-tabs li {
     display: inline;
     line-height: 1.35em;
     border: solid 1px transparent;
     position: relative;
 }
 
-ul.hierarchical-term-tabs li.tabs {
+ul.heirarchical-tabs li.tabs {
     border: 1px solid #ddd;
     border-bottom-color: #fdfdfd;
     background-color: #fdfdfd;
 }
 
-ul.hierarchical-term-tabs li {
+ul.heirarchical-tabs li {
     padding: 3px 5px 6px;
 }
 
-.multisite-hierarchical-taxonomy-div div.tabs-panel {
+.multi-heirarchical-div div.tabs-panel {
     min-height: 42px;
     max-height: 200px;
     overflow: auto;
@@ -123,15 +123,23 @@ ul.hierarchical-term-tabs li {
     background-color: #fdfdfd;
 }
 
-.multisite-hierarchical-taxonomy-div ul.hierarchical-termchecklist ul {
+.multi-heirarchical-div ul.heirarchicalchecklist ul {
     margin-left: 18px;
 }
 
-ul.hierarchical-termchecklist li {
+ul.heirarchicalchecklist li {
     margin: 0;
     padding: 0;
     line-height: 22px;
     word-wrap: break-word;
+}
+
+#poststuff .inside .the-multitagcloud {
+    margin: 5px 0 10px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    line-height: 1.8em;
+    word-spacing: 3px;
 }
 
 .multitaxonomychecklist {
