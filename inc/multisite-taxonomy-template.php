@@ -28,12 +28,11 @@
  */
 function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$defaults = array(
-		'taxonomy'             => false,
+		'taxonomy'             => '',
 		'descendants_and_self' => 0,
 		'popular_terms'        => false,
 		'selected_terms'       => false,
 		'walker'               => null,
-		'taxonomy'             => '',
 		'checked_ontop'        => true,
 		'echo'                 => true,
 		'blog_id'              => get_current_blog_id(),
@@ -88,14 +87,13 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 		);
 	}
 	if ( $descendants_and_self ) {
-		$multisite_terms = (array) get_multisite_terms(
-			array(
-				'taxonomy'     => $multisite_taxonomy,
-				'child_of'     => $descendants_and_self,
-				'hierarchical' => 0,
-				'hide_empty'   => 0,
-			)
+		$descendants_args = array(
+			'taxonomy'     => $multisite_taxonomy,
+			'child_of'     => $descendants_and_self,
+			'hierarchical' => 0,
+			'hide_empty'   => 0,
 		);
+		$multisite_terms = get_multisite_terms( $descendants_args );
 		$self            = get_multisite_term( $descendants_and_self, $multisite_taxonomy );
 		array_unshift( $multisite_terms, $self );
 	} else {
@@ -167,7 +165,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
  *     @type int|string   $selected          Value of the option that should be selected. Default 0.
  *     @type string       $value_field       Term field that should be used to populate the 'value' attribute
  *                                           of the option elements. Accepts any valid term field: 'multisite_term_id', 'name',
- *                                           'slug', 'term_group', 'term_taxonomy_id', 'taxonomy', 'description',
+ *                                           'slug', 'term_group', 'multisite_term_multisite_taxonomy_id', 'taxonomy', 'description',
  *                                           'parent', 'count'. Default 'multisite_term_id'.
  *     @type string|array $taxonomy          Name of the category or categories to retrieve. Default 'category'.
  *     @type bool         $hide_if_empty     True to skip generating markup if no categories are found.

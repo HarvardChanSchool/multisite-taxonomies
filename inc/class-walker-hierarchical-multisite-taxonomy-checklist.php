@@ -88,16 +88,16 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 			$name = 'tax_input[' . $taxonomy . ']';
 		}
 
-		$args['popular_cats'] = empty( $args['popular_cats'] ) ? array() : $args['popular_cats'];
-		$class                = in_array( $category->multisite_term_id, $args['popular_cats'], true ) ? ' class="popular-category"' : '';
+		$args['popular_terms'] = empty( $args['popular_terms'] ) ? array() : $args['popular_terms'];
+		$class                = in_array( $category->multisite_term_id, $args['popular_terms'], true ) ? ' class="popular-category"' : '';
 
-		$args['selected_cats'] = empty( $args['selected_cats'] ) ? array() : $args['selected_cats'];
+		$args['selected_terms'] = empty( $args['selected_terms'] ) ? array() : $args['selected_terms'];
 
 		if ( ! empty( $args['list_only'] ) ) {
 			$aria_checked = 'false';
 			$inner_class  = 'category';
 
-			if ( in_array( $category->multisite_term_id, $args['selected_cats'], true ) ) {
+			if ( in_array( $category->multisite_term_id, $args['selected_terms'], true ) ) {
 				$inner_class .= ' selected';
 				$aria_checked = 'true';
 			}
@@ -109,9 +109,9 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 				esc_html( apply_filters( 'the_category', $category->name ) ) . '</div>';
 		} else {
 			/** This filter is documented in wp-includes/category-template.php */
-			$output .= "\n<li id='{$taxonomy}-{$category->multisite_term_id}'$class>" .
+			$output .= "\n<li id='multisite-hierarchical-term-{$taxonomy}-{$category->multisite_term_id}'$class>" .
 				'<label class="selectit"><input value="' . $category->multisite_term_id . '" type="checkbox" name="' . $name . '[]" id="in-' . $taxonomy . '-' . $category->multisite_term_id . '"' .
-				checked( in_array( $category->multisite_term_id, $args['selected_cats'], true ), true, false ) .
+				checked( in_array( $category->multisite_term_id, $args['selected_terms'], true ), true, false ) .
 				disabled( empty( $args['disabled'] ), false, false ) . ' /> ' .
 				esc_html( apply_filters( 'the_category', $category->name ) ) . '</label>';
 		}

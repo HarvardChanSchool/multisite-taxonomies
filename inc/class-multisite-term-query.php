@@ -180,7 +180,7 @@ class Multisite_Term_Query {
 			'count'                  => false,
 			'name'                   => '',
 			'slug'                   => '',
-			'term_taxonomy_id'       => '',
+			'multisite_term_multisite_taxonomy_id'       => '',
 			'hierarchical'           => true,
 			'search'                 => '',
 			'name__like'             => '',
@@ -351,12 +351,10 @@ class Multisite_Term_Query {
 			$in_hierarchy = false;
 			foreach ( $multisite_taxonomies as $_tax ) {
 				$hierarchy = _get_multisite_term_hierarchy( $_tax );
-
 				if ( isset( $hierarchy[ $_parent ] ) ) {
 					$in_hierarchy = true;
 				}
 			}
-
 			if ( ! $in_hierarchy ) {
 				return array();
 			}
