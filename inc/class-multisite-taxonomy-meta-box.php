@@ -20,7 +20,7 @@ class Multisite_Taxonomy_Meta_Box {
 		add_action( 'add_meta_boxes', array( $this, 'add_multsite_taxonomy_meta_box' ), 10, 2 );
 
 		// Add the admin scripts to the posts pages.
-		add_action( 'admin_enqueue_scripts', array( $this, 'load_wp_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_and_scripts' ) );
 
 		// register the ajax response for creating new terms.
 		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_terms_search' ) );
@@ -42,13 +42,14 @@ class Multisite_Taxonomy_Meta_Box {
 	}
 
 	/**
-	 * Display the metabox container if we should use it.
+	 * Enqueue scripts and styles for our metabox.
 	 *
 	 * @param string $hook page hook.
 	 *
 	 * @return void
 	 */
-	public function load_wp_admin_scripts( $hook ) {
+	public function admin_enqueue_styles_and_scripts( $hook ) {
+		// We only need the scripts and styles on the edit/new post pages.
 		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
 			return;
 		}
@@ -73,6 +74,8 @@ class Multisite_Taxonomy_Meta_Box {
 		);
 
 		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), false, 1 );
+
+		wp_enqueue_style( 'multisite-taxonomy-meta-box' , MULTITAXO_ASSETS_URL . '/css/admin.css' );
 	}
 
 	/**
@@ -90,190 +93,6 @@ class Multisite_Taxonomy_Meta_Box {
 		$tab_contents = array();
 
 		?>
-		<style>
-			.ui-tabs-vertical {
-				clear: both;
-				overflow: hidden;
-			}
-
-			.ui-tabs-vertical .ui-tabs-nav {
-				padding: .2em 1% .2em 1%;
-				float: left;
-				width: 15%;
-				margin-left: 2%;
-				margin-right: -2%;
-			}
-
-			.ui-tabs-vertical .ui-tabs-nav li {
-				clear: left;
-				margin: 5px 0 5px 0;
-				border: solid 1px #ddd;
-				background-color: #fdfdfd;
-				padding: 7px 0 7px 7px;
-				z-index: 9;
-			}
-
-			.ui-tabs-vertical .ui-tabs-nav li a {
-				display: block;
-			}
-
-			.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
-				background-color: #fff;
-				border-right-color: #fff;
-			}
-
-			.ui-tabs-vertical .ui-tabs-panel {
-				padding: 1%;
-				float: right;
-				width: 80%;
-				border-left: solid 1px #ddd;
-			}
-
-			/*------------------------------------------------------------------------------
-			13.0 - Tags
-			------------------------------------------------------------------------------*/
-
-			#poststuff .multitagsdiv .howto {
-				margin: 0 0 6px 0;
-			}
-
-			.ajaxtag .newmultitag {
-				position: relative;
-			}
-
-			.multitagsdiv .newmultitag {
-				width: 180px;
-			}
-
-			.multitagsdiv .the-multitags {
-				display: block;
-				height: 60px;
-				margin: 0 auto;
-				overflow: auto;
-				width: 260px;
-			}
-
-			#post-body-content .multitagsdiv .the-multitags {
-				margin: 0 5px;
-			}
-
-			p.popular-multitags {
-				border: none;
-				line-height: 2em;
-				padding: 8px 12px 12px;
-				text-align: justify;
-			}
-
-			p.popular-multitags a {
-				padding: 0 3px;
-			}
-
-			.multitagcloud {
-				width: 97%;
-				margin: 0 0 40px;
-				text-align: justify;
-			}
-
-			.multitagcloud h2 {
-				margin: 2px 0 12px;
-			}
-
-			.the-multitagcloud ul {
-				margin: 0;
-			}
-
-			.the-multitagcloud ul li {
-				display: inline-block;
-			}
-
-			ul.hierarchical-term-tabs {
-				margin: 12px 0 5px;
-			}
-
-			ul.hierarchical-term-tabs li {
-				display: inline;
-				line-height: 1.35em;
-				border: solid 1px transparent;
-				position: relative;
-			}
-
-			ul.hierarchical-term-tabs li.tabs {
-				border: 1px solid #ddd;
-				border-bottom-color: #fdfdfd;
-				background-color: #fdfdfd;
-			}
-
-			ul.hierarchical-term-tabs li {
-				padding: 3px 5px 6px;
-			}
-
-			.multisite-hierarchical-taxonomy-div div.tabs-panel {
-				min-height: 42px;
-				max-height: 200px;
-				overflow: auto;
-				padding: 0 0.9em;
-				border: solid 1px #ddd;
-				background-color: #fdfdfd;
-			}
-
-			.multisite-hierarchical-taxonomy-div ul.hierarchical-termchecklist ul {
-				margin-left: 18px;
-			}
-
-			ul.hierarchical-termchecklist li {
-				margin: 0;
-				padding: 0;
-				line-height: 22px;
-				word-wrap: break-word;
-			}
-
-			.multitaxonomychecklist {
-				margin-left: 14px;
-				font-size: 12px;
-				overflow: auto;
-			}
-
-			.multitaxonomychecklist > li {
-				float: left;
-				margin-right: 25px;
-				font-size: 13px;
-				line-height: 1.8em;
-				cursor: default;
-				max-width: 100%;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-
-			.multitaxonomychecklist .ntmultidelbutton {
-				position: absolute;
-				width: 24px;
-				height: 24px;
-				border: none;
-				margin: 0 0 0 -19px;
-				padding: 0;
-				background: none;
-				cursor: pointer;
-				text-indent: 0;
-			}
-
-			.multitaxonomychecklist .ntmultidelbutton .remove-multi-tag-icon:before {
-				background: none;
-				color: #0073aa;
-				content: "\f153";
-				display: block;
-				font: normal 16px/20px dashicons;
-				line-height: 20px;
-				line-height: 1.28;
-				speak: none;
-				height: 20px;
-				text-align: center;
-				width: 20px;
-				margin-left: 2px;
-				border-radius: 50%;
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-			}
-		</style>
 		<div id="multisite-tax-picker">
 			<ul>
 		<?php
