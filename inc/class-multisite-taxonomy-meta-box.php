@@ -233,6 +233,17 @@ class Multisite_Taxonomy_Meta_Box {
 				overflow: auto;
 			}
 
+			.multitaxonomychecklist > li {
+				float: left;
+				margin-right: 25px;
+				font-size: 13px;
+				line-height: 1.8em;
+				cursor: default;
+				max-width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
 			.multitaxonomychecklist .ntmultidelbutton {
 				position: absolute;
 				width: 24px;
