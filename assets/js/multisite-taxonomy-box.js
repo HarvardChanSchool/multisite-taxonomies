@@ -44,7 +44,7 @@ var multiTagBox, array_multi_unique_noempty;
 			var id = el.id,
 				num = id.split('-check-num-')[1],
 				taxbox = $(el).closest('.multitagsdiv'),
-				thetags = taxbox.find('.the-multi-tags'),
+				thetags = taxbox.find('.the-multi-taxonomy'),
 				current_tags = thetags.val().split( tagDelimiter ),
 				new_tags = [];
 
@@ -64,7 +64,7 @@ var multiTagBox, array_multi_unique_noempty;
 		},
 
 		quickClicks : function( el ) {
-			var thetags = $('.the-multi-tags', el),
+			var thetags = $('.the-multi-taxonomy', el),
 				tagchecklist = $('.multitaxonomychecklist', el),
 				id = $(el).attr('id'),
 				current_tags, disabled;
@@ -94,7 +94,7 @@ var multiTagBox, array_multi_unique_noempty;
 					 * Build the X buttons, hide the X icon with aria-hidden and
 					 * use visually hidden text for screen readers.
 					 */
-					xbutton = $( '<button type="button" id="' + id + '-check-num-' + key + '" class="ntdelbutton">' +
+					xbutton = $( '<button type="button" id="' + id + '-check-num-' + key + '" class="ntmultidelbutton">' +
 						'<span class="remove-multi-tag-icon" aria-hidden="true"></span>' +
 						'<span class="screen-reader-text">' + window.tagsSuggestL10n.removeTerm + ' ' + listItem.html() + '</span>' +
 						'</button>' );
@@ -108,7 +108,7 @@ var multiTagBox, array_multi_unique_noempty;
 							 * key this will fire the `keyup` event on the input.
 							 */
 							if ( 13 === e.keyCode || 32 === e.keyCode ) {
- 								$( this ).closest( '.tagsdiv' ).find( 'input.newtag' ).focus();
+ 								$( this ).closest( '.multitagsdiv' ).find( 'input.newmultiterm' ).focus();
  							}
 
 							multiTagBox.userAction = 'remove';

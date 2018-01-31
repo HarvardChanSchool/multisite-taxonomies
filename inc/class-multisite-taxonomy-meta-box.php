@@ -226,6 +226,42 @@ class Multisite_Taxonomy_Meta_Box {
 				line-height: 22px;
 				word-wrap: break-word;
 			}
+
+			.multitaxonomychecklist {
+				margin-left: 14px;
+				font-size: 12px;
+				overflow: auto;
+			}
+
+			.multitaxonomychecklist .ntmultidelbutton {
+				position: absolute;
+				width: 24px;
+				height: 24px;
+				border: none;
+				margin: 0 0 0 -19px;
+				padding: 0;
+				background: none;
+				cursor: pointer;
+				text-indent: 0;
+			}
+
+			.multitaxonomychecklist .ntmultidelbutton .remove-multi-tag-icon:before {
+				background: none;
+				color: #0073aa;
+				content: "\f153";
+				display: block;
+				font: normal 16px/20px dashicons;
+				line-height: 20px;
+				line-height: 1.28;
+				speak: none;
+				height: 20px;
+				text-align: center;
+				width: 20px;
+				margin-left: 2px;
+				border-radius: 50%;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
 		</style>
 		<div id="multisite-tax-picker">
 			<ul>
