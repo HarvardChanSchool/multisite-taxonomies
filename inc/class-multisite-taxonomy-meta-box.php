@@ -98,12 +98,12 @@ class Multisite_Taxonomy_Meta_Box {
 		<?php
 
 		foreach ( $taxonomies as $tax ) {
-			// Are we heirarchical or not?
-			$heirarchical = ( true === $tax->hierarchical ) ? 'heirarchical-' : 'flat-';
+			// Are we hierarchical or not?
+			$hierarchical = ( true === $tax->hierarchical ) ? 'hierarchical-' : 'flat-';
 
 			// Set up the tab itself.
 			?>
-			<li><a href="#tabs-<?php echo esc_attr( $heirarchical ) . esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></a></li>
+			<li><a href="#tabs-<?php echo esc_attr( $hierarchical ) . esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></a></li>
 			<?php
 		}
 
@@ -116,11 +116,11 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// loop and loop.
 		foreach ( $taxonomies as $tax ) {
-			// Are we heirarchical or not?
-			$heirarchical = ( true === $tax->hierarchical ) ? 'heirarchical-' : 'flat-';
+			// Are we hierarchical or not?
+			$hierarchical = ( true === $tax->hierarchical ) ? 'hierarchical-' : 'flat-';
 
 			?>
-			<div id="tabs-<?php echo esc_attr( $heirarchical ) . esc_attr( $tax->name ); ?>" class="multi-taxonomy-tab">
+			<div id="tabs-<?php echo esc_attr( $hierarchical ) . esc_attr( $tax->name ); ?>" class="multi-taxonomy-tab">
 				<h2><?php echo esc_html( $tax->labels->name ); ?></h2>
 			<?php
 
