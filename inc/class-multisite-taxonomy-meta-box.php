@@ -232,9 +232,12 @@ class Multisite_Taxonomy_Meta_Box {
 		<?php
 
 		foreach ( $taxonomies as $tax ) {
+			// Are we heirarchical or not?
+			$heirarchical = ( true === $tax->hierarchical ) ? 'heirarchical-' : 'flat-';
+
 			// Set up the tab itself.
 			?>
-			<li><a href="#tabs-<?php echo esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></a></li>
+			<li><a href="#tabs-<?php echo esc_attr( $heirarchical ) . esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></a></li>
 			<?php
 		}
 
@@ -247,8 +250,11 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// loop and loop.
 		foreach ( $taxonomies as $tax ) {
+			// Are we heirarchical or not?
+			$heirarchical = ( true === $tax->hierarchical ) ? 'heirarchical-' : 'flat-';
+
 			?>
-			<div id="tabs-<?php echo esc_attr( $tax->name ); ?>">
+			<div id="tabs-<?php echo esc_attr( $heirarchical ) . esc_attr( $tax->name ); ?>" class="multi-taxonomy-tab">
 				<h2><?php echo esc_html( $tax->labels->name ); ?></h2>
 			<?php
 
@@ -309,7 +315,7 @@ class Multisite_Taxonomy_Meta_Box {
 			$terms_to_edit = '';
 		}
 	?>
-	<div class="multitaxonomydiv" id="<?php echo esc_attr( $tax_name ); ?>">
+	<div class="multitaxonomydiv" id="multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>">
 		<div class="ajaxtaxonomy">
 		<div class="nojs-taxonomy hide-if-js">
 			<label for="multi-tax-input-<?php echo esc_attr( $tax_name ); ?>"><?php echo esc_html( $taxonomy->labels->add_or_remove_items ); ?></label>
