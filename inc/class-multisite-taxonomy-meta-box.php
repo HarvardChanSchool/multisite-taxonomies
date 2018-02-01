@@ -27,6 +27,7 @@ class Multisite_Taxonomy_Meta_Box {
 		add_action( 'wp_ajax_ajax-get-multisite-tagcloud', array( $this, 'wp_ajax_get_multisite_term_cloud' ) );
 
 		// Save the post Box.
+		add_action( 'save_post', array( $this, 'save_multisite_taxonomy' ) );
 	}
 
 	/**
@@ -458,5 +459,43 @@ class Multisite_Taxonomy_Meta_Box {
 		echo $return; // WPCS: XSS ok.
 
 		wp_die();
+	}
+
+	/**
+	 * Save the custom Twaxonomy box.
+	 *
+	 * @access public
+	 * @param integer $post_id The post id being edited.
+	 * @return void
+	 */
+	public function save_multisite_taxonomy( $post_id ) {
+		if ( is_object_in_taxonomy( $post_type, 'category' ) ) {
+			set_post_multisite_heirarchical_tags( $post_ID, $post_category );
+		}
+
+		if ( isset( $postarr['tags_input'] ) && is_object_in_taxonomy( $post_type, 'post_tag' ) ) {
+			set_post_multisite_tags( $post_ID, $postarr['tags_input'] );
+		}
+
+		// New-style support for all custom taxonomies.
+		if ( ! empty( $postarr['tax_input'] ) ) {
+			foreach ( $postarr['tax_input'] as $taxonomy => $tags ) {
+				$taxonomy_obj = get_multisite_taxonomy( $taxonomy );
+				if ( ! $taxonomy_obj ) {
+					/* translators: %s: taxonomy name */
+					_doing_it_wrong( __FUNCTION__, sprintf( __( 'Invalid taxonomy: %s.' ), $taxonomy ), '4.4.0' );
+					continue;
+				}
+
+				// array = hierarchical, string = non-hierarchical.
+				if ( is_array( $tags ) ) {
+					$tags = array_filter( $tags );
+				}
+
+				if ( current_user_can( $taxonomy_obj->cap->assign_multisite_terms ) ) {
+					set_post_multisite_terms( $post_id, $tags, $taxonomy );
+				}
+			}
+		}
 	}
 }
