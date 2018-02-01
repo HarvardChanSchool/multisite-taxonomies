@@ -3636,26 +3636,41 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
  * @since 3.1.0
  */
 function ajax_add_multisite_hierarchical_term() {
-	$action   = sanitize_key( wp_unslash( $_POST['action'] ) );
+	check_ajax_referer( 'add-multisite-' . $taxonomy->name, '_ajax_nonce-add-' . $taxonomy->name );
+	if ( isset( $_POST['action'] ) ) { // WPCS: input var ok.
+		$action = sanitize_key( wp_unslash( $_POST['action'] ) ); // WPCS: input var ok.
+	}
+
 	$tax      = str_replace( 'add-multisite-hierarchical-term-', '', $action );
 	$taxonomy = get_multisite_taxonomy( $tax );
-
-	check_ajax_referer( 'add-multisite-' . $taxonomy->name, '_ajax_nonce-add-' . $taxonomy->name );
 
 	if ( ! current_user_can( $taxonomy->cap->edit_multisite_terms ) ) {
 		wp_die( -1 );
 	}
 
-	$names  = explode( ',', $_POST[ 'new_multisite_' . $taxonomy->name ] );
-	$parent = isset( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ? (int) absint( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ) : 0;
-	if ( 0 > $parent ) {
-			$parent = 0;
+	if ( isset( $_POST[ 'new_multisite_' . $taxonomy->name ] ) ) { // WPCS: input var ok.
+		$names = explode( ',', sanitize_text_field( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name ] ) ) ); // WPCS: input var ok.
+	} else {
+		$names = array();
 	}
 
-	$post_category = ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input'][ $taxonomy->name ] ) ) ? (array) wp_unslash( $_POST['tax_input'][ $taxonomy->name ] ) : array();
+	if ( isset( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ) { // WPCS: input var ok.
+		$parent = absint( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ); // WPCS: input var ok.
+	} else {
+		$parent = 0;
+	}
 
-	$checked_categories = array_map( 'absint', (array) $post_category );
-	$popular_ids        = popular_multisite_terms_checklist( $taxonomy->name, 0, 10, false );
+	if ( 0 > $parent ) {
+		$parent = 0;
+	}
+
+	if ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input'][ $taxonomy->name ] ) ) { // WPCS: input var ok.
+		$checked_categories = array_map( 'absint', (array) wp_unslash( $_POST['tax_input'][ $taxonomy->name ] ) ); // WPCS: input var ok.
+	} else {
+		$checked_categories = array();
+	}
+
+	$popular_ids = popular_multisite_terms_checklist( $taxonomy->name, 0, 10, false );
 
 	foreach ( $names as $cat_name ) {
 		$cat_name          = trim( $cat_name );

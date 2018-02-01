@@ -312,7 +312,7 @@ class Multisite_Taxonomy_Meta_Box {
 						 *                                      taxonomy label.
 						 * }
 						 */
-						$parent_dropdown_args = apply_filters( 'edit_multisite_hierarchical-term_parent_dropdown_args', $parent_dropdown_args );
+						$parent_dropdown_args = apply_filters( 'edit_multisite_hierarchical_term_parent_dropdown_args', $parent_dropdown_args );
 
 						dropdown_multisite_taxonomy( $parent_dropdown_args );
 						?>
