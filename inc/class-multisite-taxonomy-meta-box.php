@@ -75,7 +75,7 @@ class Multisite_Taxonomy_Meta_Box {
 
 		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), false, 1 );
 
-		wp_enqueue_style( 'multisite-taxonomy-meta-box' , MULTITAXO_ASSETS_URL . '/css/admin.css' );
+		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css' );
 	}
 
 	/**
@@ -257,7 +257,7 @@ class Multisite_Taxonomy_Meta_Box {
 					<?php
 					multisite_terms_checklist(
 						$post->ID, array(
-							'taxonomy'     => $tax_name,
+							'taxonomy'      => $tax_name,
 							'popular_terms' => $popular_ids,
 						)
 					);

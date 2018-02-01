@@ -3685,8 +3685,8 @@ function ajax_add_multisite_hierarchical_term() {
 			0, array(
 				'taxonomy'             => $taxonomy->name,
 				'descendants_and_self' => $cat_id,
-				'selected_terms'        => $checked_categories,
-				'popular_terms'         => $popular_ids,
+				'selected_terms'       => $checked_categories,
+				'popular_terms'        => $popular_ids,
 			)
 		);
 
@@ -3718,11 +3718,11 @@ function ajax_add_multisite_hierarchical_term() {
 		$checklist_args = array(
 			'taxonomy'             => $taxonomy->name,
 			'descendants_and_self' => $term_id,
-			'selected_terms'        => $checked_categories,
-			'popular_terms'         => $popular_ids,
+			'selected_terms'       => $checked_categories,
+			'popular_terms'        => $popular_ids,
 		);
 
-		multisite_terms_checklist( 0 , $checklist_args );
+		multisite_terms_checklist( 0, $checklist_args );
 		$data = ob_get_clean();
 
 		$add = array(

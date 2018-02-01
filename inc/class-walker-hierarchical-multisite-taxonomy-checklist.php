@@ -89,7 +89,7 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 		}
 
 		$args['popular_terms'] = empty( $args['popular_terms'] ) ? array() : $args['popular_terms'];
-		$class                = in_array( $category->multisite_term_id, $args['popular_terms'], true ) ? ' class="popular-category"' : '';
+		$class                 = in_array( $category->multisite_term_id, $args['popular_terms'], true ) ? ' class="popular-category"' : '';
 
 		$args['selected_terms'] = empty( $args['selected_terms'] ) ? array() : $args['selected_terms'];
 

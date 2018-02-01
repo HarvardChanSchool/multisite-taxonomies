@@ -93,8 +93,8 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 			'hierarchical' => 0,
 			'hide_empty'   => 0,
 		);
-		$multisite_terms = get_multisite_terms( $descendants_args );
-		$self            = get_multisite_term( $descendants_and_self, $multisite_taxonomy );
+		$multisite_terms  = get_multisite_terms( $descendants_args );
+		$self             = get_multisite_term( $descendants_and_self, $multisite_taxonomy );
 		array_unshift( $multisite_terms, $self );
 	} else {
 		$multisite_terms = (array) get_multisite_terms(
