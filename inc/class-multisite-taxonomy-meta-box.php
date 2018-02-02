@@ -254,7 +254,7 @@ class Multisite_Taxonomy_Meta_Box {
 
 			<div id="<?php echo esc_attr( $tax_name ); ?>-all" class="tabs-panel">
 				<?php
-				echo '<input type="hidden" name="tax_input[' . esc_attr( $tax_name ) . '][]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
+				echo '<input type="hidden" name="multi_tax_input[' . esc_attr( $tax_name ) . '][]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
 				?>
 				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="hierarchical-termchecklist form-no-clear">
 					<?php
@@ -469,17 +469,17 @@ class Multisite_Taxonomy_Meta_Box {
 	 * @return void
 	 */
 	public function save_multisite_taxonomy( $post_id ) {
-		if ( is_object_in_taxonomy( $post_type, 'category' ) ) {
-			set_post_multisite_heirarchical_tags( $post_ID, $post_category );
-		}
 
-		if ( isset( $postarr['tags_input'] ) && is_object_in_taxonomy( $post_type, 'post_tag' ) ) {
-			set_post_multisite_tags( $post_ID, $postarr['tags_input'] );
-		}
+
+
+
+
+
+
 
 		// New-style support for all custom taxonomies.
-		if ( ! empty( $postarr['tax_input'] ) ) {
-			foreach ( $postarr['tax_input'] as $taxonomy => $tags ) {
+		if ( ! empty( $postarr['multi_tax_input'] ) ) {
+			foreach ( $postarr['multi_tax_input'] as $taxonomy => $tags ) {
 				$taxonomy_obj = get_multisite_taxonomy( $taxonomy );
 				if ( ! $taxonomy_obj ) {
 					/* translators: %s: taxonomy name */

@@ -3664,8 +3664,8 @@ function ajax_add_multisite_hierarchical_term() {
 		$parent = 0;
 	}
 
-	if ( isset( $_POST['tax_input'] ) && isset( $_POST['tax_input'][ $taxonomy->name ] ) ) { // WPCS: input var ok.
-		$checked_categories = array_map( 'absint', (array) wp_unslash( $_POST['tax_input'][ $taxonomy->name ] ) ); // WPCS: input var ok.
+	if ( isset( $_POST['multi_tax_input'] ) && isset( $_POST['multi_tax_input'][ $taxonomy->name ] ) ) { // WPCS: input var ok.
+		$checked_categories = array_map( 'absint', (array) wp_unslash( $_POST['multi_tax_input'][ $taxonomy->name ] ) ); // WPCS: input var ok.
 	} else {
 		$checked_categories = array();
 	}
@@ -3770,40 +3770,6 @@ function ajax_add_multisite_hierarchical_term() {
 }
 
 /**
- * Add tags to a post.
- *
- * @see wp_set_post_tags()
- *
- * @since 2.3.0
- *
- * @param int          $post_id Optional. The Post ID. Does not default to the ID of the global $post.
- * @param string|array $tags    Optional. An array of tags to set for the post, or a string of tags
- *                              separated by commas. Default empty.
- * @return array|false|WP_Error Array of affected term IDs. WP_Error or false on failure.
- */
-function add_post_multisite_terms( $post_id = 0, $tags = '' ) {
-	return set_post_multisite_tags( $post_id, $tags, true );
-}
-
-/**
- * Set the tags for a post.
- *
- * @since 2.3.0
- *
- * @see wp_set_object_terms()
- *
- * @param int          $post_id Optional. The Post ID. Does not default to the ID of the global $post.
- * @param string|array $tags    Optional. An array of tags to set for the post, or a string of tags
- *                              separated by commas. Default empty.
- * @param bool         $append  Optional. If true, don't delete existing tags, just add on. If false,
- *                              replace the tags with the new tags. Default false.
- * @return array|false|WP_Error Array of term taxonomy IDs of affected terms. WP_Error or false on failure.
- */
-function set_post_multisite_tags( $post_id = 0, $tags = '', $append = false ) {
-	return set_post_multisite_terms( $post_id, $tags, 'post_tag', $append);
-}
-
-/**
  * Set the terms for a post.
  *
  * @since 2.8.0
@@ -3847,43 +3813,5 @@ function set_post_multisite_terms( $post_id = 0, $tags = '', $taxonomy = 'post_t
 		$tags = array_unique( array_map( 'intval', $tags ) );
 	}
 
-	return set_object_multisite_terms( $post_id, $tags, $taxonomy, $append );
-}
-
-/**
- * Set categories for a post.
- *
- * If the post categories parameter is not set, then the default category is
- * going used.
- *
- * @since 2.1.0
- *
- * @param int       $post_ID         Optional. The Post ID. Does not default to the ID
- *                                   of the global $post. Default 0.
- * @param array|int $post_categories Optional. List of categories or ID of category.
- *                                   Default empty array.
- * @param bool      $append         If true, don't delete existing categories, just add on.
- *                                  If false, replace the categories with the new categories.
- * @return array|false|WP_Error Array of term taxonomy IDs of affected categories. WP_Error or false on failure.
- */
-function set_post_multisite_heirarchical_tags( $post_ID = 0, $post_categories = array(), $append = false ) {
-	$post_ID = (int) $post_ID;
-	$post_type = get_post_type( $post_ID );
-	$post_status = get_post_status( $post_ID );
-
-	// If $post_categories isn't already an array, make it one.
-	$post_categories = (array) $post_categories;
-
-	if ( empty( $post_categories ) ) {
-		if ( 'post' == $post_type && 'auto-draft' != $post_status ) {
-			$post_categories = array( get_option( 'default_category' ) );
-			$append = false;
-		} else {
-			$post_categories = array();
-		}
-	} elseif ( 1 == count( $post_categories ) && '' == reset( $post_categories ) ) {
-		return true;
-	}
-
-	return set_post_multisite_terms( $post_ID, $post_categories, 'category', $append );
+	return set_object_multisite_terms( $post_id, $tags, $taxonomy, $blog_id, $append );
 }
