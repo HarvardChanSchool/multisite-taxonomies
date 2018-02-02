@@ -180,9 +180,13 @@ class Multisite_Taxonomy_Meta_Box {
 		$user_can_assign_terms = current_user_can( $taxonomy->cap->assign_multisite_terms );
 		$comma                 = _x( ',', 'tag delimiter', 'multitaxo' );
 		$terms_to_edit         = get_multisite_terms_to_edit( $post->ID, $tax_name );
+
 		if ( ! is_string( $terms_to_edit ) ) {
 			$terms_to_edit = '';
 		}
+
+		// Add an nonce field so we can check for it later.
+		wp_nonce_field( 'multisite_taxonomy_meta_box', 'multisite_taxonomy_meta_box_nonce' );
 	?>
 	<div class="multitaxonomydiv" id="multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>">
 		<div class="ajaxtaxonomy">
@@ -466,16 +470,40 @@ class Multisite_Taxonomy_Meta_Box {
 	 *
 	 * @access public
 	 * @param integer $post_id The post id being edited.
-	 * @return void
+	 * @return mixed Void if successful or post_id if not.
 	 */
 	public function save_multisite_taxonomy( $post_id ) {
+		/*
+		* We need to verify this came from the our screen and with proper authorization,
+		* because save_post can be triggered at other times.
+		*/
 
+		// Check if our nonce is set.
+		if ( ! isset( $_POST['multisite_taxonomy_meta_box_nonce'] ) ) { // WPCS: input var okay.
+			return $post_id;
+		}
 
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['multisite_taxonomy_meta_box_nonce'] ) ), 'multisite_taxonomy_meta_box' ) ) { // WPCS: input var okay.
+			return $post_id;
+		}
 
+		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $post_id;
+		}
 
+		if ( ! current_user_can( 'manage_multisite_terms', $post_id ) ) {
+			return $post_id;
+		}
 
+		$post = get_post( $post_id );
 
+		if ( count( (array) get_object_multisite_taxonomies( $post->post_type ) ) <= 0 ) {
+			return $post_id;
+		}
 
+		/* OK, its safe for us to save the data now. */
 
 		// New-style support for all custom taxonomies.
 		if ( ! empty( $postarr['multi_tax_input'] ) ) {
@@ -483,7 +511,7 @@ class Multisite_Taxonomy_Meta_Box {
 				$taxonomy_obj = get_multisite_taxonomy( $taxonomy );
 				if ( ! $taxonomy_obj ) {
 					/* translators: %s: taxonomy name */
-					_doing_it_wrong( __FUNCTION__, sprintf( __( 'Invalid taxonomy: %s.' ), $taxonomy ), '4.4.0' );
+					_doing_it_wrong( __FUNCTION__, esc_html( sprintf( __( 'Invalid taxonomy: %s.', 'multitaxo' ), $taxonomy ) ), '4.4.0' );
 					continue;
 				}
 
