@@ -399,14 +399,11 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				// Good idea to make sure things are set before using them.
-				$tags = isset( $_REQUEST['delete_tags'] ) ? (array) wp_unslash( $_REQUEST['delete_tags'] ) : array(); // WPCS: input var ok, sanitization ok.
-
-				// snitize key the array items.
-				$tags = array_map( 'sanitize_key', $tags );
-
-				foreach ( $tags as $tag_id ) {
-					delete_multisite_term( $tag_id, $tax->name );
+				if ( isset( $_REQUEST['delete_multisite_terms'] ) && is_array( wp_unslash( $_REQUEST['delete_multisite_terms'] ) ) ) {  // WPCS: input var ok.
+					$multisite_terms = array_map( 'absint', wp_unslash( $_REQUEST['delete_multisite_terms'] ) );  // WPCS: input var ok.
+					foreach ( $multisite_terms as $multisite_terms_id ) {
+						delete_multisite_term( $multisite_terms_id, $tax->name );
+					}
 				}
 
 				$location = add_query_arg( 'message', 6, $referer );
