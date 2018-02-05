@@ -11,6 +11,11 @@
         <exclude name="WordPress.VIP.RestrictedFunctions" />
         <exclude name="WordPress.VIP.DirectDatabaseQuery" /> <!-- We need to do a lot of DB queries in this plugin. -->
     </rule>
+    <rule ref="WordPress.VIP.ValidatedSanitizedInput">
+        <properties>
+            <property name="customSanitizingFunctions" value="sanitize_multisite_taxonomy_save_data" type="array" />
+        </properties>
+    </rule>
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array" value="multitaxo" />

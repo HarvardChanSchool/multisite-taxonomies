@@ -503,11 +503,16 @@ class Multisite_Taxonomy_Meta_Box {
 			return $post_id;
 		}
 
+		if ( isset( $_POST['multi_tax_input'] ) ) { // WPCS: Input var OK.
+			$multi_tax_input = sanitize_multisite_taxonomy_save_data( wp_unslash( $_POST['multi_tax_input'] ) ); // WPCS: Input var OK.
+		}
+
 		/* OK, its safe for us to save the data now. */
+		$blog_id = get_current_blog_id();
 
 		// New-style support for all custom taxonomies.
-		if ( ! empty( $postarr['multi_tax_input'] ) ) {
-			foreach ( $postarr['multi_tax_input'] as $taxonomy => $tags ) {
+		if ( ! empty( $multi_tax_input ) && is_array( $multi_tax_input ) ) {
+			foreach ( $multi_tax_input as $taxonomy => $tags ) {
 				$taxonomy_obj = get_multisite_taxonomy( $taxonomy );
 				if ( ! $taxonomy_obj ) {
 					/* translators: %s: taxonomy name */
@@ -521,7 +526,7 @@ class Multisite_Taxonomy_Meta_Box {
 				}
 
 				if ( current_user_can( $taxonomy_obj->cap->assign_multisite_terms ) ) {
-					set_post_multisite_terms( $post_id, $tags, $taxonomy );
+					set_post_multisite_terms( $post_id, $tags, $taxonomy, $blog_id );
 				}
 			}
 		}

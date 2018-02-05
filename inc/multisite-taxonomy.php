@@ -3784,11 +3784,16 @@ function ajax_add_multisite_hierarchical_term() {
  *                               replace the terms with the new terms. Default false.
  * @return array|false|WP_Error Array of term taxonomy IDs of affected terms. WP_Error or false on failure.
  */
-function set_post_multisite_terms( $post_id = 0, $tags = '', $taxonomy = 'post_tag', $append = false ) {
+function set_post_multisite_terms( $post_id = 0, $tags = '', $taxonomy = 'post_tag', $blog_id = 0, $append = false ) {
 	$post_id = (int) $post_id;
 
 	if ( ! $post_id ) {
 		return false;
+	}
+
+	// Check that our blog ID is set, otherwise just get the current.
+	if ( ! is_int( $blog_id ) || $blog_id <= 0 ) {
+		$blog_id = get_current_blog_id();
 	}
 
 	if ( empty( $tags ) ) {
@@ -3814,4 +3819,18 @@ function set_post_multisite_terms( $post_id = 0, $tags = '', $taxonomy = 'post_t
 	}
 
 	return set_object_multisite_terms( $post_id, $tags, $taxonomy, $blog_id, $append );
+}
+
+/**
+ * Set the terms for a post.
+ *
+ * @since 2.8.0
+ *
+ * @see wp_set_object_terms()
+ *
+ * @param int $data  Save data to be sanitized.
+ * @return array|false|WP_Error Array of term taxonomy IDs of affected terms. WP_Error or false on failure.
+ */
+function sanitize_multisite_taxonomy_save_data( $data = array() ) {
+	return array_walk_recursive( $data, 'sanitize_text_field' );
 }
