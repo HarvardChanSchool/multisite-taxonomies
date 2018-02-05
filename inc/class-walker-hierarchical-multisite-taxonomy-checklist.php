@@ -85,7 +85,7 @@ class Walker_Hierarchical_Multisite_Taxonomy_Checklist extends Walker {
 		if ( 'category' === $taxonomy ) {
 			$name = 'post_category';
 		} else {
-			$name = 'tax_input[' . $taxonomy . ']';
+			$name = 'multi_tax_input[' . $taxonomy . ']';
 		}
 
 		$args['popular_terms'] = empty( $args['popular_terms'] ) ? array() : $args['popular_terms'];

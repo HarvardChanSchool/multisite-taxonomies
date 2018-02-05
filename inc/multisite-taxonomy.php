@@ -3780,6 +3780,7 @@ function ajax_add_multisite_hierarchical_term() {
  * @param string|array $tags     Optional. An array of terms to set for the post, or a string of terms
  *                               separated by commas. Default empty.
  * @param string       $taxonomy Optional. Taxonomy name. Default 'post_tag'.
+ * @param integer      $blog_id  Blog ID to be used on the blog.
  * @param bool         $append   Optional. If true, don't delete existing terms, just add on. If false,
  *                               replace the terms with the new terms. Default false.
  * @return array|false|WP_Error Array of term taxonomy IDs of affected terms. WP_Error or false on failure.
