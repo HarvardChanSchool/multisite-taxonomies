@@ -251,7 +251,7 @@ class Multisite_Taxonomy_Meta_Box {
 			</ul>
 
 			<div id="<?php echo esc_attr( $tax_name ); ?>-pop" class="tabs-panel" style="display: none;">
-				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="hierarchical-termchecklist form-no-clear" >
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist-pop" class="hierarchical-term-checklist form-no-clear" >
 					<?php $popular_ids = popular_multisite_terms_checklist( $tax_name ); ?>
 				</ul>
 			</div>
@@ -260,7 +260,7 @@ class Multisite_Taxonomy_Meta_Box {
 				<?php
 				echo '<input type="hidden" name="multi_tax_input[' . esc_attr( $tax_name ) . '][]" value="0" />'; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
 				?>
-				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="hierarchical-termchecklist form-no-clear">
+				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="hierarchical-term-checklist form-no-clear">
 					<?php
 					multisite_terms_checklist(
 						$post->ID, array(

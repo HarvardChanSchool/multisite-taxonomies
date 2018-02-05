@@ -93,28 +93,28 @@ p.popular-multitags a {
     display: inline-block;
 }
 
-ul.heirarchical-tabs {
+ul.hierarchical-term-tabs {
     margin: 12px 0 5px;
 }
 
-ul.heirarchical-tabs li {
+ul.hierarchical-term-tabs li {
     display: inline;
     line-height: 1.35em;
     border: solid 1px transparent;
     position: relative;
 }
 
-ul.heirarchical-tabs li.tabs {
+ul.hierarchical-term-tabs li.tabs {
     border: 1px solid #ddd;
     border-bottom-color: #fdfdfd;
     background-color: #fdfdfd;
 }
 
-ul.heirarchical-tabs li {
+ul.hierarchical-term-tabs li {
     padding: 3px 5px 6px;
 }
 
-.multi-heirarchical-div div.tabs-panel {
+.multisite-hierarchical-taxonomy-div div.tabs-panel {
     min-height: 42px;
     max-height: 200px;
     overflow: auto;
@@ -123,11 +123,11 @@ ul.heirarchical-tabs li {
     background-color: #fdfdfd;
 }
 
-.multi-heirarchical-div ul.heirarchicalchecklist ul {
+.multisite-hierarchical-taxonomy-div ul.hierarchical-term-checklist ul {
     margin-left: 18px;
 }
 
-ul.heirarchicalchecklist li {
+ul.hierarchical-term-checklist li {
     margin: 0;
     padding: 0;
     line-height: 22px;
