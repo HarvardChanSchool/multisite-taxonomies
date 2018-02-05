@@ -249,7 +249,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['offset'] = 0;
 		}
 
-		$multisite_terms = $this->items;
+		$multisite_terms = get_multisite_terms( $args );
 
 		if ( empty( $multisite_terms ) || ! is_array( $multisite_terms ) ) {
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';
