@@ -514,6 +514,7 @@ class Multisite_Taxonomy_Meta_Box {
 		if ( ! empty( $multi_tax_input ) && is_array( $multi_tax_input ) ) {
 			foreach ( $multi_tax_input as $taxonomy => $tags ) {
 				$taxonomy_obj = get_multisite_taxonomy( $taxonomy );
+
 				if ( ! $taxonomy_obj ) {
 					/* translators: %s: taxonomy name */
 					_doing_it_wrong( __FUNCTION__, esc_html( sprintf( __( 'Invalid taxonomy: %s.', 'multitaxo' ), $taxonomy ) ), '4.4.0' );

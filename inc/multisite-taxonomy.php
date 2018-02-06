@@ -2673,7 +2673,7 @@ function clean_multisite_term_cache( $ids, $multisite_taxonomy = '', $clean_taxo
 	if ( empty( $multisite_taxonomy ) ) {
 		$mtmt_ids        = array_map( 'intval', $ids );
 		$mtmt_ids        = implode( ', ', $mtmt_ids );
-		$multisite_terms = $wpdb->get_results( $wpdb->prepare( "SELECT multisite_term_id, multisite_taxonomy FROM $wpdb->multisite_term_multisite_taxonomy WHERE multisite_term_multisite_taxonomy_id IN ($mtmt_ids)" ) ); // WPCS: unprepared SQL ok.
+		$multisite_terms = $wpdb->get_results( $wpdb->prepare( "SELECT multisite_term_id, multisite_taxonomy FROM $wpdb->multisite_term_multisite_taxonomy WHERE multisite_term_multisite_taxonomy_id IN (%s)", $mtmt_ids ) ); // WPCS: unprepared SQL ok.
 		$ids             = array();
 		foreach ( (array) $multisite_terms as $multisite_term ) {
 			$multisite_taxonomies[] = $multisite_term->multisite_taxonomy;
@@ -3833,5 +3833,7 @@ function set_post_multisite_terms( $post_id = 0, $tags = '', $taxonomy = 'post_t
  * @return array|false|WP_Error Array of term taxonomy IDs of affected terms. WP_Error or false on failure.
  */
 function sanitize_multisite_taxonomy_save_data( $data = array() ) {
-	return array_walk_recursive( $data, 'sanitize_text_field' );
+	array_walk_recursive( $data, 'sanitize_text_field' );
+
+	return $data;
 }
