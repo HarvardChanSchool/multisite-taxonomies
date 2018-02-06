@@ -165,12 +165,12 @@ var multiTagBox, array_multi_unique_noempty;
 		get : function( id ) {
             var tax = id.substr( id.indexOf('-') + 1 );
 
-			$.post( ajaxurl, { 'action': 'ajax-get-multisite-tagcloud', 'tax': tax, 'security': mtaxsecurity.noncecloud }, function( r, stat ) {
+			$.post( ajaxurl, { 'action': 'ajax-get-multisite-term-cloud', 'tax': tax, 'security': mtaxsecurity.noncecloud }, function( r, stat ) {
 				if ( 0 === r || 'success' != stat ) {
 					return;
 				}
 
-				r = $( '<div id="multitagcloud-' + tax + '" class="the-multitagcloud">' + r + '</div>' );
+				r = $( '<div id="multisite-terms-cloud-' + tax + '" class="the-multisite-terms-cloud">' + r + '</div>' );
 
 				$( 'a', r ).click( function() {
 					multiTagBox.userAction = 'add';
@@ -259,7 +259,7 @@ var multiTagBox, array_multi_unique_noempty;
 					.click( function() {
 						$( this )
 							.attr( 'aria-expanded', 'false' === $( this ).attr( 'aria-expanded' ) ? 'true' : 'false' )
-							.siblings( '.the-multitagcloud' ).toggle();
+							.siblings( '.the-multisite-terms-cloud' ).toggle();
 					});
 			});
 		}

@@ -98,7 +98,7 @@ class Multisite_Taxonomy {
 	 * @access public
 	 * @var bool
 	 */
-	public $show_tagcloud = true;
+	public $show_multisite_terms_cloud = true;
 
 	/**
 	 * Whether to show the multisite taxonomy in the quick/bulk edit panel.
@@ -222,7 +222,7 @@ class Multisite_Taxonomy {
 			'show_ui'               => null,
 			'show_in_menu'          => null,
 			'show_in_nav_menus'     => null,
-			'show_tagcloud'         => null,
+			'show_multisite_terms_cloud'         => null,
 			'show_in_quick_edit'    => null,
 			'show_admin_column'     => false,
 			'meta_box_cb'           => null,
@@ -284,8 +284,8 @@ class Multisite_Taxonomy {
 		}
 
 		// If not set, default to the setting for show_ui.
-		if ( null === $args['show_tagcloud'] ) {
-			$args['show_tagcloud'] = $args['show_ui'];
+		if ( null === $args['show_multisite_terms_cloud'] ) {
+			$args['show_multisite_terms_cloud'] = $args['show_ui'];
 		}
 
 		// If not set, default to the setting for show_ui.

@@ -167,7 +167,7 @@ function is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) {
  *     @type bool          $show_in_rest          Whether to include the multisite taxonomy in the REST API.
  *     @type string        $rest_base             To change the base url of REST API route. Default is $multisite_taxonomy.
  *     @type string        $rest_controller_class REST API Controller class name. Default is 'WP_REST_Terms_Controller'.
- *     @type bool          $show_tagcloud         Whether to list the multisite taxonomy in the Tag Cloud Widget controls. If not set,
+ *     @type bool          $show_multisite_terms_cloud         Whether to list the multisite taxonomy in the Tag Cloud Widget controls. If not set,
  *                                                the default is inherited from `$show_ui` (default true).
  *     @type bool          $show_in_quick_edit    Whether to show the multisite taxonomy in the quick/bulk edit panel. It not set,
  *                                                the default is inherited from `$show_ui` (default true).
@@ -308,8 +308,8 @@ function get_multisite_taxonomy_labels( $multisite_taxonomy ) {
 		$multisite_taxonomy->labels['separate_items_with_commas'] = $multisite_taxonomy->helps;
 	}
 
-	if ( isset( $multisite_taxonomy->no_tagcloud ) && empty( $multisite_taxonomy->labels['not_found'] ) ) {
-		$multisite_taxonomy->labels['not_found'] = $multisite_taxonomy->no_tagcloud;
+	if ( isset( $multisite_taxonomy->no_multisite_terms_cloud ) && empty( $multisite_taxonomy->labels['not_found'] ) ) {
+		$multisite_taxonomy->labels['not_found'] = $multisite_taxonomy->no_multisite_terms_cloud;
 	}
 
 	$nohier_vs_hier_defaults              = array(

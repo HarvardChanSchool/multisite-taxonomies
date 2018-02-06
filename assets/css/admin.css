@@ -75,21 +75,21 @@ p.popular-multitags a {
     padding: 0 3px;
 }
 
-.multitagcloud {
+.multisite-terms-cloud {
     width: 97%;
     margin: 0 0 40px;
     text-align: justify;
 }
 
-.multitagcloud h2 {
+.multisite-terms-cloud h2 {
     margin: 2px 0 12px;
 }
 
-.the-multitagcloud ul {
+.the-multisite-terms-cloud ul {
     margin: 0;
 }
 
-.the-multitagcloud ul li {
+.the-multisite-terms-cloud ul li {
     display: inline-block;
 }
 
@@ -134,7 +134,7 @@ ul.hierarchical-term-checklist li {
     word-wrap: break-word;
 }
 
-#poststuff .inside .the-multitagcloud {
+#poststuff .inside .the-multisite-terms-cloud {
     margin: 5px 0 10px;
     padding: 8px;
     border: 1px solid #ddd;

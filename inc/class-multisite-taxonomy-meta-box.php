@@ -24,7 +24,7 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// register the ajax response for creating new terms.
 		add_action( 'wp_ajax_ajax-multisite-tag-search', array( $this, 'wp_ajax_ajax_multisite_terms_search' ) );
-		add_action( 'wp_ajax_ajax-get-multisite-tagcloud', array( $this, 'wp_ajax_get_multisite_term_cloud' ) );
+		add_action( 'wp_ajax_ajax-get-multisite-term-cloud', array( $this, 'wp_ajax_get_multisite_term_cloud' ) );
 
 		// Save the post Box.
 		add_action( 'save_post', array( $this, 'save_multisite_taxonomy' ) );
