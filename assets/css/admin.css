@@ -1,0 +1,190 @@
+.ui-tabs-vertical {
+    clear: both;
+    overflow: hidden;
+}
+
+.ui-tabs-vertical .ui-tabs-nav {
+    padding: .2em 1% .2em 1%;
+    float: left;
+    width: 15%;
+    margin-left: 2%;
+    margin-right: -2%;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li {
+    clear: left;
+    margin: 5px 0 5px 0;
+    border: solid 1px #ddd;
+    background-color: #fdfdfd;
+    padding: 7px 0 7px 7px;
+    z-index: 9;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li a {
+    display: block;
+}
+
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+    background-color: #fff;
+    border-right-color: #fff;
+}
+
+.ui-tabs-vertical .ui-tabs-panel {
+    padding: 1%;
+    float: right;
+    width: 80%;
+    border-left: solid 1px #ddd;
+}
+
+/*------------------------------------------------------------------------------
+13.0 - Tags
+------------------------------------------------------------------------------*/
+
+#poststuff .multitagsdiv .howto {
+    margin: 0 0 6px 0;
+}
+
+.ajaxtag .newmultitag {
+    position: relative;
+}
+
+.multitagsdiv .newmultitag {
+    width: 180px;
+}
+
+.multitagsdiv .the-multitags {
+    display: block;
+    height: 60px;
+    margin: 0 auto;
+    overflow: auto;
+    width: 260px;
+}
+
+#post-body-content .multitagsdiv .the-multitags {
+    margin: 0 5px;
+}
+
+p.popular-multitags {
+    border: none;
+    line-height: 2em;
+    padding: 8px 12px 12px;
+    text-align: justify;
+}
+
+p.popular-multitags a {
+    padding: 0 3px;
+}
+
+.multisite-terms-cloud {
+    width: 97%;
+    margin: 0 0 40px;
+    text-align: justify;
+}
+
+.multisite-terms-cloud h2 {
+    margin: 2px 0 12px;
+}
+
+.the-multisite-terms-cloud ul {
+    margin: 0;
+}
+
+.the-multisite-terms-cloud ul li {
+    display: inline-block;
+}
+
+ul.hierarchical-term-tabs {
+    margin: 12px 0 5px;
+}
+
+ul.hierarchical-term-tabs li {
+    display: inline;
+    line-height: 1.35em;
+    border: solid 1px transparent;
+    position: relative;
+}
+
+ul.hierarchical-term-tabs li.tabs {
+    border: 1px solid #ddd;
+    border-bottom-color: #fdfdfd;
+    background-color: #fdfdfd;
+}
+
+ul.hierarchical-term-tabs li {
+    padding: 3px 5px 6px;
+}
+
+.multisite-hierarchical-taxonomy-div div.tabs-panel {
+    min-height: 42px;
+    max-height: 200px;
+    overflow: auto;
+    padding: 0 0.9em;
+    border: solid 1px #ddd;
+    background-color: #fdfdfd;
+}
+
+.multisite-hierarchical-taxonomy-div ul.hierarchical-term-checklist ul {
+    margin-left: 18px;
+}
+
+ul.hierarchical-term-checklist li {
+    margin: 0;
+    padding: 0;
+    line-height: 22px;
+    word-wrap: break-word;
+}
+
+#poststuff .inside .the-multisite-terms-cloud {
+    margin: 5px 0 10px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    line-height: 1.8em;
+    word-spacing: 3px;
+}
+
+.multitaxonomychecklist {
+    margin-left: 14px;
+    font-size: 12px;
+    overflow: auto;
+}
+
+.multitaxonomychecklist > li {
+    float: left;
+    margin-right: 25px;
+    font-size: 13px;
+    line-height: 1.8em;
+    cursor: default;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.multitaxonomychecklist .ntmultidelbutton {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: none;
+    margin: 0 0 0 -19px;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    text-indent: 0;
+}
+
+.multitaxonomychecklist .ntmultidelbutton .remove-multi-tag-icon:before {
+    background: none;
+    color: #0073aa;
+    content: "\f153";
+    display: block;
+    font: normal 16px/20px dashicons;
+    line-height: 20px;
+    line-height: 1.28;
+    speak: none;
+    height: 20px;
+    text-align: center;
+    width: 20px;
+    margin-left: 2px;
+    border-radius: 50%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

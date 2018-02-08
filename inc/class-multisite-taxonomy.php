@@ -98,7 +98,7 @@ class Multisite_Taxonomy {
 	 * @access public
 	 * @var bool
 	 */
-	public $show_tagcloud = true;
+	public $show_multisite_terms_cloud = true;
 
 	/**
 	 * Whether to show the multisite taxonomy in the quick/bulk edit panel.
@@ -188,6 +188,9 @@ class Multisite_Taxonomy {
 		$this->name = $multisite_taxonomy;
 
 		$this->set_props( $object_type, $args );
+
+		// callback for adding a MS term.
+		add_action( 'wp_ajax_add-multisite-hierarchical-term-' . $this->name, 'ajax_add_multisite_hierarchical_term' );
 	}
 
 	/**
@@ -211,26 +214,26 @@ class Multisite_Taxonomy {
 		$args = apply_filters( 'register_multisite_taxonomy_args', $args, $this->name, (array) $object_type );
 
 		$defaults = array(
-			'labels'                => array(),
-			'description'           => '',
-			'public'                => true,
-			'publicly_queryable'    => null,
-			'hierarchical'          => false,
-			'show_ui'               => null,
-			'show_in_menu'          => null,
-			'show_in_nav_menus'     => null,
-			'show_tagcloud'         => null,
-			'show_in_quick_edit'    => null,
-			'show_admin_column'     => false,
-			'meta_box_cb'           => null,
-			'capabilities'          => array(),
-			'rewrite'               => true,
-			'query_var'             => $this->name,
-			'update_count_callback' => '',
-			'show_in_rest'          => false,
-			'rest_base'             => false,
-			'rest_controller_class' => false,
-			'_builtin'              => false,
+			'labels'                     => array(),
+			'description'                => '',
+			'public'                     => true,
+			'publicly_queryable'         => null,
+			'hierarchical'               => false,
+			'show_ui'                    => null,
+			'show_in_menu'               => null,
+			'show_in_nav_menus'          => null,
+			'show_multisite_terms_cloud' => null,
+			'show_in_quick_edit'         => null,
+			'show_admin_column'          => false,
+			'meta_box_cb'                => null,
+			'capabilities'               => array(),
+			'rewrite'                    => true,
+			'query_var'                  => $this->name,
+			'update_count_callback'      => '',
+			'show_in_rest'               => false,
+			'rest_base'                  => false,
+			'rest_controller_class'      => false,
+			'_builtin'                   => false,
 		);
 
 		$args = array_merge( $defaults, $args );
@@ -281,8 +284,8 @@ class Multisite_Taxonomy {
 		}
 
 		// If not set, default to the setting for show_ui.
-		if ( null === $args['show_tagcloud'] ) {
-			$args['show_tagcloud'] = $args['show_ui'];
+		if ( null === $args['show_multisite_terms_cloud'] ) {
+			$args['show_multisite_terms_cloud'] = $args['show_ui'];
 		}
 
 		// If not set, default to the setting for show_ui.

@@ -113,7 +113,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
 			// We'll need the full set of multiste terms then.
-			$args['number'] = 0;
 			$args['offset'] = 0;
 		}
 
@@ -250,7 +249,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			$args['offset'] = 0;
 		}
 
-		$multisite_terms = $this->items;
+		$multisite_terms = get_multisite_terms( $args );
 
 		if ( empty( $multisite_terms ) || ! is_array( $multisite_terms ) ) {
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';
@@ -286,8 +285,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @param int    $parent The parent taxonomy.
 	 * @param int    $level The current level of hierarchy.
 	 */
-	// @codingStandardsIgnoreLine
-	private function _rows( $multisite_taxonomy, $multisite_terms, &$children, $start, $per_page, &$count, $parent = 0, $level = 0 ) {
+	private function _rows( $multisite_taxonomy, $multisite_terms, &$children, $start, $per_page, &$count, $parent = 0, $level = 0 ) { // phpcs:ignore Generic,PSR2
 
 		$end = $start + $per_page;
 
@@ -318,8 +316,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				unset( $parent_ids );
 
 				$num_parents = count( $my_parents );
-				// @codingStandardsIgnoreLine
-				while ( $my_parent = array_pop( $my_parents ) ) {
+				while ( $my_parents ) {
+					$my_parent = array_pop( $my_parents );
 					echo "\t";
 					$this->single_row( $my_parent, $level - $num_parents );
 					$num_parents--;
