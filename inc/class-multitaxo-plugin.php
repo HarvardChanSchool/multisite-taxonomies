@@ -141,7 +141,7 @@ class Multitaxo_Plugin {
 		$max_index_length = 191;
 
 		// Table structure for table `wp_multisite_termmeta`.
-		$multisite_termmeta_table = $wpdb->prefix . 'multisite_termmeta';
+		$multisite_termmeta_table = $wpdb->base_prefix . 'multisite_termmeta';
 
 		$multisite_termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_termmeta_table . '` (
 			meta_id bigint(20) unsigned NOT NULL auto_increment,
@@ -156,7 +156,7 @@ class Multitaxo_Plugin {
 		dbDelta( $multisite_termmeta_sql );
 
 		// Table structure for table `wp_multisite_terms`.
-		$multisite_terms_table = $wpdb->prefix . 'multisite_terms';
+		$multisite_terms_table = $wpdb->base_prefix . 'multisite_terms';
 
 		$multisite_terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_terms_table . '` (
 			multisite_term_id bigint(20) unsigned NOT NULL auto_increment,
@@ -171,7 +171,7 @@ class Multitaxo_Plugin {
 		dbDelta( $multisite_terms_sql );
 
 		// Table structure for table `wp_multisite_term_relationships`.
-		$multisite_term_relationships_table = $wpdb->prefix . 'multisite_term_relationships';
+		$multisite_term_relationships_table = $wpdb->base_prefix . 'multisite_term_relationships';
 
 		$multisite_term_relationships_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_term_relationships_table . '` (
 			blog_id bigint(20) unsigned NOT NULL default 0,
@@ -185,7 +185,7 @@ class Multitaxo_Plugin {
 		dbDelta( $multisite_term_relationships_sql );
 
 		// Table structure for table `wp_multisite_term_multisite_taxonomy`.
-		$multisite_term_multisite_taxonomy_table = $wpdb->prefix . 'multisite_term_multisite_taxonomy';
+		$multisite_term_multisite_taxonomy_table = $wpdb->base_prefix . 'multisite_term_multisite_taxonomy';
 
 		$multisite_term_multisite_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_term_multisite_taxonomy_table . '` (
 			multisite_term_multisite_taxonomy_id bigint(20) unsigned NOT NULL auto_increment,
