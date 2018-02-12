@@ -141,9 +141,7 @@ class Multitaxo_Plugin {
 		$max_index_length = 191;
 
 		// Table structure for table `wp_multisite_termmeta`.
-		$multisite_termmeta_table = $wpdb->base_prefix . 'multisite_termmeta';
-
-		$multisite_termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_termmeta_table . '` (
+		$multisite_termmeta_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_termmeta . '` (
 			meta_id bigint(20) unsigned NOT NULL auto_increment,
 			multisite_term_id bigint(20) unsigned NOT NULL default "0",
 			meta_key varchar(255) default NULL,
@@ -156,9 +154,7 @@ class Multitaxo_Plugin {
 		dbDelta( $multisite_termmeta_sql );
 
 		// Table structure for table `wp_multisite_terms`.
-		$multisite_terms_table = $wpdb->base_prefix . 'multisite_terms';
-
-		$multisite_terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_terms_table . '` (
+		$multisite_terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_terms . '` (
 			multisite_term_id bigint(20) unsigned NOT NULL auto_increment,
 			name varchar(200) NOT NULL default "",
 			slug varchar(200) NOT NULL default "",
@@ -171,9 +167,7 @@ class Multitaxo_Plugin {
 		dbDelta( $multisite_terms_sql );
 
 		// Table structure for table `wp_multisite_term_relationships`.
-		$multisite_term_relationships_table = $wpdb->base_prefix . 'multisite_term_relationships';
-
-		$multisite_term_relationships_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_term_relationships_table . '` (
+		$multisite_term_relationships_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_term_relationships . '` (
 			blog_id bigint(20) unsigned NOT NULL default 0,
 			object_id bigint(20) unsigned NOT NULL default 0,
 			multisite_term_multisite_taxonomy_id bigint(20) unsigned NOT NULL default 0,
@@ -185,9 +179,7 @@ class Multitaxo_Plugin {
 		dbDelta( $multisite_term_relationships_sql );
 
 		// Table structure for table `wp_multisite_term_multisite_taxonomy`.
-		$multisite_term_multisite_taxonomy_table = $wpdb->base_prefix . 'multisite_term_multisite_taxonomy';
-
-		$multisite_term_multisite_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $multisite_term_multisite_taxonomy_table . '` (
+		$multisite_term_multisite_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_term_multisite_taxonomy . '` (
 			multisite_term_multisite_taxonomy_id bigint(20) unsigned NOT NULL auto_increment,
 			multisite_term_id bigint(20) unsigned NOT NULL default 0,
 			multisite_taxonomy varchar(32) NOT NULL default "",
