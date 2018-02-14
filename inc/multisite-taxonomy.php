@@ -1641,7 +1641,7 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	global $wpdb;
 
 	if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
-		return new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.', 'multitaxo' ) );
+		return new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 	}
 	/**
 	 * Filters a multisite term before it is sanitized and inserted into the database.
@@ -1757,10 +1757,10 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 				}
 
 				if ( $existing_multisite_term ) {
-					return new WP_Error( 'multisite_term_exists', __( 'A term with the name provided already exists with this parent.', 'multitaxo' ), $existing_multisite_term->multisite_term_id );
+					return new WP_Error( 'multisite_term_exists', __( 'A multisite term with the name provided already exists with this parent.', 'multitaxo' ), $existing_multisite_term->multisite_term_id );
 				}
 			} else {
-				return new WP_Error( 'multisite_term_exists', __( 'A term with the name provided already exists in this taxonomy.', 'multitaxo' ), $name_match->multisite_term_id );
+				return new WP_Error( 'multisite_term_exists', __( 'A multisite term with the name provided already exists in this taxonomy.', 'multitaxo' ), $name_match->multisite_term_id );
 			}
 		}
 	}
@@ -1779,7 +1779,7 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	$data = apply_filters( 'insert_multisite_term_data', $data, $multisite_taxonomy, $args );
 
 	if ( false === $wpdb->insert( $wpdb->multisite_terms, $data ) ) {
-		return new WP_Error( 'db_insert_error', __( 'Could not insert term into the database', 'multitaxo' ), $wpdb->last_error );
+		return new WP_Error( 'db_insert_error', __( 'Could not insert multisite term into the database', 'multitaxo' ), $wpdb->last_error );
 	}
 
 	$multisite_term_id = (int) $wpdb->insert_id;
@@ -1984,6 +1984,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 			$wpdb->multisite_term_relationships, array(
 				'object_id'                            => $object_id,
 				'multisite_term_multisite_taxonomy_id' => $mtmt_id,
+				'blog_id'                              => $blog_id,
 			)
 		);
 

@@ -512,7 +512,7 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// New-style support for all custom taxonomies.
 		if ( ! empty( $multi_tax_input ) && is_array( $multi_tax_input ) ) {
-			foreach ( $multi_tax_input as $taxonomy => $tags ) {
+			foreach ( $multi_tax_input as $taxonomy => $terms ) {
 				$taxonomy_obj = get_multisite_taxonomy( $taxonomy );
 
 				if ( ! $taxonomy_obj ) {
@@ -522,12 +522,12 @@ class Multisite_Taxonomy_Meta_Box {
 				}
 
 				// array = hierarchical, string = non-hierarchical.
-				if ( is_array( $tags ) ) {
-					$tags = array_filter( $tags );
+				if ( is_array( $terms ) ) {
+					$terms = array_filter( $terms );
 				}
 
 				if ( current_user_can( $taxonomy_obj->cap->assign_multisite_terms ) ) {
-					set_post_multisite_terms( $post_id, $tags, $taxonomy, $blog_id );
+					set_post_multisite_terms( $post_id, $terms, $taxonomy, $blog_id );
 				}
 			}
 		}
