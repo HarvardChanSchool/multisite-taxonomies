@@ -3628,7 +3628,7 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
 	$id = multisite_term_exists( $multisite_term_name, $multisite_taxonomy );
 	if ( is_numeric( $id ) ) {
 		return $id;
-	} elseif ( is_array($id) && is_numeric( $id['multisite_term_id'] ) ) {
+	} elseif ( is_array( $id ) && is_numeric( $id['multisite_term_id'] ) ) {
 		return $id['multisite_term_id'];
 	}
 	return insert_multisite_term( $multisite_term_name, $multisite_taxonomy );
