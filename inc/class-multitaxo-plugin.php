@@ -338,7 +338,7 @@ class Multitaxo_Plugin {
 				}
 
 				if ( isset( $_POST['tag-name'] ) ) { // WPCS: input var ok.
-					$tag = wp_insert_multisite_term( sanitize_text_field( wp_unslash( $_POST['tag-name'] ) ), $tax->name, $_POST ); // WPCS: input var ok.
+					$tag = insert_multisite_term( sanitize_text_field( wp_unslash( $_POST['tag-name'] ) ), $tax->name, $_POST ); // WPCS: input var ok.
 				}
 
 				if ( $ret && ! is_wp_error( $ret ) ) {
