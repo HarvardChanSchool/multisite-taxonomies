@@ -1984,6 +1984,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 			$wpdb->multisite_term_relationships, array(
 				'object_id'                            => $object_id,
 				'multisite_term_multisite_taxonomy_id' => $mtmt_id,
+				'blog_id'                              => $blog_id,
 			)
 		);
 
