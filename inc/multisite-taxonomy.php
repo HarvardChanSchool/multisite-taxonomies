@@ -3619,12 +3619,18 @@ function get_multisite_terms_to_edit( $post_id, $multisite_taxonomy, $blog_id = 
  *
  * @param int|string $multisite_term_name Multisite term name.
  * @param string     $multisite_taxonomy Optional. The multisite taxonomy for which to retrieve multisite terms.
- * @return array|WP_Error
+ * @return int|array|WP_Error A term id if the term already exists within the taxonomy.
+ 							  If term does not exist, returns results of insert_multisite_term: 
+ 							an array containing the `multisite_term_id` and `multisite_term_multisite_taxonomy_id`,
+ *                          WP_Error otherwise.
  */
 function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
 	$id = multisite_term_exists( $multisite_term_name, $multisite_taxonomy );
 	if ( is_numeric( $id ) ) {
 		return $id;
+	}
+	elseif(is_numeric( $id["multisite_term_id"])) { 
+		return $id["multisite_term_id"];
 	}
 	return insert_multisite_term( $multisite_term_name, $multisite_taxonomy );
 }
