@@ -3620,7 +3620,7 @@ function get_multisite_terms_to_edit( $post_id, $multisite_taxonomy, $blog_id = 
  * @param int|string $multisite_term_name Multisite term name.
  * @param string     $multisite_taxonomy Optional. The multisite taxonomy for which to retrieve multisite terms.
  * @return int|array|WP_Error A term id if the term already exists within the taxonomy.
-							  If term does not exist, returns results of insert_multisite_term:
+							If term does not exist, returns results of insert_multisite_term:
 							an array containing the `multisite_term_id` and `multisite_term_multisite_taxonomy_id`,
  *                          WP_Error otherwise.
  */
