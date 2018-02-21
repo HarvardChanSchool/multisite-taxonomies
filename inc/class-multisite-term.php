@@ -168,7 +168,7 @@ class Multisite_Term {
 			if ( 1 === count( $multisite_terms ) ) {
 				wp_cache_add( $multisite_term_id, $_multisite_term, 'multisite_terms' );
 			}
-		} // End if().
+		}
 
 		$multisite_term_obj = new Multisite_Term( $_multisite_term );
 		$multisite_term_obj->filter( $multisite_term_obj->filter );

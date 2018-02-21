@@ -843,7 +843,7 @@ class Multitaxo_Plugin {
 				<p><?php esc_html_e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.', 'multitaxo' ); ?></p>
 			<?php endif; ?>
 		</div>
-		<?php endif; // is_taxonomy_hierarchical(). ?>
+		<?php endif; // End if: is multisite taxonomy hierarchical. ?>
 		<div class="form-field term-description-wrap">
 			<label for="tag-description"><?php esc_html_e( 'Description', 'multitaxo' ); ?></label>
 			<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
@@ -1140,7 +1140,7 @@ class Multitaxo_Plugin {
 						<?php endif; ?>
 					</td>
 				</tr>
-		<?php endif; // endif is_taxonomy_hierarchical(). ?>
+		<?php endif; // End if : is taxonomy hierarchical. ?>
 				<tr class="form-field term-description-wrap">
 					<th scope="row"><label for="description"><?php esc_html_e( 'Description', 'multitaxo' ); ?></label></th>
 					<td><textarea name="description" id="description" rows="5" cols="50" class="large-text"><?php echo esc_textarea( $term->description ); // textarea_escaped. ?></textarea>

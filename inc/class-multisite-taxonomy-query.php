@@ -193,8 +193,8 @@ class Multisite_Taxonomy_Query {
 
 					$cleaned_query[] = $cleaned_subquery;
 				}
-			} // End if().
-		} // End foreach().
+			}
+		}
 
 		return $cleaned_query;
 	}
@@ -486,7 +486,7 @@ class Multisite_Taxonomy_Query {
 			)", $operator, $clause['multisite_taxonomy'], $this->primary_table . $this->primary_id_column
 			);
 
-		} // End if().
+		}
 
 		$sql['join'][]  = $join;
 		$sql['where'][] = $where;
@@ -663,7 +663,7 @@ class Multisite_Taxonomy_Query {
 				", $resulting_field, $query['multisite_taxonomy'], $multisite_terms
 					)
 				);
-		} // End switch().
+		}
 
 		if ( 'AND' === $query['operator'] && count( $multisite_terms ) < count( $query['multisite_terms'] ) ) {
 			$query = new WP_Error( 'inexistent_multisite_terms', __( 'Inexistent multisite terms.', 'multitaxo' ) );
