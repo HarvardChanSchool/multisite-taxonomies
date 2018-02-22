@@ -1270,7 +1270,7 @@ function sanitize_multisite_term_field( $field, $value, $multisite_term_id, $mul
 		 * @param string $context Context to retrieve the multisite taxonomy field value.
 		 */
 		$value = apply_filters( "multisite_{$multisite_taxonomy}_{$field}", $value, $multisite_term_id, $context );
-	} // End if().
+	}
 
 	if ( 'attribute' === $context ) {
 		$value = esc_attr( $value );
@@ -1997,7 +1997,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 		 */
 		do_action( 'added_multisite_term_relationship', $object_id, $mtmt_id, $multisite_taxonomy );
 		$new_mtmt_ids[] = $mtmt_id;
-	} // End foreach().
+	}
 
 	if ( $new_mtmt_ids ) {
 		update_multisite_term_count( $new_mtmt_ids, $multisite_taxonomy );
@@ -2854,11 +2854,8 @@ function update_multisite_term_cache( $multisite_terms, $multisite_taxonomy = ''
 	}
 }
 
-/*
- * Private.
- */
-
 /**
+ *
  * Retrieves children of multisite taxonomy as multisite term IDs.
  *
  * @param string $multisite_taxonomy Multisite taxonomy name.

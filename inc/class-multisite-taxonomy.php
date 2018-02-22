@@ -332,7 +332,6 @@ class Multisite_Taxonomy {
 	 * @global WP $wp Current WordPress environment instance.
 	 */
 	public function add_rewrite_rules() {
-		/* @var WP $wp */
 		global $wp;
 
 		// Non-publicly queryable taxonomies should not register query vars, except in the admin.
@@ -360,7 +359,6 @@ class Multisite_Taxonomy {
 	 * @global WP $wp Current WordPress environment instance.
 	 */
 	public function remove_rewrite_rules() {
-		/* @var WP $wp */
 		global $wp;
 
 		// Remove query var.

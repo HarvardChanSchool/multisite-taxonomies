@@ -36,6 +36,7 @@ require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-term-query.php';
+require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-wp-query.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-terms-list-table.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-multisite-taxonomy-meta-box.php';
 require_once MULTITAXO_PLUGIN_DIR . 'inc/class-walker-hierarchical-multisite-taxonomy.php';

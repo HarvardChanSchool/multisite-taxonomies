@@ -336,7 +336,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			if ( isset( $children[ $multisite_term->multisite_term_id ] ) && empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
 				$this->_rows( $multisite_taxonomy, $multisite_terms, $children, $start, $per_page, $count, $multisite_term->multisite_term_id, $level + 1 );
 			}
-		} // End foreach().
+		}
 	}
 
 	/**
