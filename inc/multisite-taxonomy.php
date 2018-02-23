@@ -294,7 +294,7 @@ function unregister_multisite_taxonomy( $multisite_taxonomy ) {
  * - not_found - Default is "No tags found"/"No categories found", used in the meta box and multisite taxonomy list table.
  * - no_terms - Default is "No tags"/"No categories", used in the posts and media list tables.
  * - items_list_navigation - String for the table pagination hidden heading.
- * - items_list - String for the table hidden heading.
+ * - items_list - String for the table hidden heading.dd
  *
  * Above, the first default value is for non-hierarchical multisite taxonomies (like tags) and the second one is for hierarchical multisite taxonomies (like categories).
  *
@@ -1968,7 +1968,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 		$mtmt_id              = $multisite_term_info['multisite_term_multisite_taxonomy_id'];
 		$mtmt_ids[]           = $mtmt_id;
 
-		if ( $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships WHERE object_id = %d AND multisite_term_multisite_taxonomy_id = %d", $object_id, $mtmt_id ) ) ) {
+		if ( $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships WHERE blog_id = %d AND object_id = %d AND multisite_term_multisite_taxonomy_id = %d", $blog_id, $object_id, $mtmt_id ) ) ) {
 			continue;
 		}
 
