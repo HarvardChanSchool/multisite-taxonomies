@@ -1968,7 +1968,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 		$mtmt_id              = $multisite_term_info['multisite_term_multisite_taxonomy_id'];
 		$mtmt_ids[]           = $mtmt_id;
 
-		if ( $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships WHERE object_id = %d AND multisite_term_multisite_taxonomy_id = %d", $object_id, $mtmt_id ) ) ) {
+		if ( $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships WHERE blog_id = %d AND object_id = %d AND multisite_term_multisite_taxonomy_id = %d", $blog_id, $object_id, $mtmt_id ) ) ) {
 			continue;
 		}
 
