@@ -257,7 +257,8 @@ class Multisite_Taxonomy {
 		if ( false !== $args['rewrite'] && ( is_admin() || '' !== get_option( 'permalink_structure' ) ) ) {
 			$args['rewrite'] = wp_parse_args(
 				$args['rewrite'], array(
-					'with_front'   => true,
+					// With Front needs to be false to avoid prefixing it with blog/.
+					'with_front'   => false,
 					'hierarchical' => false,
 					'ep_mask'      => EP_NONE,
 				)
@@ -334,6 +335,14 @@ class Multisite_Taxonomy {
 	public function add_rewrite_rules() {
 		global $wp;
 
+		// Our base rewrite for all multisite tax plugins.
+		$base_rewrite = apply_filters( 'multisite_taxonomy_base_url_slug', 'multitaxo' );
+
+		// This cannot be empty.
+		if ( empty( $base_rewrite ) ) {
+			$base_rewrite = 'multitaxo';
+		}
+
 		// Non-publicly queryable taxonomies should not register query vars, except in the admin.
 		if ( false !== $this->query_var && $wp ) {
 			$wp->add_query_var( $this->query_var );
@@ -347,7 +356,7 @@ class Multisite_Taxonomy {
 			}
 
 			add_rewrite_tag( "%$this->name%", $tag, $this->query_var ? "{$this->query_var}=" : "multisite_taxonomy=$this->name&multisite_term=" );
-			add_permastruct( $this->name, "{$this->rewrite['slug']}/%$this->name%", $this->rewrite );
+			add_permastruct( $this->name, "{$base_rewrite}/{$this->rewrite['slug']}/%$this->name%", $this->rewrite );
 		}
 	}
 
