@@ -2571,23 +2571,11 @@ function update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy 
 	$multisite_terms = array_map( 'intval', $multisite_terms );
 
 	$multisite_taxonomy = get_multisite_taxonomy( $multisite_taxonomy );
+	// We allow the taxonomy to overide the way the count is calculated.
 	if ( ! empty( $multisite_taxonomy->update_count_callback ) ) {
 		call_user_func( $multisite_taxonomy->update_count_callback, $multisite_terms, $multisite_taxonomy );
 	} else {
-		$object_types = (array) $multisite_taxonomy->object_type;
-		foreach ( $object_types as &$object_type ) {
-			if ( 0 === strpos( $object_type, 'attachment:' ) ) {
-				list( $object_type ) = explode( ':', $object_type );
-			}
-		}
-
-		if ( array_filter( $object_types, 'post_type_exists' ) === $object_types ) {
-			// Only post types are attached to this multisite taxonomy.
-			_update_post_multisite_term_count( $multisite_terms, $multisite_taxonomy );
-		} else {
-			// Default count updater.
-			_update_generic_multisite_term_count( $multisite_terms, $multisite_taxonomy );
-		}
+		_update_generic_multisite_term_count( $multisite_terms, $multisite_taxonomy );
 	}
 
 	clean_multisite_term_cache( $multisite_terms, '', false );
@@ -3054,58 +3042,7 @@ function _prime_multisite_term_caches( $multisite_term_ids, $update_meta_cache =
  */
 
 /**
- * Will update multisite term count based on object types of the current multisite taxonomy.
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param array  $multisite_terms    List of multisite term multisite taxonomy IDs.
- * @param object $multisite_taxonomy Current multisite taxonomy object of multisite terms.
- */
-function _update_post_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
-	global $wpdb;
-
-	$object_types = (array) $multisite_taxonomy->object_type;
-
-	foreach ( $object_types as &$object_type ) {
-		list( $object_type ) = explode( ':', $object_type );
-	}
-	$object_types = array_unique( $object_types );
-
-	$check_attachments = array_search( 'attachment', $object_types, true );
-	if ( false !== $check_attachments ) {
-		unset( $object_types[ $check_attachments ] );
-		$check_attachments = true;
-	}
-
-	if ( $object_types ) {
-		$object_types = esc_sql( array_filter( $object_types, 'post_type_exists' ) );
-	}
-
-	foreach ( (array) $multisite_terms as $multisite_term ) {
-		$count = 0;
-
-		// Attachments can be 'inherit' status, we need to base count off the parent's status if so.
-		if ( $check_attachments ) {
-			$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships, $wpdb->posts p1 WHERE p1.ID = $wpdb->multisite_term_relationships.object_id AND ( post_status = 'publish' OR ( post_status = 'inherit' AND post_parent > 0 AND ( SELECT post_status FROM $wpdb->posts WHERE ID = p1.post_parent ) = 'publish' ) ) AND post_type = 'attachment' AND multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
-		}
-		if ( $object_types ) {
-			// @codingStandardsIgnoreLine
-			$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships, $wpdb->posts WHERE $wpdb->posts.ID = $wpdb->multisite_term_relationships.object_id AND post_status = 'publish' AND post_type IN ('" . implode( "', '", $object_types ) . "') AND multisite_term_multisite_taxonomy_id = %d", $multisite_term ) ); // WPCS: unprepared SQL ok.
-		}
-
-		do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-		$wpdb->update(
-			$wpdb->multisite_term_multisite_taxonomy, compact( 'count' ), array(
-				'multisite_term_multisite_taxonomy_id' => $multisite_term,
-			)
-		);
-
-		do_action( 'edited_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-	}
-}
-
-/**
- * Will update multisite term count based on number of objects.
+ * Will update multisite term count based on number of associated objects.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
