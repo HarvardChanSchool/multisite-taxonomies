@@ -2561,7 +2561,9 @@ function update_multisite_term_count( $multisite_terms, $multisite_taxonomy, $do
 }
 
 /**
- * Perform multisite term count update immediately.
+ * Perform multisite term count update immediately based on number of associated objects.
+ *
+ * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @param array  $multisite_terms    The multisite_term_multisite_taxonomy_id of multisite terms to update.
  * @param string $multisite_taxonomy The context of the multisite term.
@@ -2575,7 +2577,19 @@ function update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy 
 	if ( ! empty( $multisite_taxonomy->update_count_callback ) ) {
 		call_user_func( $multisite_taxonomy->update_count_callback, $multisite_terms, $multisite_taxonomy );
 	} else {
-		_update_generic_multisite_term_count( $multisite_terms, $multisite_taxonomy );
+		global $wpdb;
+		foreach ( (array) $multisite_terms as $multisite_term ) {
+			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
+
+			do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
+			$wpdb->update(
+				$wpdb->multisite_term_multisite_taxonomy, compact( 'count' ), array(
+					'multisite_term_multisite_taxonomy_id' => $multisite_term,
+				)
+			);
+
+			do_action( 'edited_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
+		}
 	}
 
 	clean_multisite_term_cache( $multisite_terms, '', false );
@@ -3034,35 +3048,6 @@ function _prime_multisite_term_caches( $multisite_term_ids, $update_meta_cache =
 		if ( $update_meta_cache ) {
 			update_multisite_termmeta_cache( $non_cached_ids );
 		}
-	}
-}
-
-/*
- * Default callbacks.
- */
-
-/**
- * Will update multisite term count based on number of associated objects.
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param array  $multisite_terms    List of multisite term multisite taxonomy IDs.
- * @param object $multisite_taxonomy Current multisite taxonomy object of multisite terms.
- */
-function _update_generic_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
-	global $wpdb;
-
-	foreach ( (array) $multisite_terms as $multisite_term ) {
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
-
-		do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-		$wpdb->update(
-			$wpdb->multisite_term_multisite_taxonomy, compact( 'count' ), array(
-				'multisite_term_multisite_taxonomy_id' => $multisite_term,
-			)
-		);
-
-		do_action( 'edited_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
 	}
 }
 
