@@ -2506,21 +2506,23 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @param array     $multisite_terms       An array of multisite_term_multisite_taxonomy_ids.
- * @param string    $multisite_taxonomy    The context of the multisite term.
+ * @param array  $multisite_terms       An array of multisite_term_multisite_taxonomy_ids.
+ * @param string $multisite_taxonomy    The context of the multisite term.
  * @return bool If no terms will return false, and if successful will return true.
  */
 function update_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
 
-	if ( empty( $multisite_terms ) ) {
-		return false;
+	if ( ! is_array( $multisite_terms ) && empty( $multisite_terms ) ) {
+		return new WP_Error( 'invalid_multisite_terms_update_multisite_term_count', __( 'Function update_multisite_term_count() should be passed an array of multisite terms.', 'multitaxo' ) );
 	}
 
 	$multisite_terms = array_map( 'absint', $multisite_terms );
 
 	$multisite_taxonomy = get_multisite_taxonomy( $multisite_taxonomy );
 	// We allow the taxonomy to overide the way the count is calculated.
-	if ( ! empty( $multisite_taxonomy->update_count_callback ) ) {
+	if ( ! is_a( $multisite_taxonomy, 'Multisite_Taxonomy' ) ) {
+		return new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.', 'multitaxo' ) );
+	} elseif ( ! empty( $multisite_taxonomy->update_count_callback ) ) {
 		call_user_func( $multisite_taxonomy->update_count_callback, $multisite_terms, $multisite_taxonomy );
 	} else {
 		global $wpdb;
