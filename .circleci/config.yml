@@ -19,4 +19,4 @@ workflows:
   build-test:
     jobs:
       - testing:
-context: org-global
+          context: org-global
