@@ -198,12 +198,7 @@ function is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) {
  *                                                false, a multisite taxonomy cannot be loaded at `?{query_var}={term_slug}`. If a
  *                                                string, the query `?{query_var}={term_slug}` will be valid.
  *     @type callable      $update_count_callback Works much like a hook, in that it will be called when the count is
- *                                                updated. Default _update_post_multisite_term_count() for multisite taxonomies attached
- *                                                to post types, which confirms that the objects are published before
- *                                                counting them. Default _update_generic_multisite_term_count() for taxonomies
- *                                                attached to other object types, such as users.
- *     @type bool          $_builtin              This multisite taxonomy is a "built-in" taxonomy. INTERNAL USE ONLY!
- *                                                Default false.
+ *                                                updated. Default update_multisite_term_count().
  * }
  * @return WP_Error|void WP_Error, if errors.
  */
