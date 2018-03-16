@@ -1322,7 +1322,7 @@ function delete_object_multisite_term_relationships( $object_id, $multisite_taxo
 			)
 		);
 		$multisite_term_ids = array_map( 'intval', $multisite_term_ids );
-		remove_object_multisite_terms( $object_id, $multisite_term_ids, $multisite_taxonomy );
+		remove_object_multisite_terms( $object_id, $multisite_term_ids, $multisite_taxonomy, $blog_id );
 	}
 }
 
@@ -2005,7 +2005,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 			$delete_multisite_term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT tt.multisite_term_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt WHERE tt.multisite_taxonomy = %s AND tt.multisite_term_multisite_taxonomy_id IN ($in_delete_mtmt_ids)", $multisite_taxonomy ) ); // WPCS: unprepared SQL ok.
 			$delete_multisite_term_ids = array_map( 'intval', $delete_multisite_term_ids );
 
-			$remove = remove_object_multisite_terms( $object_id, $delete_multisite_term_ids, $multisite_taxonomy );
+			$remove = remove_object_multisite_terms( $object_id, $delete_multisite_term_ids, $multisite_taxonomy, $blog_id );
 			if ( is_wp_error( $remove ) ) {
 				return $remove;
 			}
@@ -2122,12 +2122,13 @@ function remove_object_multisite_terms( $object_id, $multisite_terms, $multisite
 		/**
 		 * Fires immediately before an object-multisite_term relationship is deleted.
 		 *
-		 * @param int   $object_id Object ID.
-		 * @param array $mtmt_ids    An array of multisite term multisite taxonomy IDs.
+		 * @param int   $object_id            Object ID.
+		 * @param int   $blog_id              Blog ID.
+		 * @param array $mtmt_ids             An array of multisite term multisite taxonomy IDs.
 		 * @param string $multisite_taxonomy  Multisite taxonomy slug.
 		 */
-		do_action( 'delete_multisite_term_relationships', $object_id, $mtmt_ids, $multisite_taxonomy );
-		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->multisite_term_relationships WHERE object_id = %d AND multisite_term_multisite_taxonomy_id IN ($in_mtmt_ids)", $object_id ) ); // WPCS: unprepared SQL ok.
+		do_action( 'delete_multisite_term_relationships', $object_id, $blog_id, $mtmt_ids, $multisite_taxonomy );
+		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->multisite_term_relationships WHERE object_id = %d AND blog_id = %d AND multisite_term_multisite_taxonomy_id IN ($in_mtmt_ids)", $object_id, $blog_id ) ); // WPCS: unprepared SQL ok.
 
 		wp_cache_delete( $object_id, $multisite_taxonomy . '_multisite_relationships' );
 		wp_cache_delete( 'last_changed', 'multisite_terms' );
@@ -2135,11 +2136,12 @@ function remove_object_multisite_terms( $object_id, $multisite_terms, $multisite
 		/**
 		 * Fires immediately after an object-multisite_term relationship is deleted.
 		 *
-		 * @param int    $object_id Object ID.
-		 * @param array  $mtmt_ids    An array of multisite term multisite taxonomy IDs.
+		 * @param int    $object_id           Object ID.
+		 * @param int   $blog_id              Blog ID.
+		 * @param array  $mtmt_ids            An array of multisite term multisite taxonomy IDs.
 		 * @param string $multisite_taxonomy  Multisite taxonomy slug.
 		 */
-		do_action( 'deleted_multisite_term_relationships', $object_id, $mtmt_ids, $multisite_taxonomy );
+		do_action( 'deleted_multisite_term_relationships', $object_id, $blog_id, $mtmt_ids, $multisite_taxonomy );
 
 		update_multisite_term_count( $mtmt_ids, $multisite_taxonomy );
 
