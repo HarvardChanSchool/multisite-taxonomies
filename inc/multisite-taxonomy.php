@@ -198,12 +198,7 @@ function is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) {
  *                                                false, a multisite taxonomy cannot be loaded at `?{query_var}={term_slug}`. If a
  *                                                string, the query `?{query_var}={term_slug}` will be valid.
  *     @type callable      $update_count_callback Works much like a hook, in that it will be called when the count is
- *                                                updated. Default _update_post_multisite_term_count() for multisite taxonomies attached
- *                                                to post types, which confirms that the objects are published before
- *                                                counting them. Default _update_generic_multisite_term_count() for taxonomies
- *                                                attached to other object types, such as users.
- *     @type bool          $_builtin              This multisite taxonomy is a "built-in" taxonomy. INTERNAL USE ONLY!
- *                                                Default false.
+ *                                                updated. Default update_multisite_term_count().
  * }
  * @return WP_Error|void WP_Error, if errors.
  */
@@ -2496,27 +2491,6 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
 }
 
 /**
- * Enable or disable multisite term counting.
- *
- * @staticvar bool $_defer
- *
- * @param bool $defer Optional. Enable if true, disable if false.
- * @return bool Whether multisite term counting is enabled or disabled.
- */
-function defer_multisite_term_counting( $defer = null ) {
-	static $_defer = false;
-
-	if ( is_bool( $defer ) ) {
-		$_defer = $defer;
-		// Flush any deferred counts.
-		if ( ! $defer ) {
-			update_multisite_term_count( null, null, true );
-		}
-	}
-	return $_defer;
-}
-
-/**
  * Updates the amount of multisite terms in multisite taxonomy.
  *
  * If there is a multisite taxonomy callback applied, then it will be called for updating
@@ -2525,68 +2499,39 @@ function defer_multisite_term_counting( $defer = null ) {
  * The default action is to count what the amount of multisite terms have the relationship
  * of multisite term ID. Once that is done, then update the database.
  *
- * @staticvar array $_deferred
+ * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @param int|array $multisite_terms       The multisite_term_multisite_taxonomy_id of the multisite terms.
- * @param string    $multisite_taxonomy    The context of the multisite term.
- * @param bool      $do_deferred Whether to flush the deferred multisite term counts too. Default false.
+ * @param array  $multisite_terms       An array of multisite_term_multisite_taxonomy_ids.
+ * @param string $multisite_taxonomy    The context of the multisite term.
  * @return bool If no terms will return false, and if successful will return true.
  */
-function update_multisite_term_count( $multisite_terms, $multisite_taxonomy, $do_deferred = false ) {
-	static $_deferred = array();
+function update_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
 
-	if ( $do_deferred ) {
-		foreach ( (array) array_keys( $_deferred ) as $multisite_taxonomy ) {
-			update_multisite_term_count_now( $_deferred[ $tax ], $multisite_taxonomy );
-			unset( $_deferred[ $tax ] );
-		}
+	if ( ! is_array( $multisite_terms ) && empty( $multisite_terms ) ) {
+		return new WP_Error( 'invalid_multisite_terms_update_multisite_term_count', __( 'Function update_multisite_term_count() should be passed an array of multisite terms.', 'multitaxo' ) );
 	}
 
-	if ( empty( $multisite_terms ) ) {
-		return false;
-	}
-
-	if ( ! is_array( $multisite_terms ) ) {
-		$multisite_terms = array( $multisite_terms );
-	}
-	if ( defer_multisite_term_counting() ) {
-		if ( ! isset( $_deferred[ $multisite_taxonomy ] ) ) {
-			$_deferred[ $multisite_taxonomy ] = array();
-		}
-		$_deferred[ $multisite_taxonomy ] = array_unique( array_merge( $_deferred[ $multisite_taxonomy ], $multisite_terms ) );
-		return true;
-	}
-
-	return update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy );
-}
-
-/**
- * Perform multisite term count update immediately.
- *
- * @param array  $multisite_terms    The multisite_term_multisite_taxonomy_id of multisite terms to update.
- * @param string $multisite_taxonomy The context of the multisite term.
- * @return true Always true when complete.
- */
-function update_multisite_term_count_now( $multisite_terms, $multisite_taxonomy ) {
-	$multisite_terms = array_map( 'intval', $multisite_terms );
+	$multisite_terms = array_map( 'absint', $multisite_terms );
 
 	$multisite_taxonomy = get_multisite_taxonomy( $multisite_taxonomy );
-	if ( ! empty( $multisite_taxonomy->update_count_callback ) ) {
+	// We allow the taxonomy to overide the way the count is calculated.
+	if ( ! is_a( $multisite_taxonomy, 'Multisite_Taxonomy' ) ) {
+		return new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.', 'multitaxo' ) );
+	} elseif ( ! empty( $multisite_taxonomy->update_count_callback ) ) {
 		call_user_func( $multisite_taxonomy->update_count_callback, $multisite_terms, $multisite_taxonomy );
 	} else {
-		$object_types = (array) $multisite_taxonomy->object_type;
-		foreach ( $object_types as &$object_type ) {
-			if ( 0 === strpos( $object_type, 'attachment:' ) ) {
-				list( $object_type ) = explode( ':', $object_type );
-			}
-		}
+		global $wpdb;
+		foreach ( (array) $multisite_terms as $multisite_term ) {
+			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
 
-		if ( array_filter( $object_types, 'post_type_exists' ) === $object_types ) {
-			// Only post types are attached to this multisite taxonomy.
-			_update_post_multisite_term_count( $multisite_terms, $multisite_taxonomy );
-		} else {
-			// Default count updater.
-			_update_generic_multisite_term_count( $multisite_terms, $multisite_taxonomy );
+			do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
+			$wpdb->update(
+				$wpdb->multisite_term_multisite_taxonomy, compact( 'count' ), array(
+					'multisite_term_multisite_taxonomy_id' => $multisite_term,
+				)
+			);
+
+			do_action( 'edited_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
 		}
 	}
 
@@ -3046,86 +2991,6 @@ function _prime_multisite_term_caches( $multisite_term_ids, $update_meta_cache =
 		if ( $update_meta_cache ) {
 			update_multisite_termmeta_cache( $non_cached_ids );
 		}
-	}
-}
-
-/*
- * Default callbacks.
- */
-
-/**
- * Will update multisite term count based on object types of the current multisite taxonomy.
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param array  $multisite_terms    List of multisite term multisite taxonomy IDs.
- * @param object $multisite_taxonomy Current multisite taxonomy object of multisite terms.
- */
-function _update_post_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
-	global $wpdb;
-
-	$object_types = (array) $multisite_taxonomy->object_type;
-
-	foreach ( $object_types as &$object_type ) {
-		list( $object_type ) = explode( ':', $object_type );
-	}
-	$object_types = array_unique( $object_types );
-
-	$check_attachments = array_search( 'attachment', $object_types, true );
-	if ( false !== $check_attachments ) {
-		unset( $object_types[ $check_attachments ] );
-		$check_attachments = true;
-	}
-
-	if ( $object_types ) {
-		$object_types = esc_sql( array_filter( $object_types, 'post_type_exists' ) );
-	}
-
-	foreach ( (array) $multisite_terms as $multisite_term ) {
-		$count = 0;
-
-		// Attachments can be 'inherit' status, we need to base count off the parent's status if so.
-		if ( $check_attachments ) {
-			$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships, $wpdb->posts p1 WHERE p1.ID = $wpdb->multisite_term_relationships.object_id AND ( post_status = 'publish' OR ( post_status = 'inherit' AND post_parent > 0 AND ( SELECT post_status FROM $wpdb->posts WHERE ID = p1.post_parent ) = 'publish' ) ) AND post_type = 'attachment' AND multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
-		}
-		if ( $object_types ) {
-			// @codingStandardsIgnoreLine
-			$count += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships, $wpdb->posts WHERE $wpdb->posts.ID = $wpdb->multisite_term_relationships.object_id AND post_status = 'publish' AND post_type IN ('" . implode( "', '", $object_types ) . "') AND multisite_term_multisite_taxonomy_id = %d", $multisite_term ) ); // WPCS: unprepared SQL ok.
-		}
-
-		do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-		$wpdb->update(
-			$wpdb->multisite_term_multisite_taxonomy, compact( 'count' ), array(
-				'multisite_term_multisite_taxonomy_id' => $multisite_term,
-			)
-		);
-
-		do_action( 'edited_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-	}
-}
-
-/**
- * Will update multisite term count based on number of objects.
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * @param array  $multisite_terms    List of multisite term multisite taxonomy IDs.
- * @param object $multisite_taxonomy Current multisite taxonomy object of multisite terms.
- */
-function _update_generic_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
-	global $wpdb;
-
-	foreach ( (array) $multisite_terms as $multisite_term ) {
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
-
-		do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-		$wpdb->update(
-			$wpdb->multisite_term_multisite_taxonomy, compact( 'count' ), array(
-				'multisite_term_multisite_taxonomy_id' => $multisite_term,
-			)
-		);
-
-		do_action( 'edited_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
 	}
 }
 

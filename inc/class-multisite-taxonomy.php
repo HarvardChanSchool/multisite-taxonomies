@@ -165,14 +165,6 @@ class Multisite_Taxonomy {
 	public $update_count_callback;
 
 	/**
-	 * Whether it is a built-in multisite taxonomy.
-	 *
-	 * @access public
-	 * @var bool
-	 */
-	public $_builtin;
-
-	/**
 	 * Constructor.
 	 *
 	 * @access public
@@ -233,7 +225,6 @@ class Multisite_Taxonomy {
 			'show_in_rest'               => false,
 			'rest_base'                  => false,
 			'rest_controller_class'      => false,
-			'_builtin'                   => false,
 		);
 
 		$args = array_merge( $defaults, $args );
