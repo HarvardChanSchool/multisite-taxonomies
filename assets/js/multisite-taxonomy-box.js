@@ -245,7 +245,7 @@ var multiTagBox, array_multi_unique_noempty;
 			$('#post').submit(function(){
 				$('div.multitaxonomydiv').each( function() {
 					multiTagBox.flushTags(this, false, 1);
-				});
+                });
             });
 
 			// Fetch and toggle the Tag cloud.
