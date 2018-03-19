@@ -246,11 +246,11 @@ var multiTagBox, array_multi_unique_noempty;
 				$('div.multitaxonomydiv').each( function() {
 					multiTagBox.flushTags(this, false, 1);
 				});
-			});
+            });
 
 			// Fetch and toggle the Tag cloud.
 			$('.multitaxonomycloud-link').click(function(){
-				// On the first click, fetch the tag cloud and insert it in the DOM.
+                // On the first click, fetch the tag cloud and insert it in the DOM.
 				multiTagBox.get( $( this ).attr( 'id' ) );
 				// Update button state, remove previous click event and attach a new one to toggle the cloud.
 				$( this )
@@ -266,9 +266,5 @@ var multiTagBox, array_multi_unique_noempty;
     };
 
     // Multiple Taxonomies.
-    $('#multisite-tax-picker').children('div.multi-taxonomy-tab').each(function(){
-        if ( this.id.indexOf('tabs-flat-') === 0 ) {
-            window.multiTagBox && window.multiTagBox.init();
-        }
-    });
+    window.multiTagBox && window.multiTagBox.init();
 }( jQuery ));
