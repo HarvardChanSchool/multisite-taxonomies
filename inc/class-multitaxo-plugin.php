@@ -35,6 +35,7 @@ class Multitaxo_Plugin {
 
 		// Add the editing tags screen.
 		add_action( 'network_admin_menu', array( $this, 'add_network_menu_terms' ) );
+		add_action( 'network_admin_menu', array( $this, 'add_network_menu_page_args' ), 99 );
 		add_filter( 'set-screen-option', array( $this, 'multisite_set_screen_option' ), 10, 3 );
 
 		// Hide menu items we dont want to make visible to the world but want to leave behind.
@@ -204,6 +205,41 @@ class Multitaxo_Plugin {
 	}
 
 	/**
+	 * Add extra query arg for submenu page.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function add_network_menu_page_args() {
+		global $submenu;
+
+		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
+
+		foreach ( $submenu['multisite_term_list'] as $menu_id => $menu_item ) {
+
+			// Skip the first item of the list.
+			if ( 'multisite_term_list' === $menu_item[2] ) {
+				continue;
+			}
+
+			$menu_slug = $menu_item[2];
+			$tax_slug  = str_replace( 'multisite_term_list_', '', $menu_id );
+
+			// Check that we have something.
+			if ( '' === $tax_slug ) {
+				continue;
+			}
+
+			// Get our tax info for this one.
+			$taxonomy = $taxonomies[ $tax_slug ];
+
+			// we will recompose the whole url, starting with parent.
+			$submenu['multisite_term_list'][ $menu_id ][2] = add_query_arg( 'page', $menu_slug, 'admin.php' );
+			$submenu['multisite_term_list'][ $menu_id ][2] = add_query_arg( 'multisite_taxonomy', $tax_slug, $submenu['multisite_term_list'][ $menu_id ][2] );
+		}
+	}
+
+	/**
 	 * Add the metowrk admin menu to the terms page.
 	 *
 	 * @access public
@@ -215,10 +251,8 @@ class Multitaxo_Plugin {
 
 		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
-		add_submenu_page( 'multisite_term_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_taxonomy_edit_screen' ) );
-
 		foreach ( $taxonomies as $tax_slug => $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
+			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list_' . $tax_slug, array( $this, 'display_multisite_taxonomy_edit_screen' ) );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_taxonomy' ) );
 		}
 	}
