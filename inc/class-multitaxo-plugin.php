@@ -50,7 +50,9 @@ class Multitaxo_Plugin {
 	}
 
 	/**
-	 * Register the taxonomy Db tables for use with WPDB.
+	 * Register the Multisite Taxonomies database tables for use with $wpdb.
+	 *
+	 * @global wpdb $wpdb The WordPress database abstraction object.
 	 *
 	 * @access public
 	 * @return void
@@ -105,7 +107,6 @@ class Multitaxo_Plugin {
 	 */
 	public function activation_hook() {
 		$this->register_database_tables();
-		// We first create our custom database tables.
 		$this->create_database_tables();
 	}
 
@@ -121,6 +122,8 @@ class Multitaxo_Plugin {
 
 	/**
 	 * Create our custom database tables.
+	 *
+	 * @global wpdb $wpdb The WordPress database abstraction object.
 	 *
 	 * @access public
 	 * @return void
