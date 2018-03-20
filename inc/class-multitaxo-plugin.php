@@ -47,6 +47,9 @@ class Multitaxo_Plugin {
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
 		add_action( 'wp_ajax_inline-save-multisite-tax', array( $this, 'ajax_inline_save_multisite_tag' ) );
+
+		// register action hooks for specific actions.
+		add_action( 'before_delete_post', array( $this, 'before_delete_post_action_hook' ) );
 	}
 
 	/**
@@ -1184,7 +1187,7 @@ class Multitaxo_Plugin {
 
 			<?php submit_button( esc_html__( 'Update', 'multitaxo' ), 'primary', null, false ); ?>
 
-			<?php if ( current_user_can( 'delete_multiite_term', $term->multisite_term_id ) ) : ?>
+			<?php if ( current_user_can( 'delete_multisite_term', $term->multisite_term_id ) ) : ?>
 				<span id="delete-link">
 					<a class="delete" href="
 					<?php
@@ -1217,5 +1220,17 @@ class Multitaxo_Plugin {
 		</script>
 		<?php
 		endif;
+	}
+
+	/**
+	 * Allow us to perform multisite taxonomy or multisite term related actions when the before_delete_post action hook is triggered.
+	 *
+	 * @param int $post_id The deleted post ID.
+	 * @return void
+	 */
+	public function before_delete_post_action_hook( $post_id ) {
+		$post_id = absint( $post_id );
+		// When a post is deleted we want tp delete the multisite term relationships to avoid orphans records.
+		delete_object_multisite_term_relationships( $post_id, get_object_taxonomies( $post_id ), get_current_blog_id() );
 	}
 }

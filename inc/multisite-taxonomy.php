@@ -1307,8 +1307,9 @@ function count_multisite_terms( $multisite_taxonomy, $args = array() ) {
  *
  * @param int          $object_id  The multisite term Object Id that refers to the multisite term.
  * @param string|array $multisite_taxonomies List of multisite taxonomy names or single multisite taxonomy name.
+ * @param int          $blog_id  The blog_id that the Object Id belongs to. Default is current blog id.
  */
-function delete_object_multisite_term_relationships( $object_id, $multisite_taxonomies ) {
+function delete_object_multisite_term_relationships( $object_id, $multisite_taxonomies, $blog_id ) {
 	$object_id = (int) $object_id;
 
 	if ( ! is_array( $multisite_taxonomies ) ) {
