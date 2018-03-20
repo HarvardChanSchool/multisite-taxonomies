@@ -41,8 +41,8 @@ class Multitaxo_Plugin {
 		add_action( 'admin_head', array( $this, 'hide_network_menu_terms' ), 1 );
 
 		// register our tables to WPDB.
-		add_action( 'init', array( $this, 'register_multisite_tax_tables' ), 1 );
-		add_action( 'switch_blog', array( $this, 'register_multisite_tax_tables' ) );
+		add_action( 'init', array( $this, 'register_database_tables' ), 1 );
+		add_action( 'switch_blog', array( $this, 'register_database_tables' ) );
 
 		// register the ajax response for creating new tags.
 		add_action( 'wp_ajax_add-multisite-tag', array( $this, 'ajax_add_multisite_tag' ) );
@@ -50,12 +50,14 @@ class Multitaxo_Plugin {
 	}
 
 	/**
-	 * Register the taxonomy Db tables for use with WPDB.
+	 * Register the Multisite Taxonomies database tables for use with $wpdb.
+	 *
+	 * @global wpdb $wpdb The WordPress database abstraction object.
 	 *
 	 * @access public
 	 * @return void
 	 */
-	public function register_multisite_tax_tables() {
+	public function register_database_tables() {
 		global $wpdb;
 
 		$wpdb->multisite_termmeta                = $wpdb->base_prefix . 'multisite_termmeta';
@@ -104,7 +106,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function activation_hook() {
-		// We first create our custom database tables.
+		$this->register_database_tables();
 		$this->create_database_tables();
 	}
 
@@ -120,6 +122,8 @@ class Multitaxo_Plugin {
 
 	/**
 	 * Create our custom database tables.
+	 *
+	 * @global wpdb $wpdb The WordPress database abstraction object.
 	 *
 	 * @access public
 	 * @return void
