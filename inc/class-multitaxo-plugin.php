@@ -104,6 +104,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function activation_hook() {
+		$this->register_multisite_tax_tables();
 		// We first create our custom database tables.
 		$this->create_database_tables();
 	}
