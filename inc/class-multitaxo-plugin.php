@@ -35,7 +35,6 @@ class Multitaxo_Plugin {
 
 		// Add the editing tags screen.
 		add_action( 'network_admin_menu', array( $this, 'add_network_menu_terms' ) );
-		add_action( 'network_admin_menu', array( $this, 'add_network_menu_page_args' ), 99 );
 		add_filter( 'set-screen-option', array( $this, 'multisite_set_screen_option' ), 10, 3 );
 
 		// Hide menu items we dont want to make visible to the world but want to leave behind.
@@ -205,41 +204,6 @@ class Multitaxo_Plugin {
 	}
 
 	/**
-	 * Add extra query arg for submenu page.
-	 *
-	 * @access public
-	 * @return void
-	 */
-	public function add_network_menu_page_args() {
-		global $submenu;
-
-		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
-
-		foreach ( $submenu['multisite_term_list'] as $menu_id => $menu_item ) {
-
-			// Skip the first item of the list.
-			if ( 'multisite_term_list' === $menu_item[2] ) {
-				continue;
-			}
-
-			$menu_slug = $menu_item[2];
-			$tax_slug  = str_replace( 'multisite_term_list_', '', $menu_id );
-
-			// Check that we have something.
-			if ( '' === $tax_slug ) {
-				continue;
-			}
-
-			// Get our tax info for this one.
-			$taxonomy = $taxonomies[ $tax_slug ];
-
-			// we will recompose the whole url, starting with parent.
-			$submenu['multisite_term_list'][ $menu_id ][2] = add_query_arg( 'page', $menu_slug, 'admin.php' );
-			$submenu['multisite_term_list'][ $menu_id ][2] = add_query_arg( 'multisite_taxonomy', $tax_slug, $submenu['multisite_term_list'][ $menu_id ][2] );
-		}
-	}
-
-	/**
 	 * Add the metowrk admin menu to the terms page.
 	 *
 	 * @access public
@@ -291,13 +255,16 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function load_multisite_taxonomy() {
-		$taxnow = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
+		$page = ( isset( $_GET['page'] ) ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
-		if ( empty( $taxnow ) ) {
-			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
+		$tax_slug  = str_replace( 'multisite_term_list_', '', $page );
+
+		// Check that we have something.
+		if ( empty( $tax_slug ) ) {
+			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
 		}
 
-		$tax = get_multisite_taxonomy( $taxnow );
+		$tax = get_multisite_taxonomy( $tax_slug );
 
 		if ( ! $tax ) {
 			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
@@ -318,7 +285,7 @@ class Multitaxo_Plugin {
 		$screen = get_current_screen();
 
 		// well this is dumb we are setting the multisite tex only to get it again.
-		$screen->taxonomy = $taxnow;
+		$screen->taxonomy = $tax_slug;
 
 		/**
 		 * $post_type is set when the WP_Terms_List_Table instance is created
@@ -1004,8 +971,11 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function display_multisite_taxonomy_edit_screen() {
-		$taxonomy = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
+		$page = ( isset( $_GET['page'] ) ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
+		$taxonomy  = str_replace( 'multisite_term_list_', '', $page );
+
+		// Check that we have something.
 		if ( empty( $taxonomy ) ) {
 			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
 		}
