@@ -200,7 +200,7 @@ function dropdown_multisite_taxonomy( $args = '' ) {
 		'required'          => false,
 	);
 
-	$defaults['selected'] = ( is_multitaxo() ) ? get_query_var( 'taxonomy' ) : 0;
+	$defaults['selected'] = ( is_multitaxo_plugin() ) ? get_query_var( 'taxonomy' ) : 0;
 
 	$r                 = wp_parse_args( $args, $defaults );
 	$option_none_value = $r['option_none_value'];
@@ -956,7 +956,7 @@ function walk_hierarchical_multisite_taxonomy_dropdown_tree() {
  * @return string Multisite Term description, available.
  */
 function multisite_term_description( $multisite_term = 0, $multisite_taxonomy = 'post_tag' ) {
-	if ( ! $multisite_term && ( is_multitaxo() ) ) {
+	if ( ! $multisite_term && ( is_multitaxo_plugin() ) ) {
 		$multisite_term = get_queried_object();
 		if ( $multisite_term ) {
 			$multisite_taxonomy = $multisite_term->multisite_taxonomy;
@@ -1180,7 +1180,7 @@ function has_multistite_term( $multisite_term = '', $multisite_taxonomy = '', $p
  * @param mixed $multisite_term     Optional. Multisite Term ID, name, slug or array of Multisite Term IDs, names, and slugs.
  * @return bool True for multisite taxonomy archive pages.
  */
-function is_multitaxo( $multisite_taxonomy = '', $multisite_term = '' ) {
+function is_multitaxo_plugin( $multisite_taxonomy = '', $multisite_term = '' ) {
 	global $wp_query;
 	if ( ! isset( $wp_query ) ) {
 		_doing_it_wrong( __FUNCTION__, esc_attr__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'multitaxo' ), '3.1.0' );
