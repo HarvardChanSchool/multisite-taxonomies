@@ -562,7 +562,10 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			);
 		}
 
-		return "<a href='" . esc_url( add_query_arg( $args, 'edit.php' ) ) . "'>$count</a>";
+		// Our base rewrite for all multisite tax plugins.
+		$base_rewrite = apply_filters( 'multisite_taxonomy_base_url_slug', 'multitaxo' );
+
+		return '<a href="' . esc_url( network_home_url( $base_rewrite . '/' . $mu_tax->name . '/' . $multisite_term->slug ) ) . '">' . absint( $count ) . '</a>';
 	}
 
 	/**
