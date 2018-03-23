@@ -208,6 +208,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function delete_database_tables() {
+		// Silence.
 	}
 
 	/**
@@ -217,15 +218,14 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function add_network_menu_terms() {
-		$screen = add_menu_page( esc_html__( 'Multisite Taxonomies', 'multitaxo' ), esc_html__( 'Taxonomies', 'multitaxo' ), 'manage_network_options', 'multisite_term_list', array( $this, 'display_multisite_taxonomy' ), 'dashicons-tag', 22 );
-		add_action( 'load-' . $screen, array( $this, 'load_multisite_taxonomy' ) );
-
-		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
+		$screen = add_menu_page( esc_html__( 'Multisite Taxonomies', 'multitaxo' ), esc_html__( 'Taxonomies', 'multitaxo' ), 'manage_network_options', 'multisite_term_list', array( $this, 'display_multisite_taxonomy_list' ), 'dashicons-tag', 22 );
 
 		add_submenu_page( 'multisite_term_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_taxonomy_edit_screen' ) );
 
+		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
+
 		foreach ( $taxonomies as $tax_slug => $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list&multisite_taxonomy=' . $tax_slug, '__return_null' );
+			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list_' . $tax_slug, array( $this, 'display_multisite_taxonomy' ) );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_taxonomy' ) );
 		}
 	}
@@ -264,23 +264,26 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function load_multisite_taxonomy() {
-		$taxnow = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
+		$page = ( isset( $_GET['page'] ) ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
-		if ( empty( $taxnow ) ) {
+		$tax_slug = str_replace( 'multisite_term_list_', '', $page );
+
+		// Check that we have something.
+		if ( empty( $tax_slug ) ) {
+			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
+		}
+
+		$mulsite_taxonomy = get_multisite_taxonomy( $tax_slug );
+
+		if ( ! is_a( $mulsite_taxonomy, 'Multisite_Taxonomy' ) ) {
 			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 		}
 
-		$tax = get_multisite_taxonomy( $taxnow );
-
-		if ( ! $tax ) {
-			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
-		}
-
-		if ( ! in_array( $tax->name, get_multisite_taxonomies( array( 'show_ui' => true ) ), true ) ) {
+		if ( ! in_array( $mulsite_taxonomy->name, get_multisite_taxonomies( array( 'show_ui' => true ) ), true ) ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to edit multisite terms in this multisite taxonomy.', 'multitaxo' ) );
 		}
 
-		if ( ! current_user_can( $tax->cap->manage_multisite_terms ) ) {
+		if ( ! current_user_can( $mulsite_taxonomy->cap->manage_multisite_terms ) ) {
 			wp_die(
 				'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 				'<p>' . esc_html__( 'Sorry, you are not allowed to manage multisite terms in this multisite taxonomy.', 'multitaxo' ) . '</p>',
@@ -291,7 +294,7 @@ class Multitaxo_Plugin {
 		$screen = get_current_screen();
 
 		// well this is dumb we are setting the multisite tex only to get it again.
-		$screen->taxonomy = $taxnow;
+		$screen->taxonomy = $tax_slug;
 
 		/**
 		 * $post_type is set when the WP_Terms_List_Table instance is created
@@ -301,7 +304,7 @@ class Multitaxo_Plugin {
 		$this->list_table = new Multisite_Terms_List_Table();
 
 		$pagenum = $this->list_table->get_pagenum();
-		$title   = $tax->labels->name;
+		$title   = $mulsite_taxonomy->labels->name;
 
 		add_screen_option(
 			'per_page', array(
@@ -312,8 +315,8 @@ class Multitaxo_Plugin {
 
 		get_current_screen()->set_screen_reader_content(
 			array(
-				'heading_pagination' => $tax->labels->items_list_navigation,
-				'heading_list'       => $tax->labels->items_list,
+				'heading_pagination' => $mulsite_taxonomy->labels->items_list_navigation,
+				'heading_list'       => $mulsite_taxonomy->labels->items_list,
 			)
 		);
 
@@ -336,7 +339,7 @@ class Multitaxo_Plugin {
 			case 'add-tag':
 				check_admin_referer( 'add-multisite-tag', '_wpnonce_add-multisite-tag' );
 
-				if ( ! current_user_can( $tax->cap->edit_multisite_terms ) ) {
+				if ( ! current_user_can( $mulsite_taxonomy->cap->edit_multisite_terms ) ) {
 					wp_die(
 						'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 						'<p>' . esc_html__( 'Sorry, you are not allowed to create terms in this taxonomy.', 'multitaxo' ) . '</p>',
@@ -377,7 +380,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				delete_multisite_term( $tag_id, $tax->name );
+				delete_multisite_term( $tag_id, $mulsite_taxonomy->name );
 
 				$location = add_query_arg( 'message', 2, $referer );
 
@@ -390,7 +393,7 @@ class Multitaxo_Plugin {
 			case 'bulk-delete':
 				check_admin_referer( 'bulk-tags' );
 
-				if ( ! current_user_can( $tax->cap->delete_multisite_terms ) ) {
+				if ( ! current_user_can( $mulsite_taxonomy->cap->delete_multisite_terms ) ) {
 					wp_die(
 						'<h1>' . esc_html__( 'Cheatin&#8217; uh?', 'multitaxo' ) . '</h1>' .
 						'<p>' . esc_html__( 'Sorry, you are not allowed to delete these items.', 'multitaxo' ) . '</p>',
@@ -401,7 +404,7 @@ class Multitaxo_Plugin {
 				if ( isset( $_REQUEST['delete_multisite_terms'] ) && is_array( wp_unslash( $_REQUEST['delete_multisite_terms'] ) ) ) {  // WPCS: input var ok.
 					$multisite_terms = array_map( 'absint', wp_unslash( $_REQUEST['delete_multisite_terms'] ) );  // WPCS: input var ok.
 					foreach ( $multisite_terms as $multisite_terms_id ) {
-						delete_multisite_term( $multisite_terms_id, $tax->name );
+						delete_multisite_term( $multisite_terms_id, $mulsite_taxonomy->name );
 					}
 				}
 
@@ -420,7 +423,7 @@ class Multitaxo_Plugin {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $multisite_term_id, $tax->name ) ) );
+				wp_redirect( esc_url_raw( get_multisite_edit_term_link( $multisite_term_id, $mulsite_taxonomy->name ) ) );
 
 				exit;
 			case 'editedtag':
@@ -436,13 +439,13 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				$tag = get_multisite_term( $tag_id, $tax->name );
+				$tag = get_multisite_term( $tag_id, $mulsite_taxonomy->name );
 
 				if ( ! $tag ) {
 					wp_die( esc_html__( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?', 'multitaxo' ) );
 				}
 
-				$ret = update_multisite_term( $tag_id, $tax->name, $_POST ); // WPCS: input var ok.
+				$ret = update_multisite_term( $tag_id, $mulsite_taxonomy->name, $_POST ); // WPCS: input var ok.
 
 				if ( $ret && ! is_wp_error( $ret ) ) {
 					$location = add_query_arg( 'message', 3, $referer );
@@ -471,6 +474,7 @@ class Multitaxo_Plugin {
 
 				/** This action is documented in wp-admin/edit-comments.php */
 				$location = apply_filters( 'handle_bulk_actions_' . get_current_screen()->id, $location, $this->list_table->current_action(), $tags );
+
 				break;
 		}
 
@@ -488,9 +492,9 @@ class Multitaxo_Plugin {
 			 * @since 4.6.0
 			 *
 			 * @param string $location The destination URL.
-			 * @param object $tax      The taxonomy object.
+			 * @param object $mulsite_taxonomy The taxonomy object.
 			 */
-			wp_redirect( apply_filters( 'redirect_term_location', $location, $tax ) );
+			wp_redirect( apply_filters( 'redirect_term_location', $location, $mulsite_taxonomy ) );
 			exit;
 		}
 
@@ -682,6 +686,33 @@ class Multitaxo_Plugin {
 		}
 		$tax_list_table->single_row( $tag, $level );
 		wp_die();
+	}
+
+	/**
+	 * Display the list table screen in the network.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function display_multisite_taxonomy_list() {
+		?>
+		<div class="wrap">
+		<h1><?php echo esc_html__( 'Multisite Taxonomies', 'multitaxo' ); ?></h1>
+		<ul>
+		<?php
+
+		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
+
+		if ( count( $taxonomies ) === 0 ) {
+			esc_html_e( 'No Multisite Taxonomies exist.', 'multitaxo' );
+		}
+
+		foreach ( $taxonomies as $tax_slug => $tax ) {
+			echo '<li><a href="' . esc_url( 'admin.php?page=multisite_term_list_' . $tax_slug ) . '">' . esc_html( $tax->label ) . '</a></li>';
+		}
+
+		echo '</ul>
+		</div>';
 	}
 
 	/**
@@ -979,6 +1010,7 @@ class Multitaxo_Plugin {
 	public function display_multisite_taxonomy_edit_screen() {
 		$taxonomy = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
+		// Check that we have something.
 		if ( empty( $taxonomy ) ) {
 			wp_die( esc_html__( 'Invalid taxonomy.', 'multitaxo' ) );
 		}
