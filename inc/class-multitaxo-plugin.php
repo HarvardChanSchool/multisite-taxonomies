@@ -213,10 +213,12 @@ class Multitaxo_Plugin {
 		$screen = add_menu_page( esc_html__( 'Multisite Taxonomies', 'multitaxo' ), esc_html__( 'Taxonomies', 'multitaxo' ), 'manage_network_options', 'multisite_term_list', array( $this, 'display_multisite_taxonomy' ), 'dashicons-tag', 22 );
 		add_action( 'load-' . $screen, array( $this, 'load_multisite_taxonomy' ) );
 
+		add_submenu_page( 'multisite_term_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_taxonomy_edit_screen' ) );
+
 		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
 		foreach ( $taxonomies as $tax_slug => $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list_' . $tax_slug, array( $this, 'display_multisite_taxonomy_edit_screen' ) );
+			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list_' . $tax_slug, '__return_null' );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_taxonomy' ) );
 		}
 	}
@@ -257,7 +259,7 @@ class Multitaxo_Plugin {
 	public function load_multisite_taxonomy() {
 		$page = ( isset( $_GET['page'] ) ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
-		$tax_slug  = str_replace( 'multisite_term_list_', '', $page );
+		$tax_slug = str_replace( 'multisite_term_list_', '', $page );
 
 		// Check that we have something.
 		if ( empty( $tax_slug ) ) {
@@ -971,9 +973,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function display_multisite_taxonomy_edit_screen() {
-		$page = ( isset( $_GET['page'] ) ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : null; // WPCS: input var ok, CSRF ok.
-
-		$taxonomy  = str_replace( 'multisite_term_list_', '', $page );
+		$taxonomy = ( isset( $_GET['multisite_taxonomy'] ) ) ? sanitize_key( wp_unslash( $_GET['multisite_taxonomy'] ) ) : null; // WPCS: input var ok, CSRF ok.
 
 		// Check that we have something.
 		if ( empty( $taxonomy ) ) {
