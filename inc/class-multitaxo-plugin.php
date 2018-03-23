@@ -201,6 +201,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function delete_database_tables() {
+		// Silence.
 	}
 
 	/**
@@ -210,15 +211,14 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function add_network_menu_terms() {
-		$screen = add_menu_page( esc_html__( 'Multisite Taxonomies', 'multitaxo' ), esc_html__( 'Taxonomies', 'multitaxo' ), 'manage_network_options', 'multisite_term_list', array( $this, 'display_multisite_taxonomy' ), 'dashicons-tag', 22 );
-		add_action( 'load-' . $screen, array( $this, 'load_multisite_taxonomy' ) );
+		$screen = add_menu_page( esc_html__( 'Multisite Taxonomies', 'multitaxo' ), esc_html__( 'Taxonomies', 'multitaxo' ), 'manage_network_options', 'multisite_term_list', array( $this, 'display_multisite_taxonomy_list' ), 'dashicons-tag', 22 );
 
 		add_submenu_page( 'multisite_term_list', esc_html__( 'Edit Tag', 'multitaxo' ), esc_html__( 'Edit Tag', 'multitaxo' ), 'manage_network_options', 'multisite_term_edit', array( $this, 'display_multisite_taxonomy_edit_screen' ) );
 
 		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
 
 		foreach ( $taxonomies as $tax_slug => $tax ) {
-			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list_' . $tax_slug, '__return_null' );
+			$screen_hook = add_submenu_page( 'multisite_term_list', $tax->label, $tax->label, 'manage_network_options', 'multisite_term_list_' . $tax_slug, array( $this, 'display_multisite_taxonomy' ) );
 			add_action( 'load-' . $screen_hook, array( $this, 'load_multisite_taxonomy' ) );
 		}
 	}
@@ -467,6 +467,7 @@ class Multitaxo_Plugin {
 
 				/** This action is documented in wp-admin/edit-comments.php */
 				$location = apply_filters( 'handle_bulk_actions_' . get_current_screen()->id, $location, $this->list_table->current_action(), $tags );
+
 				break;
 		}
 
@@ -678,6 +679,29 @@ class Multitaxo_Plugin {
 		}
 		$tax_list_table->single_row( $tag, $level );
 		wp_die();
+	}
+
+	/**
+	 * Display the list table screen in the network.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function display_multisite_taxonomy_list() {
+		?>
+		<div class="wrap">
+		<h1><?php echo esc_html__( 'Multisite Taxonomies', 'multitaxo' ); ?></h1>
+		<ul>
+		<?php
+
+		$taxonomies = get_multisite_taxonomies( array(), 'objects' );
+
+		foreach ( $taxonomies as $tax_slug => $tax ) {
+			echo '<li><a href="admin.php?page=multisite_term_list_' . esc_attr( $tax_slug ) . '">' . esc_html( $tax->label ) . '</a></li>';
+		}
+
+		echo '</ul>
+		</div>';
 	}
 
 	/**

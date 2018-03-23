@@ -285,7 +285,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @param int    $parent The parent taxonomy.
 	 * @param int    $level The current level of hierarchy.
 	 */
-	private function _rows( $multisite_taxonomy, $multisite_terms, &$children, $start, $per_page, &$count, $parent = 0, $level = 0 ) { // phpcs:ignore Generic,PSR2
+	private function _rows( $multisite_taxonomy, $multisite_terms, &$children, $start, $per_page, &$count, $parent = 0, $level = 0 ) { // phpcs: ignore Generic, PSR2.
 
 		$end = $start + $per_page;
 
