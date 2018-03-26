@@ -1265,7 +1265,7 @@ class Multitaxo_Plugin {
 
 		$post = get_post( $post_id, OBJECT );
 
-		if ( ! empty( $post ) ) {
+		if ( is_a( $post, 'WP_Post' ) ) {
 			// When a post is deleted we want tp delete the multisite term relationships to avoid orphans records.
 			delete_object_multisite_term_relationships( $post_id, get_object_multisite_taxonomies( $post ), get_current_blog_id() );
 		}
