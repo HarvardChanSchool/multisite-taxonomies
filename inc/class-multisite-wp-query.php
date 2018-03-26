@@ -177,7 +177,7 @@ class Multisite_WP_Query {
 						}
 						if ( is_array( $posts ) && ! empty( $posts ) ) {
 							$post_ids          = implode( ',', $posts );
-							$query_per_blogs[] = 'SELECT ID,post_date,post_content,post_title,post_excerpt,post_name,post_type,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->base_prefix . absint( $blog_id ) . '_posts WHERE ID IN( ' . $post_ids . ' ) AND post_status=\'publish\'';
+							$query_per_blogs[] = 'SELECT ID,post_date,post_content,post_title,post_excerpt,post_name,post_type,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'posts WHERE ID IN( ' . $post_ids . ' ) AND post_status=\'publish\'';
 						}
 					}
 					if ( ! empty( $query_per_blogs ) ) {
