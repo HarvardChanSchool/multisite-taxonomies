@@ -1262,7 +1262,12 @@ class Multitaxo_Plugin {
 	 */
 	public function before_delete_post_action_hook( $post_id ) {
 		$post_id = absint( $post_id );
-		// When a post is deleted we want tp delete the multisite term relationships to avoid orphans records.
-		delete_object_multisite_term_relationships( $post_id, get_object_taxonomies( $post_id ), get_current_blog_id() );
+
+		$post = get_post( $post_id, OBJECT );
+
+		if ( is_a( $post, 'WP_Post' ) ) {
+			// When a post is deleted we want tp delete the multisite term relationships to avoid orphans records.
+			delete_object_multisite_term_relationships( $post_id, get_object_multisite_taxonomies( $post ), get_current_blog_id() );
+		}
 	}
 }
