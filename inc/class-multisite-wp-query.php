@@ -236,11 +236,11 @@ class Multisite_WP_Query {
 					$current_post                 = new stdClass();
 					$current_post->ID             = absint( $post->ID );
 					$current_post->blog_id        = absint( $post->blog_id );
-					$current_post->post_title     = apply_filters( 'the_title', $post->post_title );
-					$current_post->post_content   = apply_filters( 'the_content', $post->post_content );
-					$current_post->post_excerpt   = apply_filters( 'the_excerpt', $post->post_excerpt );
-					$current_post->post_date      = apply_filters( 'the_date', $post->post_date );
-					$current_post->post_permalink = apply_filters( 'the_permalink', $this->blogs_data[ absint( $post->blog_id ) ]->siteurl . '?p=' . absint( $post->ID ) );
+					$current_post->post_title     = $post->post_title;
+					$current_post->post_content   = $post->post_content;
+					$current_post->post_excerpt   = $post->post_excerpt;
+					$current_post->post_date      = $post->post_date;
+					$current_post->post_permalink = $this->blogs_data[ absint( $post->blog_id ) ]->siteurl . '?p=' . absint( $post->ID );
 					$processed_posts[]            = $current_post;
 				}
 			}
