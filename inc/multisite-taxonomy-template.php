@@ -1189,3 +1189,100 @@ function is_multitaxo_plugin( $multisite_taxonomy = '', $multisite_term = '' ) {
 	// TO DO: actually check if it is.
 	return true;
 }
+
+/**
+ * Echo and escape the return value of get_multitaxo_the_ID().
+ *
+ * @param int $post_id The post ID.
+ * @return void
+ */
+function multitaxo_the_id( $post_id ) {
+	echo absint( multitaxo_get_the_id( $post_id ) );
+}
+
+/**
+ * Return a post ID in the multisite query context.
+ * Yes this function is useless, it's here for constistency with other template fumctions.
+ *
+ * @param int $post_id The post ID.
+ * @return int The filtered content.
+ */
+function multitaxo_get_the_id( $post_id ) {
+	return $post_id;
+}
+
+/**
+ * Echo and escape the return value of multitaxo_get_the_permalink().
+ *
+ * @param int $permalink The post permalink.
+ * @return void
+ */
+function multitaxo_the_permalink( $permalink ) {
+	echo esc_url( multitaxo_get_the_permalink( $permalink ) );
+}
+
+/**
+ * Filter and return the post permalink in the multisite query context.
+ *
+ * @param string $permalink The post permalink.
+ * @return string The filtered post permalink.
+ */
+function multitaxo_get_the_permalink( $permalink ) {
+	$permalink = apply_filters( 'multitaxo_the_permalink', $permalink );
+	return $permalink;
+}
+
+/**
+ * Echo and escape the return value of multitaxo_get_the_title().
+ *
+ * @param int $post_title The post title.
+ * @return void
+ */
+function multitaxo_the_title( $post_title ) {
+	echo esc_html( multitaxo_get_the_title( $post_title ) );
+}
+
+/**
+ * Filter and return the post title in the multisite query context.
+ *
+ * @param string $post_title The post title.
+ * @return string The filtered post title.
+ */
+function multitaxo_get_the_title( $post_title ) {
+	$post_title = apply_filters( 'multitaxo_the_title', $post_title );
+	return $post_title;
+}
+
+/**
+ * Echo and escape the return value of multitaxo_get_the_excerpt().
+ *
+ * @param object $post The post object. We need the post to check if excerpt is set and if not use the content.
+ * @return void
+ */
+function multitaxo_the_excerpt( $post ) {
+	echo wp_kses_post( multitaxo_get_the_excerpt( $post ) );
+}
+
+/**
+ * Filter and return the post excerpt in the multisite query context.
+ *
+ * @param object $post The post object. We need the post to check if excerpt is set and if not use the content.
+ * @return string The filtered post excerpt.
+ */
+function multitaxo_get_the_excerpt( $post ) {
+	// We use the excerpt or the post content if no excerpt was entered.
+	if ( empty( $post->post_excerpt ) ) {
+		$excerpt = $post->post_content;
+	} else {
+		$excerpt = $post->post_excerpt;
+	}
+	// The lenght of the excerpt, 42 words by default but filterable.
+	$excerpt_length = 42;
+	$excerpt_length = apply_filters( 'multitaxo_excerpt_length', $excerpt_length );
+	// The troncate symbol for the excerpt, '&hellip;' by default but filterable.
+	$excerpt_more = '&hellip;';
+	$excerpt_more = apply_filters( 'multitaxo_excerpt_more', $excerpt_more );
+	$excerpt      = wpautop( wp_trim_words( do_shortcode( $excerpt ), $excerpt_length, $excerpt_more ) );
+	$excerpt      = apply_filters( 'multitaxo_the_excerpt', $excerpt );
+	return $excerpt;
+}
