@@ -1046,8 +1046,7 @@ class Multitaxo_Plugin {
 		$class   = ( isset( $_REQUEST['error'] ) ) ? 'error' : 'updated'; // WPCS: input var ok, CSRF ok.
 
 		$args = array(
-			'page'               => 'multisite_term_list',
-			'multisite_taxonomy' => $taxonomy,
+			'page' => 'multisite_term_list_' . $taxonomy,
 		);
 
 		$return_url = add_query_arg( $args, get_admin_url( null, 'network/admin.php' ) );
@@ -1083,7 +1082,7 @@ class Multitaxo_Plugin {
 
 		<div id="ajax-response"></div>
 
-		<form name="edittag" id="edittag" method="post" action="admin.php?page=multisite_term_list&multisite_taxonomy=<?php echo esc_attr( $taxonomy ); ?>" class="validate"
+		<form name="edittag" id="edittag" method="post" action="<?php echo esc_url( 'admin.php?page=multisite_term_list_' . $taxonomy ); ?>" class="validate"
 		<?php
 		/**
 		 * Fires inside the Edit Term form tag.
