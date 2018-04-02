@@ -979,12 +979,12 @@ class Multitaxo_Plugin {
 		// 0 = unused. Messages start at index 1.
 		$messages = array(
 			0 => '',
-			1 => esc_html__( 'Multisite tag added.', 'multitaxo' ),
-			2 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
-			3 => esc_html__( 'Multisite tag updated.', 'multitaxo' ),
-			4 => esc_html__( 'Multisite tag not added.', 'multitaxo' ),
-			5 => esc_html__( 'Multisite tag not updated.', 'multitaxo' ),
-			6 => esc_html__( 'Multisite tag deleted.', 'multitaxo' ),
+			1 => esc_html__( 'Multisite term added.', 'multitaxo' ),
+			2 => esc_html__( 'Multisite term deleted.', 'multitaxo' ),
+			3 => esc_html__( 'Multisite term updated.', 'multitaxo' ),
+			4 => esc_html__( 'Multisite term not added.', 'multitaxo' ),
+			5 => esc_html__( 'Multisite term not updated.', 'multitaxo' ),
+			6 => esc_html__( 'Multisite term deleted.', 'multitaxo' ),
 		);
 
 		// Filters the messages displayed when a tag is updated.
