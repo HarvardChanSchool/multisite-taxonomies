@@ -387,7 +387,7 @@ class Multitaxo_Plugin {
 				// When deleting a term, prevent the action from redirecting back to a term that no longer exists.
 				$location = remove_query_arg( array( 'multisite_term_id', 'action', 'page' ), $location );
 
-				$location = add_query_arg( 'page', 'multisite_term_list', $location );
+				$location = add_query_arg( 'page', 'multisite_term_list_' . $mulsite_taxonomy->name, $location );
 
 				break;
 			case 'bulk-delete':
@@ -782,7 +782,7 @@ class Multitaxo_Plugin {
 		<div id="ajax-response"></div>
 
 		<form class="search-form wp-clearfix" method="get">
-		<input type="hidden" name="page" value="multisite_term_list" />
+		<input type="hidden" name="page" value="multisite_term_list_<?php echo esc_attr( $tax->name ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 
 		<?php $this->list_table->search_box( $tax->labels->search_items, 'tag' ); ?>
@@ -823,7 +823,7 @@ class Multitaxo_Plugin {
 		?>
 		>
 		<input type="hidden" name="action" value="add-multisite-tag" />
-		<input type="hidden" name="page" value="multisite_term_list" />
+		<input type="hidden" name="page" value="multisite_term_list_<?php echo esc_attr( $tax->name ); ?>" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
 		<?php wp_nonce_field( 'add-multisite-tag', 'nonce-add-multisite-tag' ); ?>
@@ -1095,7 +1095,7 @@ class Multitaxo_Plugin {
 		?>
 		>
 		<input type="hidden" name="action" value="editedtag"/>
-		<input type="hidden" name="page" value="multisite_term_list"/>
+		<input type="hidden" name="page" value="multisite_term_list_<?php echo esc_attr( $taxonomy ); ?>"/>
 		<input type="hidden" name="multisite_term_id" value="<?php echo esc_attr( $term->multisite_term_id ); ?>"/>
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $taxonomy ); ?>"/>
 		<?php
@@ -1226,7 +1226,7 @@ class Multitaxo_Plugin {
 						wp_nonce_url(
 							add_query_arg(
 								array(
-									'page'               => 'multisite_term_list',
+									'page'               => 'multisite_term_list_' . $taxonomy,
 									'action'             => 'delete',
 									'multisite_taxonomy' => $taxonomy,
 									'multisite_term_id'  => $term->multisite_term_id,
