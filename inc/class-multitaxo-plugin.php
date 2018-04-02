@@ -763,7 +763,7 @@ class Multitaxo_Plugin {
 		<?php
 		if ( isset( $_REQUEST['s'] ) && strlen( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) ) { // WPCS: input var ok, CSRF ok.
 			/* translators: %s: search keywords */
-			echo esc_html( sprintf( '<span class="subtitle">' . esc_html__( 'Search results for &#8220;%s&#8221;', 'multitaxo' ) . '</span>', sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) ); // WPCS: input var ok, CSRF ok.
+			echo '<span class="subtitle">' . esc_html( sprintf( __( 'Search results for &#8220;%s&#8221;', 'multitaxo' ), sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) ) . '</span>'; // WPCS: input var ok, CSRF ok.
 		}
 		?>
 
