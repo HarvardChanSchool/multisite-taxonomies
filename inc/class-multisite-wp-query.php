@@ -177,7 +177,7 @@ class Multisite_WP_Query {
 						}
 						if ( is_array( $posts ) && ! empty( $posts ) ) {
 							$post_ids          = implode( ',', $posts );
-							$query_per_blogs[] = 'SELECT ID,post_date,post_content,post_title,post_excerpt,post_name,post_type,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'posts WHERE ID IN( ' . $post_ids . ' ) AND post_status=\'publish\'';
+							$query_per_blogs[] = 'SELECT p.ID,p.post_date,p.post_content,p.post_title,p.post_excerpt,p.post_name,p.post_type,m2.meta_value AS post_thumbnail,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'posts as p LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m ON p.ID=m.post_id AND m.meta_key="_thumbnail_id" LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m2 ON m.meta_value=m2.post_id AND m2.meta_key="_wp_attachment_metadata" WHERE p.ID IN( ' . $post_ids . ' ) AND p.post_status=\'publish\'';
 						}
 					}
 					if ( ! empty( $query_per_blogs ) ) {
