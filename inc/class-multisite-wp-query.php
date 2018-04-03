@@ -241,6 +241,7 @@ class Multisite_WP_Query {
 					$current_post->post_excerpt   = $post->post_excerpt;
 					$current_post->post_date      = $post->post_date;
 					$current_post->post_permalink = $this->blogs_data[ absint( $post->blog_id ) ]->siteurl . '?p=' . absint( $post->ID );
+					$current_post->post_thumbnail = $this->process_post_thumbnail( $post->post_thumbnail, $current_post->blog_id );
 					$processed_posts[]            = $current_post;
 				}
 			}
@@ -313,6 +314,34 @@ class Multisite_WP_Query {
 			if ( is_array( $cached_blogs_data ) ) {
 				$this->blogs_data = $cached_blogs_data;
 				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get the post thumbnail in the mulsite query context.
+	 *
+	 * @access protected
+	 * @param int $post_thumbnail_meta The post thumbnail meta fetched from the database.
+	 * @param int $blog_id The blog ID the post belong to.
+	 *
+	 * @return array|false An array containing the thumbnail attributes or false if no thumbnail was found.
+	 */
+	protected function process_post_thumbnail( $post_thumbnail_meta, $blog_id ) {
+
+		if ( ! empty( $post_thumbnail_meta ) ) {
+			$post_thumbnail_meta = unserialize( $post_thumbnail_meta ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+			if ( is_array( $post_thumbnail_meta ) && isset( $post_thumbnail_meta['file'] ) && ! empty( $post_thumbnail_meta['file'] ) ) {
+				$post_thumbnail        = array();
+				$post_thumbnail['url'] = multitaxo_content_url() . '/' . absint( $blog_id ) . '/' . $post_thumbnail_meta['file'];
+				if ( isset( $post_thumbnail_meta['width'] ) && is_int( $post_thumbnail_meta['width'] ) ) {
+					$post_thumbnail['width'] = $post_thumbnail_meta['width'];
+				}
+				if ( isset( $post_thumbnail_meta['height'] ) && is_int( $post_thumbnail_meta['height'] ) ) {
+					$post_thumbnail['height'] = $post_thumbnail_meta['height'];
+				}
+				return $post_thumbnail;
 			}
 		}
 		return false;

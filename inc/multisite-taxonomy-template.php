@@ -1286,3 +1286,12 @@ function multitaxo_get_the_excerpt( $post ) {
 	$excerpt      = apply_filters( 'multitaxo_the_excerpt', $excerpt );
 	return $excerpt;
 }
+
+/**
+ * Return a filtered wp-content folder url.
+ *
+ * @return string The wp-content folder url.
+ */
+function multitaxo_content_url() {
+	return apply_filters( 'multitaxo_wp_content_url', content_url() );
+}
