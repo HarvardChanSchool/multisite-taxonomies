@@ -1295,3 +1295,22 @@ function multitaxo_get_the_excerpt( $post ) {
 function multitaxo_content_url() {
 	return apply_filters( 'multitaxo_wp_content_url', content_url() );
 }
+
+/**
+ * Display the multisite post object.
+ *
+ * @access public
+ * @param object $post The multiste post object.
+ * @return void Outputs the post thumbnail.
+ */
+function multitaxo_the_post_thumbnail( $post ) {
+	// this isnt right, or we dont have enough data: return.
+	if ( ! is_object( $post ) || ! is_array( $post->post_thumbnail ) || empty( $post->post_thumbnail['url'] ) ) {
+		return;
+	}
+	?>
+	<div class="page-image-thumbnail">
+		<img src="<?php echo esc_url( $post->post_thumbnail['url'] ); ?>" width="<?php echo esc_attr( $post->post_thumbnail['width'] ); ?>" height="<?php echo esc_attr( $post->post_thumbnail['height'] ); ?>" style="width: <?php echo esc_attr( $post->post_thumbnail['width'] ); ?>px; height: <?php echo esc_attr( $post->post_thumbnail['height'] ); ?>px" class="attachment-post-thumbnail wp-post-image" scale="0">
+	</div><!-- .page-image-thumbnail -->
+	<?php
+}
