@@ -495,6 +495,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				wp_nonce_url(
 					add_query_arg(
 						array(
+							'page'              => 'multisite_term_list_' . $multisite_taxonomy,
 							'action'            => 'delete',
 							'multisite_term_id' => $multisite_term->multisite_term_id,
 						)
