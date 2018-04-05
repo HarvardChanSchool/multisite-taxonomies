@@ -399,7 +399,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		echo esc_html( implode( '\n', $results ) );
+		echo join( $results, "\n" ); // WPCS: XSS ok.
 		wp_die();
 	}
 
