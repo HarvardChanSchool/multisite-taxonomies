@@ -65,7 +65,7 @@
                     var tags = [];
 
 					if ( data ) {
-                        data = data.split( '\\n' );
+                        data = data.split( '\n' );
 
 						for ( tagName in data ) {
 							var id = ++tempID;
