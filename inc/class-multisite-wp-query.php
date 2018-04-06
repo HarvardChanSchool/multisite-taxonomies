@@ -44,7 +44,7 @@ class Multisite_WP_Query {
 	public $posts;
 
 	/**
-	 * The unique key ( MD5 hash of the serialized query_vars array ) used for cache transients keys.
+	 * The unique key ( MD5 hash of the serialized query_vars array ) used for cache keys.
 	 *
 	 * @access private
 	 * @var String
@@ -188,7 +188,7 @@ class Multisite_WP_Query {
 			}
 			// We set the cache if we have to.
 			if ( true === $this->query_vars['update_cache'] && ! empty( $this->cache_key ) ) {
-				set_transient( 'multitaxo_multisite_wp_query_posts_' . $this->cache_key, $this->posts, 24 * HOUR_IN_SECONDS );
+				wp_cache_set( 'multitaxo_multisite_wp_query_posts_' . $this->cache_key, $this->posts, 24 * HOUR_IN_SECONDS );
 			}
 		}
 	}
@@ -277,7 +277,7 @@ class Multisite_WP_Query {
 					$this->blogs_data[ $blog->blog_id ] = $blog;
 				}
 				if ( true === $this->query_vars['update_cache'] && ! empty( $this->cache_key ) ) {
-					set_transient( 'multitaxo_multisite_wp_query_blogs_data_' . $this->cache_key, $this->blogs_data, 24 * HOUR_IN_SECONDS );
+					wp_cache_set( 'multitaxo_multisite_wp_query_blogs_data_' . $this->cache_key, $this->blogs_data, 24 * HOUR_IN_SECONDS );
 				}
 			}
 		}
@@ -292,7 +292,7 @@ class Multisite_WP_Query {
 	 */
 	protected function get_posts_from_cache() {
 		if ( true === $this->query_vars['cache'] && ! empty( $this->cache_key ) ) {
-			$cached_posts = get_transient( 'multitaxo_multisite_wp_query_posts_' . $this->cache_key );
+			$cached_posts = wp_cache_get( 'multitaxo_multisite_wp_query_posts_' . $this->cache_key );
 			if ( is_array( $cached_posts ) ) {
 				$this->posts = $cached_posts;
 				return true;
@@ -310,7 +310,7 @@ class Multisite_WP_Query {
 	 */
 	protected function get_sites_from_cache() {
 		if ( true === $this->query_vars['cache'] && ! empty( $this->cache_key ) ) {
-			$cached_blogs_data = get_transient( 'multitaxo_multisite_wp_query_blogs_data_' . $this->cache_key );
+			$cached_blogs_data = wp_cache_get( 'multitaxo_multisite_wp_query_blogs_data_' . $this->cache_key );
 			if ( is_array( $cached_blogs_data ) ) {
 				$this->blogs_data = $cached_blogs_data;
 				return true;
