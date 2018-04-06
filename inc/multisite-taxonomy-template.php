@@ -981,7 +981,7 @@ function get_the_multisite_terms( $post, $multisite_taxonomy ) {
 		return false;
 	}
 
-	$multisite_terms = get_object_term_cache( $post->ID, $multisite_taxonomy );
+	$multisite_terms = get_object_multisite_term_cache( $post->ID, $multisite_taxonomy );
 
 	var_dump( 'cache:', $multisite_terms );
 
