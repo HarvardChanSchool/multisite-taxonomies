@@ -982,6 +982,9 @@ function get_the_multisite_terms( $post, $multisite_taxonomy ) {
 	}
 
 	$multisite_terms = get_object_term_cache( $post->ID, $multisite_taxonomy );
+
+	var_dump( 'cache:', $multisite_terms );
+
 	if ( false === $multisite_terms ) {
 		$multisite_terms = get_object_multisite_terms( $post->ID, $multisite_taxonomy );
 		if ( ! is_wp_error( $multisite_terms ) ) {
@@ -989,6 +992,8 @@ function get_the_multisite_terms( $post, $multisite_taxonomy ) {
 			wp_cache_add( $post->ID, $multisite_term_ids, $multisite_taxonomy . '_relationships' );
 		}
 	}
+
+	var_dump( 'post cache:', $multisite_terms );
 
 	/**
 	 * Filters the list of multisite terms attached to the given post.
