@@ -493,7 +493,7 @@ class Multisite_Taxonomy_Meta_Box {
 			return $post_id;
 		}
 
-		if ( ! current_user_can( 'manage_multisite_terms', $post_id ) ) {
+		if ( ! current_user_can( 'assign_multisite_terms', $post_id ) ) {
 			return $post_id;
 		}
 
