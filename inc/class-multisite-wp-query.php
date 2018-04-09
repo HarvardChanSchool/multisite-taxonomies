@@ -12,10 +12,24 @@
 class Multisite_WP_Query {
 
 	/**
-	 * Query variables set by the user.
+	 * Query variables set by the user
 	 *
 	 * @access public
-	 * @var array
+	 * @var array {
+	 *     Optional query parameters.
+	 *
+	 * 'multisite_term_ids' => array(),
+	 *
+	 *     @type string $orderby       The field the query should be ordered by. Default 'name'.
+	 *     @type string $order         ASC or DESC odering. Default 'ASC'.
+	 *     @type int    $post_per_page How results should be returned. Default 10.
+	 *     @type int    $offset        How posts should be offset in the returned results. Default 0.
+	 *     @type array  $exclude       An array of excluded posts ID grouped by blog_ids.
+	 *                                 ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
+	 *                                 Default array().
+	 *     @type bool   $update_cache  Should the cache be created/updated with thids query. Default true.
+	 *     @type bool   $cache         Should the cached value be returned if it exists. False = bypass the cache. Default true.
+	 * }
 	 */
 	public $query_vars;
 
@@ -68,6 +82,7 @@ class Multisite_WP_Query {
 			'order'              => 'ASC',
 			'post_per_page'      => 10,
 			'offset'             => 0,
+			'exclude'            => array(),
 			'update_cache'       => true,
 			'cache'              => true,
 		);
@@ -112,6 +127,10 @@ class Multisite_WP_Query {
 
 		$query_vars['post_per_page'] = absint( $query_vars['post_per_page'] );
 		$query_vars['offset']        = absint( $query_vars['offset'] );
+
+		if ( is_array( $query_vars['exclude'] ) ) {
+			array_walk_recursive( $query_vars['exclude'], 'absint' );
+		}
 
 		if ( false !== $query_vars['cache'] ) {
 			$query_vars['cache'] = true;
@@ -176,6 +195,7 @@ class Multisite_WP_Query {
 							$this->blogs_data[ absint( $blog_id ) ] = array();
 						}
 						if ( is_array( $posts ) && ! empty( $posts ) ) {
+							$posts             = $this->filter_posts_with_exclude( $posts, $blog_id );
 							$post_ids          = implode( ',', $posts );
 							$query_per_blogs[] = 'SELECT p.ID,p.post_date,p.post_content,p.post_title,p.post_excerpt,p.post_name,p.post_type,m2.meta_value AS post_thumbnail,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'posts as p LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m ON p.ID=m.post_id AND m.meta_key="_thumbnail_id" LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m2 ON m.meta_value=m2.post_id AND m2.meta_key="_wp_attachment_metadata" WHERE p.ID IN( ' . $post_ids . ' ) AND p.post_status=\'publish\'';
 						}
@@ -211,6 +231,31 @@ class Multisite_WP_Query {
 		} else {
 			return 'DESC';
 		}
+	}
+
+	/**
+	 * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
+	 *
+	 * @access protected
+	 *
+	 * @param array $posts An array of post ids for the $blog_id.
+	 * @param int   $blog_id The blog ID for which we want to potentially exclude some posts.
+	 * @return array The filtered array of posts minus excluded ones.
+	 */
+	protected function filter_posts_with_exclude( $posts, $blog_id ) {
+		if ( isset( $this->query_vars['exclude'] ) && is_array( $this->query_vars['exclude'] ) && ! empty( $this->query_vars['exclude'] ) ) {
+			if ( is_array( $posts ) && is_int( $blog_id ) ) {
+				// We go through the list of exclusions the query received as parameter.
+				foreach ( $this->query_vars['exclude'] as $excludes_per_blog ) {
+					// Do we have posts for the current blog_id.
+					if ( isset( $excludes_per_blog['blog_id'] ) && $blog_id === $excludes_per_blog['blog_id'] && isset( $excludes_per_blog['exclude'] ) && is_array( $excludes_per_blog['exclude'] ) ) {
+						// We remove posts that are excluded.
+						$posts = array_diff( $posts, $excludes_per_blog['exclude'] );
+					}
+				}
+			}
+		}
+		return $posts;
 	}
 
 	/**
