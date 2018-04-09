@@ -20,15 +20,16 @@ class Multisite_WP_Query {
 	 *
 	 * 'multisite_term_ids' => array(),
 	 *
-	 *     @type string $orderby       The field the query should be ordered by. Default 'name'.
-	 *     @type string $order         ASC or DESC odering. Default 'ASC'.
-	 *     @type int    $post_per_page How results should be returned. Default 10.
-	 *     @type int    $offset        How posts should be offset in the returned results. Default 0.
-	 *     @type array  $exclude       An array of excluded posts ID grouped by blog_ids.
-	 *                                 ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
-	 *                                 Default array().
-	 *     @type bool   $update_cache  Should the cache be created/updated with thids query. Default true.
-	 *     @type bool   $cache         Should the cached value be returned if it exists. False = bypass the cache. Default true.
+	 *     @type string $orderby        The field the query should be ordered by. Default 'name'.
+	 *     @type string $order          ASC or DESC odering. Default 'ASC'.
+	 *     @type int    $posts_per_page How results should be returned. Default 10.
+	 *     @type int    $paged          The current archive page number. Default 0.
+	 *     @type bool   $nopaging       Disable paging, get all results. Default false.
+	 *     @type array  $exclude        An array of excluded posts ID grouped by blog_ids.
+	 *                                  ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
+	 *                                  Default array().
+	 *     @type bool   $update_cache   Should the cache be created/updated with thids query. Default true.
+	 *     @type bool   $cache          Should the cached value be returned if it exists. False = bypass the cache. Default true.
 	 * }
 	 */
 	public $query_vars;
@@ -80,8 +81,9 @@ class Multisite_WP_Query {
 			'multisite_term_ids' => array(),
 			'orderby'            => 'name',
 			'order'              => 'ASC',
-			'post_per_page'      => 10,
-			'offset'             => 0,
+			'posts_per_page'     => 10,
+			'paged'              => 0,
+			'nopaging'           => false,
 			'exclude'            => array(),
 			'update_cache'       => true,
 			'cache'              => true,
@@ -125,8 +127,16 @@ class Multisite_WP_Query {
 
 		$query_vars['order'] = $this->parse_order( $query_vars['order'] );
 
-		$query_vars['post_per_page'] = absint( $query_vars['post_per_page'] );
-		$query_vars['offset']        = absint( $query_vars['offset'] );
+		// -1 is and accepted value for posts_per_page, it means no pagination. While unclean,
+		// this is a behavior of WP Query very commonly used, therfor people might exeptect
+		// it to work the same way.
+		if ( -1 !== $query_vars['posts_per_page'] ) {
+			$query_vars['posts_per_page'] = absint( $query_vars['posts_per_page'] );
+		}
+		$query_vars['paged'] = absint( $query_vars['paged'] );
+		if ( true !== $query_vars['nopaging'] ) {
+			$query_vars['nopaging'] = false;
+		}
 
 		if ( is_array( $query_vars['exclude'] ) ) {
 			array_walk_recursive( $query_vars['exclude'], 'absint' );
@@ -203,7 +213,8 @@ class Multisite_WP_Query {
 					if ( ! empty( $query_per_blogs ) ) {
 						$db_posts_query = implode( ' UNION ', $query_per_blogs );
 					}
-					$this->posts = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
+					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_limit();
+					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
 				}
 			}
 			// We set the cache if we have to.
@@ -211,6 +222,29 @@ class Multisite_WP_Query {
 				wp_cache_set( 'multitaxo_multisite_wp_query_posts_' . $this->cache_key, $this->posts, 24 * HOUR_IN_SECONDS );
 			}
 		}
+	}
+
+	/**
+	 * Return the LIMIT statement for the the global Multisite WP Query SQL query based on pagination query params.
+	 *
+	 * @access protected
+	 *
+	 * @return string The limit statement for the global Multisite WP Query.
+	 */
+	protected function get_query_limit() {
+
+		$limit_statement = '';
+
+		// Pagination is not disabled.
+		if ( -1 !== $this->query_vars['posts_per_page'] && false === $this->query_vars['nopaging'] ) {
+			$limit_statement = 'LIMIT ' . absint( $this->query_vars['posts_per_page'] );
+			if ( $this->query_vars['paged'] > 0 ) {
+				$offset           = absint( $this->query_vars['paged'] ) * absint( $this->query_vars['posts_per_page'] );
+				$limit_statement .= ' OFFSET ' . $offset;
+			}
+		}
+
+		return $limit_statement;
 	}
 
 	/**
