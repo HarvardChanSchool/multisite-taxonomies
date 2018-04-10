@@ -39,7 +39,7 @@ class Multisite_Taxonomy_Meta_Box {
 	 * @return void
 	 */
 	public function add_multsite_taxonomy_meta_box( $post_type, $post ) {
-		if ( count( (array) get_object_multisite_taxonomies( $post_type ) ) > 0 ) {
+		if ( count( (array) get_object_multisite_taxonomies( $post_type ) ) > 0 && ( current_user_can( 'assign_multisite_terms' ) ) ) {
 			add_meta_box( 'multsite_taxonomy_meta_box', esc_html__( 'Multisite Tags', 'multitaxo' ), array( $this, 'multisite_taxonomy_meta_box_callback' ), null, 'advanced', 'default', array( $post, $post_type ) );
 		}
 	}
@@ -493,7 +493,7 @@ class Multisite_Taxonomy_Meta_Box {
 			return $post_id;
 		}
 
-		if ( ! current_user_can( 'manage_multisite_terms', $post_id ) ) {
+		if ( ! current_user_can( 'assign_multisite_terms', $post_id ) ) {
 			return $post_id;
 		}
 
