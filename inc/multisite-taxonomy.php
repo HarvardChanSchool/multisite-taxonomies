@@ -1355,6 +1355,11 @@ function delete_object_multisite_term_relationships( $object_id, $multisite_taxo
 function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = array() ) {
 	global $wpdb;
 
+	// If the user cannot manage multisite terms then kick back.
+	if ( ! current_user_can( 'manage_multisite_terms' ) ) {
+		return false;
+	}
+
 	$multisite_term = (int) $multisite_term;
 	$ids            = multisite_term_exists( $multisite_term, $multisite_taxonomy );
 	if ( ! $ids ) {
@@ -1635,6 +1640,11 @@ function get_object_multisite_terms( $object_ids, $multisite_taxonomies, $blog_i
  */
 function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = array() ) {
 	global $wpdb;
+
+	// If the user cannot create multisite terms then kick back.
+	if ( ! current_user_can( 'manage_multisite_terms' ) ) {
+		return new WP_Error( 'invalid_multisite_create_permissions', __( 'You are not authorized to create multisite terms.', 'multitaxo' ) );
+	}
 
 	if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
 		return new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.', 'multitaxo' ) );
@@ -1931,6 +1941,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 	if ( ! is_array( $multisite_terms ) ) {
 		$multisite_terms = array( $multisite_terms );
 	}
+
 	if ( ! $append ) {
 		$old_mtmt_ids = get_object_multisite_terms(
 			$object_id, $multisite_taxonomy, $blog_id, array(
@@ -1941,6 +1952,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 	} else {
 		$old_mtmt_ids = array();
 	}
+
 	$mtmt_ids           = array();
 	$multisite_term_ids = array();
 	$new_mtmt_ids       = array();
@@ -1955,6 +1967,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 			if ( is_int( $multisite_term ) ) {
 				continue;
 			}
+
 			$multisite_term_info = insert_multisite_term( $multisite_term, $multisite_taxonomy );
 		}
 		if ( is_wp_error( $multisite_term_info ) ) {
@@ -2276,6 +2289,11 @@ function unique_multisite_term_slug( $slug, $multisite_term ) {
  */
 function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args = array() ) {
 	global $wpdb;
+
+	// If the user cannot manage multisite terms then kick back.
+	if ( ! current_user_can( 'manage_multisite_terms' ) ) {
+		return new WP_Error( 'invalid_user_permissions', __( 'You do not have permissions to manage multisite terms.', 'multitaxo' ) );
+	}
 
 	if ( ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
 		return new WP_Error( 'invalid_multisite_taxonomy', __( 'Invalid multisite taxonomy.', 'multitaxo' ) );
