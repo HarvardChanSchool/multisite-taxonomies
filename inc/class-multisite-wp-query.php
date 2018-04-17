@@ -248,6 +248,114 @@ class Multisite_WP_Query {
 	}
 
 	/**
+	 * Converts the given orderby alias (if allowed) to a properly-prefixed value.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * @param string $orderby Alias for the field to order by.
+	 * @return string|false Table-prefixed value to used in the ORDER clause. False otherwise.
+	 */
+	protected function parse_orderby( $orderby ) {
+		global $wpdb;
+
+		// Used to filter values.
+		$allowed_keys = array(
+			'post_name',
+			'post_author',
+			'post_date',
+			'post_title',
+			'post_modified',
+			'post_parent',
+			'post_type',
+			'name',
+			'author',
+			'date',
+			'title',
+			'modified',
+			'parent',
+			'type',
+			'ID',
+			'menu_order',
+			'comment_count',
+			'rand',
+		);
+
+		$primary_meta_key   = '';
+		$primary_meta_query = false;
+		$meta_clauses       = $this->meta_query->get_clauses();
+		if ( ! empty( $meta_clauses ) ) {
+			$primary_meta_query = reset( $meta_clauses );
+
+			if ( ! empty( $primary_meta_query['key'] ) ) {
+				$primary_meta_key = $primary_meta_query['key'];
+				$allowed_keys[]   = $primary_meta_key;
+			}
+
+			$allowed_keys[] = 'meta_value';
+			$allowed_keys[] = 'meta_value_num';
+			$allowed_keys   = array_merge( $allowed_keys, array_keys( $meta_clauses ) );
+		}
+
+		// If RAND() contains a seed value, sanitize and add to allowed keys.
+		$rand_with_seed = false;
+		if ( preg_match( '/RAND\(([0-9]+)\)/i', $orderby, $matches ) ) {
+			$orderby        = sprintf( 'RAND(%s)', intval( $matches[1] ) );
+			$allowed_keys[] = $orderby;
+			$rand_with_seed = true;
+		}
+
+		if ( ! in_array( $orderby, $allowed_keys, true ) ) {
+			return false;
+		}
+
+		switch ( $orderby ) {
+			case 'post_name':
+			case 'post_author':
+			case 'post_date':
+			case 'post_title':
+			case 'post_modified':
+			case 'post_parent':
+			case 'post_type':
+			case 'ID':
+			case 'menu_order':
+			case 'comment_count':
+				$orderby_clause = "{$wpdb->posts}.{$orderby}";
+				break;
+			case 'rand':
+				$orderby_clause = 'RAND()';
+				break;
+			case $primary_meta_key:
+			case 'meta_value':
+				if ( ! empty( $primary_meta_query['type'] ) ) {
+					$orderby_clause = "CAST({$primary_meta_query['alias']}.meta_value AS {$primary_meta_query['cast']})";
+				} else {
+					$orderby_clause = "{$primary_meta_query['alias']}.meta_value";
+				}
+				break;
+			case 'meta_value_num':
+				$orderby_clause = "{$primary_meta_query['alias']}.meta_value+0";
+				break;
+			default:
+				if ( array_key_exists( $orderby, $meta_clauses ) ) {
+					// $orderby corresponds to a meta_query clause.
+					$meta_clause    = $meta_clauses[ $orderby ];
+					$orderby_clause = "CAST({$meta_clause['alias']}.meta_value AS {$meta_clause['cast']})";
+				} elseif ( $rand_with_seed ) {
+					$orderby_clause = $orderby;
+				} else {
+					// Default: order by post field.
+					$orderby_clause = "{$wpdb->posts}.post_" . sanitize_key( $orderby );
+				}
+
+				break;
+		}
+
+		return $orderby_clause;
+	}
+
+	/**
 	 * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
 	 *
 	 * @access protected
@@ -344,11 +452,13 @@ class Multisite_WP_Query {
 				$blogs_ids[] = absint( $blog_id );
 			}
 			// Get the sites/blogs info, we limit to the required blogs for the current query.
-			$network_sites = get_sites( array(
-				'site__in' => $blogs_ids,
-				'deleted'  => 0,
-				'archived' => 0,
-			) );
+			$network_sites = get_sites(
+				array(
+					'site__in' => $blogs_ids,
+					'deleted'  => 0,
+					'archived' => 0,
+				)
+			);
 			// For convenience we sort the data in an asociative array using the blog_id as a key for easy access.
 			if ( is_array( $network_sites ) && ! empty( $network_sites ) ) {
 				foreach ( $network_sites as $blog ) {
