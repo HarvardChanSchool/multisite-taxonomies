@@ -121,17 +121,6 @@ class Multisite_WP_Query {
 			return new WP_Error( 'multisite_wp_query_terms_required', __( 'No Multisite Terms IDs passed to query.', 'multitaxo' ) );
 		}
 
-		if ( in_array( $query_vars['orderby'], array( 'are', 'abc', 'xyz', 'lmn' ), true ) ) {
-			$query_vars['orderby'] = $this->query_var_defaults['orderby'];
-		}
-
-		$rand = ( isset( $q['orderby'] ) && 'rand' === $q['orderby'] );
-		if ( ! isset( $q['order'] ) ) {
-			$q['order'] = $rand ? '' : 'DESC';
-		} else {
-			$q['order'] = $rand ? '' : $this->parse_order( $q['order'] );
-		}
-
 		// -1 is and accepted value for posts_per_page, it means no pagination. While unclean,
 		// this is a behavior of WP Query very commonly used, therfor people might exeptect
 		// it to work the same way.
@@ -181,11 +170,9 @@ class Multisite_WP_Query {
 		 * (e.g. $this->is_main_query() instead of is_main_query()). This is because the functions
 		 * like is_main_query() test against the global $wp_query instance, not the passed one.
 		 *
-		 * @since 2.0.0
-		 *
 		 * @param WP_Multiste_Query $this The WP_Multiste_Query instance (passed by reference).
 		 */
-		do_action_ref_array( 'pre_get_multisite_posts', array( &$this) );
+		do_action_ref_array( 'pre_get_multisite_posts', array( &$this ) );
 
 		if ( is_wp_error( $this->query_vars ) ) {
 			return $this->query_vars;
@@ -228,10 +215,79 @@ class Multisite_WP_Query {
 							$query_per_blogs[] = 'SELECT p.ID,p.post_date,p.post_content,p.post_title,p.post_excerpt,p.post_name,p.post_type,m2.meta_value AS post_thumbnail,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'posts as p LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m ON p.ID=m.post_id AND m.meta_key="_thumbnail_id" LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m2 ON m.meta_value=m2.post_id AND m2.meta_key="_wp_attachment_metadata" WHERE p.ID IN( ' . $post_ids . ' ) AND p.post_status=\'publish\'';
 						}
 					}
+
 					if ( ! empty( $query_per_blogs ) ) {
 						$db_posts_query = implode( ' UNION ', $query_per_blogs );
 					}
-					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_limit();
+
+					// Check the order by for random.
+					$rand = ( isset( $this->query_vars['orderby'] ) && 'rand' === $this->query_vars['orderby'] );
+
+					// We need to have an order specified to adjust order direction.
+					if ( ! isset( $this->query_vars['order'] ) ) {
+						$this->query_vars['order'] = $rand ? '' : 'DESC';
+					} else {
+						$this->query_vars['order'] = $rand ? '' : $this->parse_order( $this->query_vars['order'] );
+					}
+
+					// Order by.
+					if ( empty( $this->query_vars['orderby'] ) ) {
+						/*
+						 * Boolean false or empty array blanks out ORDER BY,
+						 * while leaving the value unset or otherwise empty sets the default.
+						 */
+						if ( isset( $this->query_vars['orderby'] ) && ( is_array( $this->query_vars['orderby'] ) || false === $this->query_vars['orderby'] ) ) {
+							$orderby = '';
+						} else {
+							$orderby = "{$wpdb->posts}.post_date " . $this->query_vars['order'];
+						}
+					} elseif ( 'none' == $this->query_vars['orderby'] ) {
+						$orderby = '';
+					} elseif ( $this->query_vars['orderby'] == 'post__in' && ! empty( $post__in ) ) {
+						$orderby = "FIELD( {$wpdb->posts}.ID, $post__in )";
+					} elseif ( $this->query_vars['orderby'] == 'post_parent__in' && ! empty( $post_parent__in ) ) {
+						$orderby = "FIELD( {$wpdb->posts}.post_parent, $post_parent__in )";
+					} elseif ( $this->query_vars['orderby'] == 'post_name__in' && ! empty( $post_name__in ) ) {
+						$orderby = "FIELD( {$wpdb->posts}.post_name, $post_name__in )";
+					} else {
+						$orderby_array = array();
+						if ( is_array( $this->query_vars['orderby'] ) ) {
+							foreach ( $this->query_vars['orderby'] as $_orderby => $order ) {
+								$orderby = addslashes_gpc( urldecode( $_orderby ) );
+								$parsed  = $this->parse_orderby( $orderby );
+
+								if ( ! $parsed ) {
+									continue;
+								}
+
+								$orderby_array[] = $parsed . ' ' . $this->parse_order( $order );
+							}
+							$orderby = implode( ', ', $orderby_array );
+
+						} else {
+							$this->query_vars['orderby'] = urldecode( $this->query_vars['orderby'] );
+							$this->query_vars['orderby'] = addslashes_gpc( $this->query_vars['orderby'] );
+
+							foreach ( explode( ' ', $this->query_vars['orderby'] ) as $i => $orderby ) {
+								$parsed = $this->parse_orderby( $orderby );
+								// Only allow certain values for safety.
+								if ( ! $parsed ) {
+									continue;
+								}
+
+								$orderby_array[] = $parsed;
+							}
+							$orderby = implode( ' ' . $this->query_vars['order'] . ', ', $orderby_array );
+
+							if ( empty( $orderby ) ) {
+								$orderby = "{$wpdb->posts}.post_date " . $this->query_vars['order'];
+							} elseif ( ! empty( $this->query_vars['order'] ) ) {
+								$orderby .= " {$this->query_vars['order']}";
+							}
+						}
+					}
+
+					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $orderby . $this->get_query_limit();
 					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
 				}
 			}
