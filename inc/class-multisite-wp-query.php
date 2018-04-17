@@ -174,6 +174,19 @@ class Multisite_WP_Query {
 
 		$this->query_vars = $this->parse_query( $query_vars );
 
+		/**
+		 * Fires after the query variable object is created, but before the actual query is run.
+		 *
+		 * Note: If using conditional tags, use the method versions within the passed instance
+		 * (e.g. $this->is_main_query() instead of is_main_query()). This is because the functions
+		 * like is_main_query() test against the global $wp_query instance, not the passed one.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param WP_Multiste_Query $this The WP_Multiste_Query instance (passed by reference).
+		 */
+		do_action_ref_array( 'pre_get_multisite_posts', array( &$this) );
+
 		if ( is_wp_error( $this->query_vars ) ) {
 			return $this->query_vars;
 		}
