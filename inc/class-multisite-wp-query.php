@@ -125,7 +125,12 @@ class Multisite_WP_Query {
 			$query_vars['orderby'] = $this->query_var_defaults['orderby'];
 		}
 
-		$query_vars['order'] = $this->parse_order( $query_vars['order'] );
+		$rand = ( isset( $q['orderby'] ) && 'rand' === $q['orderby'] );
+		if ( ! isset( $q['order'] ) ) {
+			$q['order'] = $rand ? '' : 'DESC';
+		} else {
+			$q['order'] = $rand ? '' : $this->parse_order( $q['order'] );
+		}
 
 		// -1 is and accepted value for posts_per_page, it means no pagination. While unclean,
 		// this is a behavior of WP Query very commonly used, therfor people might exeptect
