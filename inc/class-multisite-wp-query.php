@@ -18,18 +18,17 @@ class Multisite_WP_Query {
 	 * @var array {
 	 *     Optional query parameters.
 	 *
-	 * 'multisite_term_ids' => array(),
-	 *
-	 *     @type string $orderby        The field the query should be ordered by. Default 'name'.
-	 *     @type string $order          ASC or DESC odering. Default 'ASC'.
-	 *     @type int    $posts_per_page How results should be returned. Default 10.
-	 *     @type int    $paged          The current archive page number. Default 0.
-	 *     @type bool   $nopaging       Disable paging, get all results. Default false.
-	 *     @type array  $exclude        An array of excluded posts ID grouped by blog_ids.
-	 *                                  ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
-	 *                                  Default array().
-	 *     @type bool   $update_cache   Should the cache be created/updated with thids query. Default true.
-	 *     @type bool   $cache          Should the cached value be returned if it exists. False = bypass the cache. Default true.
+	 *     @type array  $multisite_term_ids The list of multisite_term_ids we want to retreive posts for.
+	 *     @type string $orderby            The field the query should be ordered by. Default 'name'.
+	 *     @type string $order              ASC or DESC odering. Default 'ASC'.
+	 *     @type int    $posts_per_page     How results should be returned. Default 10.
+	 *     @type int    $paged              The current archive page number. Default 0.
+	 *     @type bool   $nopaging           Disable paging, get all results. Default false.
+	 *     @type array  $exclude            An array of excluded posts ID grouped by blog_ids.
+	 *                                      ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
+	 *                                      Default array().
+	 *     @type bool   $update_cache       Should the cache be created/updated with thids query. Default true.
+	 *     @type bool   $cache              Should the cached value be returned if it exists. False = bypass the cache. Default true.
 	 * }
 	 */
 	public $query_vars;
