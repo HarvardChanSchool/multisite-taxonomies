@@ -336,18 +336,12 @@ class Multisite_WP_Query {
 		// Used to filter values.
 		$allowed_keys = array(
 			'post_name',
-			'post_author',
 			'post_date',
 			'post_title',
-			'post_modified',
-			'post_parent',
 			'post_type',
 			'name',
-			'author',
 			'date',
 			'title',
-			'modified',
-			'parent',
 			'type',
 			'ID',
 			'rand',
@@ -367,11 +361,8 @@ class Multisite_WP_Query {
 
 		switch ( $orderby ) {
 			case 'post_name':
-			case 'post_author':
 			case 'post_date':
 			case 'post_title':
-			case 'post_modified':
-			case 'post_parent':
 			case 'post_type':
 			case 'ID':
 				$orderby_clause = $orderby;
