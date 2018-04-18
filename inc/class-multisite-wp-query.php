@@ -239,16 +239,10 @@ class Multisite_WP_Query {
 						if ( isset( $this->query_vars['orderby'] ) && ( is_array( $this->query_vars['orderby'] ) || false === $this->query_vars['orderby'] ) ) {
 							$orderby = '';
 						} else {
-							$orderby = "{$wpdb->posts}.post_date " . $this->query_vars['order'];
+							$orderby = 'post_date ' . $this->query_vars['order'];
 						}
-					} elseif ( 'none' == $this->query_vars['orderby'] ) {
+					} elseif ( 'none' === $this->query_vars['orderby'] ) {
 						$orderby = '';
-					} elseif ( $this->query_vars['orderby'] == 'post__in' && ! empty( $post__in ) ) {
-						$orderby = "FIELD( {$wpdb->posts}.ID, $post__in )";
-					} elseif ( $this->query_vars['orderby'] == 'post_parent__in' && ! empty( $post_parent__in ) ) {
-						$orderby = "FIELD( {$wpdb->posts}.post_parent, $post_parent__in )";
-					} elseif ( $this->query_vars['orderby'] == 'post_name__in' && ! empty( $post_name__in ) ) {
-						$orderby = "FIELD( {$wpdb->posts}.post_name, $post_name__in )";
 					} else {
 						$orderby_array = array();
 						if ( is_array( $this->query_vars['orderby'] ) ) {
@@ -280,10 +274,15 @@ class Multisite_WP_Query {
 							$orderby = implode( ' ' . $this->query_vars['order'] . ', ', $orderby_array );
 
 							if ( empty( $orderby ) ) {
-								$orderby = "{$wpdb->posts}.post_date " . $this->query_vars['order'];
+								$orderby = 'post_date ' . $this->query_vars['order'];
 							} elseif ( ! empty( $this->query_vars['order'] ) ) {
 								$orderby .= " {$this->query_vars['order']}";
 							}
+						}
+
+						// Prepend the order by to the clause.
+						if ( ! empty( $orderby ) ) {
+							$orderby = 'ORDER BY ' . $orderby;
 						}
 					}
 
@@ -351,26 +350,8 @@ class Multisite_WP_Query {
 			'parent',
 			'type',
 			'ID',
-			'menu_order',
-			'comment_count',
 			'rand',
 		);
-
-		$primary_meta_key   = '';
-		$primary_meta_query = false;
-		$meta_clauses       = $this->meta_query->get_clauses();
-		if ( ! empty( $meta_clauses ) ) {
-			$primary_meta_query = reset( $meta_clauses );
-
-			if ( ! empty( $primary_meta_query['key'] ) ) {
-				$primary_meta_key = $primary_meta_query['key'];
-				$allowed_keys[]   = $primary_meta_key;
-			}
-
-			$allowed_keys[] = 'meta_value';
-			$allowed_keys[] = 'meta_value_num';
-			$allowed_keys   = array_merge( $allowed_keys, array_keys( $meta_clauses ) );
-		}
 
 		// If RAND() contains a seed value, sanitize and add to allowed keys.
 		$rand_with_seed = false;
@@ -393,34 +374,17 @@ class Multisite_WP_Query {
 			case 'post_parent':
 			case 'post_type':
 			case 'ID':
-			case 'menu_order':
-			case 'comment_count':
-				$orderby_clause = "{$wpdb->posts}.{$orderby}";
+				$orderby_clause = $orderby;
 				break;
 			case 'rand':
 				$orderby_clause = 'RAND()';
 				break;
-			case $primary_meta_key:
-			case 'meta_value':
-				if ( ! empty( $primary_meta_query['type'] ) ) {
-					$orderby_clause = "CAST({$primary_meta_query['alias']}.meta_value AS {$primary_meta_query['cast']})";
-				} else {
-					$orderby_clause = "{$primary_meta_query['alias']}.meta_value";
-				}
-				break;
-			case 'meta_value_num':
-				$orderby_clause = "{$primary_meta_query['alias']}.meta_value+0";
-				break;
 			default:
-				if ( array_key_exists( $orderby, $meta_clauses ) ) {
-					// $orderby corresponds to a meta_query clause.
-					$meta_clause    = $meta_clauses[ $orderby ];
-					$orderby_clause = "CAST({$meta_clause['alias']}.meta_value AS {$meta_clause['cast']})";
-				} elseif ( $rand_with_seed ) {
+				if ( $rand_with_seed ) {
 					$orderby_clause = $orderby;
 				} else {
 					// Default: order by post field.
-					$orderby_clause = "{$wpdb->posts}.post_" . sanitize_key( $orderby );
+					$orderby_clause = 'post_' . sanitize_key( $orderby );
 				}
 
 				break;
