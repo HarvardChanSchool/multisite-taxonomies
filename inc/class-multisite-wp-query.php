@@ -121,12 +121,6 @@ class Multisite_WP_Query {
 			return new WP_Error( 'multisite_wp_query_terms_required', __( 'No Multisite Terms IDs passed to query.', 'multitaxo' ) );
 		}
 
-		if ( in_array( $query_vars['orderby'], array( 'are', 'abc', 'xyz', 'lmn' ), true ) ) {
-			$query_vars['orderby'] = $this->query_var_defaults['orderby'];
-		}
-
-		$query_vars['order'] = $this->parse_order( $query_vars['order'] );
-
 		// -1 is and accepted value for posts_per_page, it means no pagination. While unclean,
 		// this is a behavior of WP Query very commonly used, therfor people might exeptect
 		// it to work the same way.
@@ -210,10 +204,78 @@ class Multisite_WP_Query {
 							$query_per_blogs[] = 'SELECT p.ID,p.post_date,p.post_content,p.post_title,p.post_excerpt,p.post_name,p.post_type,m2.meta_value AS post_thumbnail,(@blog_id := ' . absint( $blog_id ) . ') AS blog_id FROM ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'posts as p LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m ON p.ID=m.post_id AND m.meta_key="_thumbnail_id" LEFT OUTER JOIN ' . $wpdb->get_blog_prefix( absint( $blog_id ) ) . 'postmeta as m2 ON m.meta_value=m2.post_id AND m2.meta_key="_wp_attachment_metadata" WHERE p.ID IN( ' . $post_ids . ' ) AND p.post_status=\'publish\'';
 						}
 					}
+
 					if ( ! empty( $query_per_blogs ) ) {
 						$db_posts_query = implode( ' UNION ', $query_per_blogs );
 					}
-					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_limit();
+
+					// Check the order by for random.
+					$rand = ( isset( $this->query_vars['orderby'] ) && 'rand' === $this->query_vars['orderby'] );
+
+					// We need to have an order specified to adjust order direction.
+					if ( ! isset( $this->query_vars['order'] ) ) {
+						$this->query_vars['order'] = $rand ? '' : 'DESC';
+					} else {
+						$this->query_vars['order'] = $rand ? '' : $this->parse_order( $this->query_vars['order'] );
+					}
+
+					// Order by.
+					if ( empty( $this->query_vars['orderby'] ) ) {
+						/*
+						 * Boolean false or empty array blanks out ORDER BY,
+						 * while leaving the value unset or otherwise empty sets the default.
+						 */
+						if ( isset( $this->query_vars['orderby'] ) && ( is_array( $this->query_vars['orderby'] ) || false === $this->query_vars['orderby'] ) ) {
+							$orderby = '';
+						} else {
+							$orderby = 'post_date ' . $this->query_vars['order'];
+						}
+					} elseif ( 'none' === $this->query_vars['orderby'] ) {
+						$orderby = '';
+					} else {
+						$orderby_array = array();
+						if ( is_array( $this->query_vars['orderby'] ) ) {
+							foreach ( $this->query_vars['orderby'] as $_orderby => $order ) {
+								$orderby = addslashes_gpc( urldecode( $_orderby ) );
+								$parsed  = $this->parse_orderby( $orderby );
+
+								if ( ! $parsed ) {
+									continue;
+								}
+
+								$orderby_array[] = $parsed . ' ' . $this->parse_order( $order );
+							}
+							$orderby = implode( ', ', $orderby_array );
+
+						} else {
+							$this->query_vars['orderby'] = urldecode( $this->query_vars['orderby'] );
+							$this->query_vars['orderby'] = addslashes_gpc( $this->query_vars['orderby'] );
+
+							foreach ( explode( ' ', $this->query_vars['orderby'] ) as $i => $orderby ) {
+								$parsed = $this->parse_orderby( $orderby );
+								// Only allow certain values for safety.
+								if ( ! $parsed ) {
+									continue;
+								}
+
+								$orderby_array[] = $parsed;
+							}
+							$orderby = implode( ' ' . $this->query_vars['order'] . ', ', $orderby_array );
+
+							if ( empty( $orderby ) ) {
+								$orderby = 'post_date ' . $this->query_vars['order'];
+							} elseif ( ! empty( $this->query_vars['order'] ) ) {
+								$orderby .= " {$this->query_vars['order']}";
+							}
+						}
+
+						// Prepend the order by to the clause.
+						if ( ! empty( $orderby ) ) {
+							$orderby = 'ORDER BY ' . $orderby;
+						}
+					}
+
+					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $orderby . $this->get_query_limit();
 					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
 				}
 			}
@@ -245,6 +307,70 @@ class Multisite_WP_Query {
 		}
 
 		return $limit_statement;
+	}
+
+	/**
+	 * Converts the given orderby alias (if allowed) to a properly-prefixed value.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * @param string $orderby Alias for the field to order by.
+	 * @return string|false Table-prefixed value to used in the ORDER clause. False otherwise.
+	 */
+	protected function parse_orderby( $orderby ) {
+		global $wpdb;
+
+		// Used to filter values.
+		$allowed_keys = array(
+			'post_name',
+			'post_date',
+			'post_title',
+			'post_type',
+			'name',
+			'date',
+			'title',
+			'type',
+			'ID',
+			'rand',
+		);
+
+		// If RAND() contains a seed value, sanitize and add to allowed keys.
+		$rand_with_seed = false;
+		if ( preg_match( '/RAND\(([0-9]+)\)/i', $orderby, $matches ) ) {
+			$orderby        = sprintf( 'RAND(%s)', intval( $matches[1] ) );
+			$allowed_keys[] = $orderby;
+			$rand_with_seed = true;
+		}
+
+		if ( ! in_array( $orderby, $allowed_keys, true ) ) {
+			return false;
+		}
+
+		switch ( $orderby ) {
+			case 'post_name':
+			case 'post_date':
+			case 'post_title':
+			case 'post_type':
+			case 'ID':
+				$orderby_clause = $orderby;
+				break;
+			case 'rand':
+				$orderby_clause = 'RAND()';
+				break;
+			default:
+				if ( $rand_with_seed ) {
+					$orderby_clause = $orderby;
+				} else {
+					// Default: order by post field.
+					$orderby_clause = 'post_' . sanitize_key( $orderby );
+				}
+
+				break;
+		}
+
+		return $orderby_clause;
 	}
 
 	/**
@@ -344,11 +470,13 @@ class Multisite_WP_Query {
 				$blogs_ids[] = absint( $blog_id );
 			}
 			// Get the sites/blogs info, we limit to the required blogs for the current query.
-			$network_sites = get_sites( array(
-				'site__in' => $blogs_ids,
-				'deleted'  => 0,
-				'archived' => 0,
-			) );
+			$network_sites = get_sites(
+				array(
+					'site__in' => $blogs_ids,
+					'deleted'  => 0,
+					'archived' => 0,
+				)
+			);
 			// For convenience we sort the data in an asociative array using the blog_id as a key for easy access.
 			if ( is_array( $network_sites ) && ! empty( $network_sites ) ) {
 				foreach ( $network_sites as $blog ) {
