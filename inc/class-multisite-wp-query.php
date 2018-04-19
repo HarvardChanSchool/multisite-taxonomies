@@ -18,18 +18,17 @@ class Multisite_WP_Query {
 	 * @var array {
 	 *     Optional query parameters.
 	 *
-	 * 'multisite_term_ids' => array(),
-	 *
-	 *     @type string $orderby        The field the query should be ordered by. Default 'name'.
-	 *     @type string $order          ASC or DESC odering. Default 'ASC'.
-	 *     @type int    $posts_per_page How results should be returned. Default 10.
-	 *     @type int    $paged          The current archive page number. Default 0.
-	 *     @type bool   $nopaging       Disable paging, get all results. Default false.
-	 *     @type array  $exclude        An array of excluded posts ID grouped by blog_ids.
-	 *                                  ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
-	 *                                  Default array().
-	 *     @type bool   $update_cache   Should the cache be created/updated with thids query. Default true.
-	 *     @type bool   $cache          Should the cached value be returned if it exists. False = bypass the cache. Default true.
+	 *     @type array  $multisite_term_ids The list of multisite_term_ids we want to retreive posts for.
+	 *     @type string $orderby            The field the query should be ordered by. Default 'post_date'. Accepted values are: none, post_title, post_date
+	 *     @type string $order              ASC or DESC odering. Default 'DESC'.
+	 *     @type int    $posts_per_page     How results should be returned. Default 10.
+	 *     @type int    $paged              The current archive page number. Default 0.
+	 *     @type bool   $nopaging           Disable paging, get all results. Default false.
+	 *     @type array  $exclude            An array of excluded posts ID grouped by blog_ids.
+	 *                                      ie: [ [ "blog_id" : 1, "exclude" : [ 25,54,79 ] ], [ "blog_id" : 12, "exclude" : [ 14 ] ] ].
+	 *                                      Default array().
+	 *     @type bool   $update_cache       Should the cache be created/updated with thids query. Default true.
+	 *     @type bool   $cache              Should the cached value be returned if it exists. False = bypass the cache. Default true.
 	 * }
 	 */
 	public $query_vars;
@@ -79,8 +78,8 @@ class Multisite_WP_Query {
 		// Defaults values.
 		$this->query_var_defaults = array(
 			'multisite_term_ids' => array(),
-			'orderby'            => 'name',
-			'order'              => 'ASC',
+			'orderby'            => 'post_date',
+			'order'              => 'DESC',
 			'posts_per_page'     => 10,
 			'paged'              => 0,
 			'nopaging'           => false,
@@ -121,7 +120,7 @@ class Multisite_WP_Query {
 			return new WP_Error( 'multisite_wp_query_terms_required', __( 'No Multisite Terms IDs passed to query.', 'multitaxo' ) );
 		}
 
-		if ( in_array( $query_vars['orderby'], array( 'are', 'abc', 'xyz', 'lmn' ), true ) ) {
+		if ( ! in_array( $query_vars['orderby'], array( 'none', 'post_title', 'post_date' ), true ) ) {
 			$query_vars['orderby'] = $this->query_var_defaults['orderby'];
 		}
 
@@ -213,7 +212,7 @@ class Multisite_WP_Query {
 					if ( ! empty( $query_per_blogs ) ) {
 						$db_posts_query = implode( ' UNION ', $query_per_blogs );
 					}
-					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_limit();
+					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_order() . ' ' . $this->get_query_limit();
 					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
 				}
 			}
@@ -245,6 +244,25 @@ class Multisite_WP_Query {
 		}
 
 		return $limit_statement;
+	}
+
+	/**
+	 * Return the ORDER BY statement for the the global Multisite WP Query SQL query based on pagination query params.
+	 *
+	 * @access protected
+	 *
+	 * @return string The limit statement for the global Multisite WP Query.
+	 */
+	protected function get_query_order() {
+
+		$order_statement = '';
+
+		// Pagination is not disabled.
+		if ( 'none' !== $this->query_vars['posts_per_page'] ) {
+			$order_statement = ' ORDER BY ' . esc_sql( $this->query_vars['orderby'] ) . ' ' . esc_sql( $this->query_vars['order'] );
+		}
+
+		return $order_statement;
 	}
 
 	/**
