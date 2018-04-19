@@ -259,7 +259,7 @@ class Multisite_WP_Query {
 
 		// Pagination is not disabled.
 		if ( 'none' !== $this->query_vars['posts_per_page'] ) {
-			$order_statement = ' ORDER BY ' . esc_sql( $this->query_vars['order_by'] ) . ' ' . esc_sql( $this->query_vars['order_'] );
+			$order_statement = ' ORDER BY ' . esc_sql( $this->query_vars['orderby'] ) . ' ' . esc_sql( $this->query_vars['order'] );
 		}
 
 		return $order_statement;
