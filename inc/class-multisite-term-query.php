@@ -646,12 +646,12 @@ class Multisite_Term_Query {
 		}
 
 		if ( 'count' === $_fields ) {
-			$count = $wpdb->get_var( $this->request ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$count = $wpdb->get_var( $this->request );
 			wp_cache_set( $cache_key, $count, 'multisite_terms' );
 			return $count;
 		}
 
-		$multisite_terms = $wpdb->get_results( $this->request ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$multisite_terms = $wpdb->get_results( $this->request );
 		if ( 'all' === $_fields || 'all_with_object_id' === $_fields ) {
 			update_multisite_term_cache( $multisite_terms );
 		}
