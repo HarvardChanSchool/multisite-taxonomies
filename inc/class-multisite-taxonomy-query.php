@@ -626,8 +626,6 @@ class Multisite_Taxonomy_Query {
 					$multisite_term = "'" . esc_sql( sanitize_multisite_term_field( $query['field'], $multisite_term, 0, $query['multisite_taxonomy'], 'db' ) ) . "'";
 				}
 
-				$multisite_terms = implode( ',', $query['multisite_terms'] );
-
 				$multisite_terms = $wpdb->get_col(
 					$wpdb->prepare(
 						"
@@ -635,42 +633,38 @@ class Multisite_Taxonomy_Query {
 					FROM $wpdb->multisite_term_multisite_taxonomy
 					INNER JOIN $wpdb->multisite_terms USING (multisite_term_id)
 					WHERE multisite_taxonomy = '{%s}'
-					AND $wpdb->multisite_terms.{%s} IN (%s)
+					AND $wpdb->multisite_terms.{%s} IN ( '" . implode( "', '", esc_sql( $query['multisite_terms'] ) ) . "' )
 				",
 						$wpdb->multisite_term_multisite_taxonomy . $resulting_field,
 						$query['multisite_taxonomy'],
-						$query['field'],
-						$multisite_terms
+						$query['field']
 					)
 				);
 				break;
 			case 'multisite_term_multisite_taxonomy_id':
-				$multisite_terms = implode( ',', array_map( 'intval', $query['multisite_terms'] ) );
 				$multisite_terms = $wpdb->get_col(
 					// @codingStandardsIgnoreStart
 					$wpdb->prepare(
 						"
 					SELECT %s
 					FROM $wpdb->multisite_term_multisite_taxonomy
-					WHERE multisite_term_multisite_taxonomy_id IN (%s)
+					WHERE multisite_term_multisite_taxonomy_id IN ( '" . implode( "', '", esc_sql( $query['multisite_terms'] ) ) . "' )
 				"
-					), $resulting_field, $multisite_terms
+					), $resulting_field
 					// @codingStandardsIgnoreEnd
 				);
 				break;
 			default:
-				$multisite_terms = implode( ',', array_map( 'intval', $query['multisite_terms'] ) );
 				$multisite_terms = $wpdb->get_col(
 					$wpdb->prepare(
 						"
 					SELECT %s
 					FROM $wpdb->multisite_term_multisite_taxonomy
 					WHERE multisite_taxonomy = '{%s}'
-					AND multisite_term_id IN (%s)
+					AND multisite_term_id IN ( '" . implode( "', '", esc_sql( $query['multisite_terms'] ) ) . "' )
 				",
 						$resulting_field,
-						$query['multisite_taxonomy'],
-						$multisite_terms
+						$query['multisite_taxonomy']
 					)
 				);
 		}

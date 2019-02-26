@@ -2667,8 +2667,7 @@ function clean_multisite_term_cache( $ids, $multisite_taxonomy = '', $clean_taxo
 	// If no multisite taxonomy, assume mtmt_ids.
 	if ( empty( $multisite_taxonomy ) ) {
 		$mtmt_ids        = array_map( 'intval', $ids );
-		$mtmt_ids        = implode( ', ', $mtmt_ids );
-		$multisite_terms = $wpdb->get_results( $wpdb->prepare( "SELECT multisite_term_id, multisite_taxonomy FROM $wpdb->multisite_term_multisite_taxonomy WHERE multisite_term_multisite_taxonomy_id IN (%s)", $mtmt_ids ) ); // WPCS: unprepared SQL ok.
+		$multisite_terms = $wpdb->get_results( 'SELECT multisite_term_id, multisite_taxonomy FROM ' . $wpdb->multisite_term_multisite_taxonomy . " WHERE multisite_term_multisite_taxonomy_id IN ( '" . implode( "', '", esc_sql( $mtmt_ids ) ) . "' )" ); // WPCS: unprepared SQL ok.
 		$ids             = array();
 		foreach ( (array) $multisite_terms as $multisite_term ) {
 			$multisite_taxonomies[] = $multisite_term->multisite_taxonomy;
@@ -2989,7 +2988,7 @@ function _pad_multisite_term_counts( &$multisite_terms, $multisite_taxonomy ) {
 	// Get the object and multisite term ids and stick them in a lookup table.
 	$multi_tax_obj = get_multisite_taxonomy( $multisite_taxonomy );
 	$object_types  = esc_sql( $multi_tax_obj->object_type );
-	$results       = $wpdb->get_results( "SELECT object_id, multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships INNER JOIN $wpdb->posts ON object_id = ID WHERE multisite_term_multisite_taxonomy_id IN (" . implode( ',', array_keys( $multisite_term_ids ) ) . ") AND post_type IN ('" . implode( "', '", $object_types ) . "') AND post_status = 'publish'" ); // WPCS: unprepared SQL ok.
+	$results       = $wpdb->get_results( "SELECT object_id, multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships INNER JOIN $wpdb->posts ON object_id = ID WHERE multisite_term_multisite_taxonomy_id IN (" . implode( ',', array_keys( $multisite_term_ids ) ) . ") AND post_type IN ( '" . implode( "', '", $object_types ) . "' ) AND post_status = 'publish'" ); // WPCS: unprepared SQL ok.
 	foreach ( $results as $row ) {
 		$id = $multisite_term_ids[ $row->multisite_term_multisite_taxonomy_id ];
 		$multisite_term_items[ $id ][ $row->object_id ] = isset( $multisite_term_items[ $id ][ $row->object_id ] ) ? ++$multisite_term_items[ $id ][ $row->object_id ] : 1;
@@ -3036,7 +3035,7 @@ function _prime_multisite_term_caches( $multisite_term_ids, $update_meta_cache =
 
 	$non_cached_ids = _get_non_cached_ids( $multisite_term_ids, 'multisite_terms' );
 	if ( ! empty( $non_cached_ids ) ) {
-		$fresh_multisite_terms = $wpdb->get_results( sprintf( "SELECT t.*, tt.* FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id IN (%s)", join( ',', array_map( 'intval', $non_cached_ids ) ) ) ); // WPCS: unprepared SQL ok.
+		$fresh_multisite_terms = $wpdb->get_results( 'SELECT t.*, tt.* FROM ' . $wpdb->multisite_terms . ' AS t INNER JOIN ' . $wpdb->multisite_term_multisite_taxonomy . " AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id IN ( '" . implode( "', '", esc_sql( $non_cached_ids ) ) . "' )" ); // WPCS: unprepared SQL ok.
 
 		update_multisite_term_cache( $fresh_multisite_terms, $update_meta_cache );
 
