@@ -466,7 +466,7 @@ function get_objects_in_multisite_term( $multisite_term_ids, $multisite_taxonomi
 	$multisite_taxonomies = "'" . implode( "', '", array_map( 'esc_sql', $multisite_taxonomies ) ) . "'";
 	$multisite_term_ids   = "'" . implode( "', '", $multisite_term_ids ) . "'";
 
-	$object_ids = $wpdb->get_col( "SELECT tr.object_id FROM $wpdb->multisite_term_relationships AS tr INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON tr.multisite_term_multisite_taxonomy_id = tt.multisite_term_multisite_taxonomy_id WHERE tt.multisite_taxonomy IN ($multisite_taxonomies) AND tt.multisite_term_id IN ($multisite_term_ids) ORDER BY tr.object_id $order" ); // WPCS: unprepared SQL ok.
+	$object_ids = $wpdb->get_col( "SELECT tr.object_id FROM $wpdb->multisite_term_relationships AS tr INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON tr.multisite_term_multisite_taxonomy_id = tt.multisite_term_multisite_taxonomy_id WHERE tt.multisite_taxonomy IN ($multisite_taxonomies) AND tt.multisite_term_id IN ($multisite_term_ids) ORDER BY tr.object_id $order" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 	if ( ! $object_ids ) {
 		return array();
@@ -657,7 +657,7 @@ function get_multisite_term_by( $field, $value, $multisite_taxonomy = '', $outpu
 		return $multisite_term;
 	}
 
-	$multisite_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.*, tt.* FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE $_field = %s", $value ) . " $multisite_tax_clause LIMIT 1" ); // WPCS: unprepared SQL ok.
+	$multisite_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.*, tt.* FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE $_field = %s", $value ) . " $multisite_tax_clause LIMIT 1" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	if ( ! $multisite_term ) {
 		return false;
 	}
@@ -1019,9 +1019,9 @@ function multisite_term_exists( $multisite_term, $multisite_taxonomy = '', $pare
 		}
 
 		if ( ! empty( $multisite_taxonomy ) ) {
-			return $wpdb->get_row( $wpdb->prepare( $tax_select . 't.multisite_term_id = %d AND tt.multisite_taxonomy = %s', $multisite_term, $multisite_taxonomy ), ARRAY_A ); // WPCS: unprepared SQL ok.
+			return $wpdb->get_row( $wpdb->prepare( $tax_select . 't.multisite_term_id = %d AND tt.multisite_taxonomy = %s', $multisite_term, $multisite_taxonomy ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		} else {
-			return $wpdb->get_var( $wpdb->prepare( $select . 't.multisite_term_id = %d', $multisite_term ) ); // WPCS: unprepared SQL ok.
+			return $wpdb->get_var( $wpdb->prepare( $select . 't.multisite_term_id = %d', $multisite_term ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		}
 	}
 
@@ -1046,23 +1046,23 @@ function multisite_term_exists( $multisite_term, $multisite_taxonomy = '', $pare
 		$where_fields[]      = $multisite_taxonomy;
 		$else_where_fields[] = $multisite_taxonomy;
 
-		$result = $wpdb->get_row( $wpdb->prepare( "SELECT tt.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy as tt ON tt.multisite_term_id = t.multisite_term_id WHERE $where AND tt.multisite_taxonomy = %s $orderby $limit", $where_fields ), ARRAY_A ); // WPCS: unprepared SQL ok.
+		$result = $wpdb->get_row( $wpdb->prepare( "SELECT tt.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy as tt ON tt.multisite_term_id = t.multisite_term_id WHERE $where AND tt.multisite_taxonomy = %s $orderby $limit", $where_fields ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		if ( $result ) {
 			return $result;
 		}
 
-		return $wpdb->get_row( $wpdb->prepare( "SELECT tt.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy as tt ON tt.multisite_term_id = t.multisite_term_id WHERE $else_where AND tt.multisite_taxonomy = %s $orderby $limit", $else_where_fields ), ARRAY_A ); // WPCS: unprepared SQL ok.
+		return $wpdb->get_row( $wpdb->prepare( "SELECT tt.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms AS t INNER JOIN $wpdb->multisite_term_multisite_taxonomy as tt ON tt.multisite_term_id = t.multisite_term_id WHERE $else_where AND tt.multisite_taxonomy = %s $orderby $limit", $else_where_fields ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	// @codingStandardsIgnoreLine
-	$result = $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_id FROM $wpdb->multisite_terms as t WHERE $where $orderby $limit", $where_fields ) ); // WPCS: unprepared SQL ok.
+	$result = $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_id FROM $wpdb->multisite_terms as t WHERE $where $orderby $limit", $where_fields ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 	if ( $result ) {
 		return $result;
 	}
 
 	// @codingStandardsIgnoreLine
-	return $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_id FROM $wpdb->multisite_terms as t WHERE $else_where $orderby $limit", $else_where_fields ) ); // WPCS: unprepared SQL ok.
+	return $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_id FROM $wpdb->multisite_terms as t WHERE $else_where $orderby $limit", $else_where_fields ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 }
 
 /**
@@ -1404,7 +1404,7 @@ function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 		}
 		$parent = $multisite_term_obj->parent;
 
-		$edit_ids      = $wpdb->get_results( $wpdb->prepare( "SELECT multisite_term_id, multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_multisite_taxonomy WHERE `parent` = %d", (int) $multisite_term_obj->multisite_term_id ) );
+		$edit_ids      = $wpdb->get_results( $wpdb->prepare( "SELECT multisite_term_id, multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_multisite_taxonomy WHERE `parent` = %d", (int) $multisite_term_obj->multisite_term_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$edit_mtmt_ids = wp_list_pluck( $edit_ids, 'multisite_term_multisite_taxonomy_id' );
 
 		/**
@@ -1414,7 +1414,7 @@ function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 		 */
 		do_action( 'edit_multisite_term_multisite_taxonomies', $edit_mtmt_ids );
 
-		$wpdb->update(
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->multisite_term_multisite_taxonomy,
 			compact( 'parent' ),
 			array(
@@ -1437,7 +1437,7 @@ function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	// Get the multisite term before deleting it or its multisite term relationships so we can pass to actions below.
 	$deleted_multisite_term = get_multisite_term( $multisite_term, $multisite_taxonomy );
 
-	$object_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT object_id FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $mtmt_id ) );
+	$object_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT object_id FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $mtmt_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 	foreach ( $object_ids as $object_id ) {
 		$multisite_terms = get_object_multisite_terms(
@@ -1466,7 +1466,7 @@ function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	foreach ( $multisite_tax_object->object_type as $object_type ) {
 		clean_object_multisite_term_cache( $object_ids, $object_type );
 	}
-	$multisite_term_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM $wpdb->multisite_termmeta WHERE multisite_term_id = %d ", $multisite_term ) );
+	$multisite_term_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM $wpdb->multisite_termmeta WHERE multisite_term_id = %d ", $multisite_term ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	foreach ( $multisite_term_meta_ids as $mid ) {
 		delete_metadata_by_mid( 'multisite_term', $mid );
 	}
@@ -1477,7 +1477,7 @@ function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	 * @param int $mtmt_id Multisite term multisite taxonomy ID.
 	 */
 	do_action( 'delete_multisite_term_multisite_taxonomy', $mtmt_id );
-	$wpdb->delete(
+	$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->multisite_term_multisite_taxonomy,
 		array(
 			'multisite_term_multisite_taxonomy_id' => $mtmt_id,
@@ -1492,7 +1492,7 @@ function delete_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	do_action( 'deleted_multisite_term_multisite_taxonomy', $mtmt_id );
 
 	// Delete the multisite term if no multisite taxonomies use it.
-	if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_multisite_taxonomy WHERE multisite_term_id = %d", $multisite_term ) ) ) {
+	if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_multisite_taxonomy WHERE multisite_term_id = %d", $multisite_term ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->delete(
 			$wpdb->multisite_terms,
 			array(
@@ -1717,7 +1717,7 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 			 * The alias is not in a group, so we create a new one
 			 * and add the alias to it.
 			 */
-			$multisite_term_group = $wpdb->get_var( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) + 1;
+			$multisite_term_group = $wpdb->get_var( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) + 1; // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 			update_multisite_term(
 				$alias->multisite_term_id,
@@ -1796,7 +1796,7 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	 */
 	$data = apply_filters( 'insert_multisite_term_data', $data, $multisite_taxonomy, $args );
 
-	if ( false === $wpdb->insert( $wpdb->multisite_terms, $data ) ) {
+	if ( false === $wpdb->insert( $wpdb->multisite_terms, $data ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		return new WP_Error( 'db_insert_error', __( 'Could not insert multisite term into the database', 'multitaxo' ), $wpdb->last_error );
 	}
 
@@ -1808,13 +1808,13 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 
 		/** This action is documented in wp-includes/taxonomy.php */
 		do_action( 'edit_multisite_terms', $multisite_term_id, $multisite_taxonomy );
-		$wpdb->update( $wpdb->multisite_terms, compact( 'slug' ), compact( 'multisite_term_id' ) );
+		$wpdb->update( $wpdb->multisite_terms, compact( 'slug' ), compact( 'multisite_term_id' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 		/** This action is documented in wp-includes/taxonomy.php */
 		do_action( 'edited_multisite_terms', $multisite_term_id, $multisite_taxonomy );
 	}
 
-	$mtmt_id = $wpdb->get_var( $wpdb->prepare( "SELECT tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt INNER JOIN $wpdb->multisite_terms AS t ON tt.multisite_term_id = t.multisite_term_id WHERE tt.multisite_taxonomy = %s AND t.multisite_term_id = %d", $multisite_taxonomy, $multisite_term_id ) );
+	$mtmt_id = $wpdb->get_var( $wpdb->prepare( "SELECT tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt INNER JOIN $wpdb->multisite_terms AS t ON tt.multisite_term_id = t.multisite_term_id WHERE tt.multisite_taxonomy = %s AND t.multisite_term_id = %d", $multisite_taxonomy, $multisite_term_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 	if ( ! empty( $mtmt_id ) ) {
 		return array(
@@ -1822,7 +1822,7 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 			'multisite_term_multisite_taxonomy_id' => $mtmt_id,
 		);
 	}
-	$wpdb->insert(
+	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->multisite_term_multisite_taxonomy,
 		compact( 'multisite_term_id', 'multisite_taxonomy', 'description', 'parent' ) + array(
 			'count' => 0,
@@ -1836,15 +1836,15 @@ function insert_multisite_term( $multisite_term, $multisite_taxonomy, $args = ar
 	 * and multisite_term_multisite_taxonomy_id of the older multisite term instead. Then return out of the function so that the "create" hooks
 	 * are not fired.
 	 */
-	$duplicate_multisite_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms t INNER JOIN $wpdb->multisite_term_multisite_taxonomy tt ON ( tt.multisite_term_id = t.multisite_term_id ) WHERE t.slug = %s AND tt.parent = %d AND tt.multisite_taxonomy = %s AND t.multisite_term_id < %d AND tt.multisite_term_multisite_taxonomy_id != %d", $slug, $parent, $multisite_taxonomy, $multisite_term_id, $mtmt_id ) );
+	$duplicate_multisite_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.multisite_term_id, tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_terms t INNER JOIN $wpdb->multisite_term_multisite_taxonomy tt ON ( tt.multisite_term_id = t.multisite_term_id ) WHERE t.slug = %s AND tt.parent = %d AND tt.multisite_taxonomy = %s AND t.multisite_term_id < %d AND tt.multisite_term_multisite_taxonomy_id != %d", $slug, $parent, $multisite_taxonomy, $multisite_term_id, $mtmt_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	if ( $duplicate_multisite_term ) {
-		$wpdb->delete(
+		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->multisite_terms,
 			array(
 				'multisite_term_id' => $multisite_term_id,
 			)
 		);
-		$wpdb->delete(
+		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->multisite_term_multisite_taxonomy,
 			array(
 				'multisite_term_multisite_taxonomy_id' => $mtmt_id,
@@ -1995,7 +1995,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 		$mtmt_id              = $multisite_term_info['multisite_term_multisite_taxonomy_id'];
 		$mtmt_ids[]           = $mtmt_id;
 
-		if ( $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships WHERE blog_id = %d AND object_id = %d AND multisite_term_multisite_taxonomy_id = %d", $blog_id, $object_id, $mtmt_id ) ) ) {
+		if ( $wpdb->get_var( $wpdb->prepare( "SELECT multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships WHERE blog_id = %d AND object_id = %d AND multisite_term_multisite_taxonomy_id = %d", $blog_id, $object_id, $mtmt_id ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			continue;
 		}
 
@@ -2007,7 +2007,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 		 * @param string $multisite_taxonomy Multisite taxonomy slug.
 		 */
 		do_action( 'add_multisite_term_relationship', $object_id, $mtmt_id, $multisite_taxonomy );
-		$wpdb->insert(
+		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->multisite_term_relationships,
 			array(
 				'object_id'                            => $object_id,
@@ -2035,7 +2035,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 
 		if ( $delete_mtmt_ids ) {
 			$in_delete_mtmt_ids        = "'" . implode( "', '", $delete_mtmt_ids ) . "'";
-			$delete_multisite_term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT tt.multisite_term_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt WHERE tt.multisite_taxonomy = %s AND tt.multisite_term_multisite_taxonomy_id IN ($in_delete_mtmt_ids)", $multisite_taxonomy ) ); // WPCS: unprepared SQL ok.
+			$delete_multisite_term_ids = $wpdb->get_col( $wpdb->prepare( "SELECT tt.multisite_term_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt WHERE tt.multisite_taxonomy = %s AND tt.multisite_term_multisite_taxonomy_id IN ($in_delete_mtmt_ids)", $multisite_taxonomy ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$delete_multisite_term_ids = array_map( 'intval', $delete_multisite_term_ids );
 
 			$remove = remove_object_multisite_terms( $object_id, $delete_multisite_term_ids, $multisite_taxonomy, $blog_id );
@@ -2063,7 +2063,7 @@ function set_object_multisite_terms( $object_id, $multisite_terms, $multisite_ta
 			}
 		}
 		if ( $values ) {
-			if ( false === $wpdb->query( "INSERT INTO $wpdb->multisite_term_relationships (object_id, multisite_term_multisite_taxonomy_id, multisite_term_order) VALUES " . join( ',', $values ) . ' ON DUPLICATE KEY UPDATE multisite_term_order = VALUES(multisite_term_order)' ) ) { // WPCS: unprepared SQL ok.
+			if ( false === $wpdb->query( "INSERT INTO $wpdb->multisite_term_relationships (object_id, multisite_term_multisite_taxonomy_id, multisite_term_order) VALUES " . join( ',', $values ) . ' ON DUPLICATE KEY UPDATE multisite_term_order = VALUES(multisite_term_order)' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				return new WP_Error( 'db_insert_error', __( 'Could not insert multisite term relationship into the database', 'multitaxo' ), $wpdb->last_error );
 			}
 		}
@@ -2164,7 +2164,7 @@ function remove_object_multisite_terms( $object_id, $multisite_terms, $multisite
 		 * @param string $multisite_taxonomy  Multisite taxonomy slug.
 		 */
 		do_action( 'delete_multisite_term_relationships', $object_id, $blog_id, $mtmt_ids, $multisite_taxonomy );
-		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->multisite_term_relationships WHERE object_id = %d AND blog_id = %d AND multisite_term_multisite_taxonomy_id IN ($in_mtmt_ids)", $object_id, $blog_id ) ); // WPCS: unprepared SQL ok.
+		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->multisite_term_relationships WHERE object_id = %d AND blog_id = %d AND multisite_term_multisite_taxonomy_id IN ($in_mtmt_ids)", $object_id, $blog_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 		wp_cache_delete( $object_id, $multisite_taxonomy . '_multisite_relationships' );
 		wp_cache_delete( 'last_changed', 'multisite_terms' );
@@ -2259,12 +2259,12 @@ function unique_multisite_term_slug( $slug, $multisite_term ) {
 			} else {
 				$query = $wpdb->prepare( "SELECT slug FROM $wpdb->multisite_terms WHERE slug = %s", $slug );
 			}
-			if ( $wpdb->get_var( $query ) ) { // WPCS: unprepared SQL ok.
+			if ( $wpdb->get_var( $query ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$num = 2;
 				do {
 					$alt_slug = $slug . "-$num";
 					$num++;
-					$slug_check = $wpdb->get_var( $wpdb->prepare( "SELECT slug FROM $wpdb->multisite_terms WHERE slug = %s", $alt_slug ) );
+					$slug_check = $wpdb->get_var( $wpdb->prepare( "SELECT slug FROM $wpdb->multisite_terms WHERE slug = %s", $alt_slug ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				} while ( $slug_check );
 				$slug = $alt_slug;
 			}
@@ -2387,7 +2387,7 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
 			 * The alias is not in a group, so we create a new one
 			 * and add the alias to it.
 			 */
-			$multisite_term_group = $wpdb->get_var( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) + 1;
+			$multisite_term_group = $wpdb->get_var( "SELECT MAX(multisite_term_group) FROM $wpdb->multisite_terms" ) + 1; // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 			update_multisite_term(
 				$alias->multisite_term_id,
@@ -2427,7 +2427,7 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
 		}
 	}
 
-	$mtmt_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt INNER JOIN $wpdb->multisite_terms AS t ON tt.multisite_term_id = t.multisite_term_id WHERE tt.multisite_taxonomy = %s AND t.multisite_term_id = %d", $multisite_taxonomy, $multisite_term_id ) );
+	$mtmt_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT tt.multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_multisite_taxonomy AS tt INNER JOIN $wpdb->multisite_terms AS t ON tt.multisite_term_id = t.multisite_term_id WHERE tt.multisite_taxonomy = %s AND t.multisite_term_id = %d", $multisite_taxonomy, $multisite_term_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 	/**
 	 * Fires immediately before the given terms are edited.
@@ -2449,10 +2449,10 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
 	 */
 	$data = apply_filters( 'update_multisite_term_data', $data, $multisite_term_id, $multisite_taxonomy, $args );
 
-	$wpdb->update( $wpdb->multisite_terms, $data, compact( 'multisite_term_id' ) );
+	$wpdb->update( $wpdb->multisite_terms, $data, compact( 'multisite_term_id' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	if ( empty( $slug ) ) {
 		$slug = sanitize_title( $name, $multisite_term_id );
-		$wpdb->update( $wpdb->multisite_terms, compact( 'slug' ), compact( 'multisite_term_id' ) );
+		$wpdb->update( $wpdb->multisite_terms, compact( 'slug' ), compact( 'multisite_term_id' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	/**
@@ -2471,7 +2471,7 @@ function update_multisite_term( $multisite_term_id, $multisite_taxonomy, $args =
 	 */
 	do_action( 'edit_multisite_term_multisite_taxonomy', $mtmt_id, $multisite_taxonomy );
 
-	$wpdb->update(
+	$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->multisite_term_multisite_taxonomy,
 		compact( 'multisite_term_id', 'multisite_taxonomy', 'description', 'parent' ),
 		array(
@@ -2569,10 +2569,10 @@ function update_multisite_term_count( $multisite_terms, $multisite_taxonomy ) {
 	} else {
 		global $wpdb;
 		foreach ( (array) $multisite_terms as $multisite_term ) {
-			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $multisite_term ) );
+			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->multisite_term_relationships WHERE multisite_term_multisite_taxonomy_id = %d", $multisite_term ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 			do_action( 'edit_multisite_term_multisite_taxonomy', $multisite_term, $multisite_taxonomy->name );
-			$wpdb->update(
+			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$wpdb->multisite_term_multisite_taxonomy,
 				compact( 'count' ),
 				array(
@@ -2667,7 +2667,7 @@ function clean_multisite_term_cache( $ids, $multisite_taxonomy = '', $clean_taxo
 	// If no multisite taxonomy, assume mtmt_ids.
 	if ( empty( $multisite_taxonomy ) ) {
 		$mtmt_ids        = array_map( 'intval', $ids );
-		$multisite_terms = $wpdb->get_results( 'SELECT multisite_term_id, multisite_taxonomy FROM ' . $wpdb->multisite_term_multisite_taxonomy . " WHERE multisite_term_multisite_taxonomy_id IN ( '" . implode( "', '", esc_sql( $mtmt_ids ) ) . "' )" ); // WPCS: unprepared SQL ok.
+		$multisite_terms = $wpdb->get_results( 'SELECT multisite_term_id, multisite_taxonomy FROM ' . $wpdb->multisite_term_multisite_taxonomy . " WHERE multisite_term_multisite_taxonomy_id IN ( '" . implode( "', '", esc_sql( $mtmt_ids ) ) . "' )" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$ids             = array();
 		foreach ( (array) $multisite_terms as $multisite_term ) {
 			$multisite_taxonomies[] = $multisite_term->multisite_taxonomy;
@@ -2988,7 +2988,7 @@ function _pad_multisite_term_counts( &$multisite_terms, $multisite_taxonomy ) {
 	// Get the object and multisite term ids and stick them in a lookup table.
 	$multi_tax_obj = get_multisite_taxonomy( $multisite_taxonomy );
 	$object_types  = esc_sql( $multi_tax_obj->object_type );
-	$results       = $wpdb->get_results( "SELECT object_id, multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships INNER JOIN $wpdb->posts ON object_id = ID WHERE multisite_term_multisite_taxonomy_id IN (" . implode( ',', array_keys( $multisite_term_ids ) ) . ") AND post_type IN ( '" . implode( "', '", $object_types ) . "' ) AND post_status = 'publish'" ); // WPCS: unprepared SQL ok.
+	$results       = $wpdb->get_results( "SELECT object_id, multisite_term_multisite_taxonomy_id FROM $wpdb->multisite_term_relationships INNER JOIN $wpdb->posts ON object_id = ID WHERE multisite_term_multisite_taxonomy_id IN (" . implode( ',', array_keys( $multisite_term_ids ) ) . ") AND post_type IN ( '" . implode( "', '", $object_types ) . "' ) AND post_status = 'publish'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	foreach ( $results as $row ) {
 		$id = $multisite_term_ids[ $row->multisite_term_multisite_taxonomy_id ];
 		$multisite_term_items[ $id ][ $row->object_id ] = isset( $multisite_term_items[ $id ][ $row->object_id ] ) ? ++$multisite_term_items[ $id ][ $row->object_id ] : 1;
@@ -3035,7 +3035,7 @@ function _prime_multisite_term_caches( $multisite_term_ids, $update_meta_cache =
 
 	$non_cached_ids = _get_non_cached_ids( $multisite_term_ids, 'multisite_terms' );
 	if ( ! empty( $non_cached_ids ) ) {
-		$fresh_multisite_terms = $wpdb->get_results( 'SELECT t.*, tt.* FROM ' . $wpdb->multisite_terms . ' AS t INNER JOIN ' . $wpdb->multisite_term_multisite_taxonomy . " AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id IN ( '" . implode( "', '", esc_sql( $non_cached_ids ) ) . "' )" ); // WPCS: unprepared SQL ok.
+		$fresh_multisite_terms = $wpdb->get_results( 'SELECT t.*, tt.* FROM ' . $wpdb->multisite_terms . ' AS t INNER JOIN ' . $wpdb->multisite_term_multisite_taxonomy . " AS tt ON t.multisite_term_id = tt.multisite_term_id WHERE t.multisite_term_id IN ( '" . implode( "', '", esc_sql( $non_cached_ids ) ) . "' )" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 		update_multisite_term_cache( $fresh_multisite_terms, $update_meta_cache );
 
@@ -3187,7 +3187,7 @@ function the_multisite_taxonomies( $args = array() ) {
 
 	$r = wp_parse_args( $args, $defaults );
 
-	echo $r['before'] . join( $r['sep'], get_the_multisite_taxonomies( $r['post'], $r ) ) . $r['after']; // WPCS: XSS ok.
+	echo $r['before'] . join( $r['sep'], get_the_multisite_taxonomies( $r['post'], $r ) ) . $r['after']; // phpcs:ignore WordPress.Security.EscapeOutput
 }
 
 /**
@@ -3562,8 +3562,8 @@ function create_multisite_term( $multisite_term_name, $multisite_taxonomy ) {
  */
 function ajax_add_multisite_hierarchical_term() {
 	check_ajax_referer( 'add-multisite-' . $taxonomy->name, '_ajax_nonce-add-' . $taxonomy->name );
-	if ( isset( $_POST['action'] ) ) { // WPCS: input var ok.
-		$action = sanitize_key( wp_unslash( $_POST['action'] ) ); // WPCS: input var ok.
+	if ( isset( $_POST['action'] ) ) {
+		$action = sanitize_key( wp_unslash( $_POST['action'] ) );
 	}
 
 	$tax      = str_replace( 'add-multisite-hierarchical-term-', '', $action );
@@ -3573,14 +3573,14 @@ function ajax_add_multisite_hierarchical_term() {
 		wp_die( -1 );
 	}
 
-	if ( isset( $_POST[ 'new_multisite_' . $taxonomy->name ] ) ) { // WPCS: input var ok.
-		$names = explode( ',', sanitize_text_field( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name ] ) ) ); // WPCS: input var ok.
+	if ( isset( $_POST[ 'new_multisite_' . $taxonomy->name ] ) ) {
+		$names = explode( ',', sanitize_text_field( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name ] ) ) );
 	} else {
 		$names = array();
 	}
 
-	if ( isset( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ) { // WPCS: input var ok.
-		$parent = absint( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ); // WPCS: input var ok.
+	if ( isset( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) ) {
+		$parent = absint( wp_unslash( $_POST[ 'new_multisite_' . $taxonomy->name . '_parent' ] ) );
 	} else {
 		$parent = 0;
 	}
@@ -3589,8 +3589,8 @@ function ajax_add_multisite_hierarchical_term() {
 		$parent = 0;
 	}
 
-	if ( isset( $_POST['multi_tax_input'] ) && isset( $_POST['multi_tax_input'][ $taxonomy->name ] ) ) { // WPCS: input var ok.
-		$checked_categories = array_map( 'absint', (array) wp_unslash( $_POST['multi_tax_input'][ $taxonomy->name ] ) ); // WPCS: input var ok.
+	if ( isset( $_POST['multi_tax_input'] ) && isset( $_POST['multi_tax_input'][ $taxonomy->name ] ) ) {
+		$checked_categories = array_map( 'absint', (array) wp_unslash( $_POST['multi_tax_input'][ $taxonomy->name ] ) );
 	} else {
 		$checked_categories = array();
 	}

@@ -181,7 +181,7 @@ class Multisite_WP_Query {
 			// First we get the posts associated to the multisite_term_ids received in the query.
 			// $wpdb->prepare() will not work here because as documentation says: "One example is preparing an array for use in an IN clause".
 			// so we have to use esc_sql instead.
-			$results = $wpdb->get_results( 'SELECT * FROM ' . $wpdb->multisite_term_relationships . " WHERE multisite_term_multisite_taxonomy_id IN ( '" . join( "', '", esc_sql( $this->query_vars['multisite_term_ids'] ) ) . "' )" );
+			$results = $wpdb->get_results( 'SELECT * FROM ' . $wpdb->multisite_term_relationships . " WHERE multisite_term_multisite_taxonomy_id IN ( '" . join( "', '", esc_sql( $this->query_vars['multisite_term_ids'] ) ) . "' )" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 			// If the multisite term is associated with some posts.
 			if ( is_array( $results ) && ! empty( $results ) ) {
@@ -213,7 +213,7 @@ class Multisite_WP_Query {
 						$db_posts_query = implode( ' UNION ', $query_per_blogs );
 					}
 					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_order() . ' ' . $this->get_query_limit();
-					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
+					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				}
 			}
 			// We set the cache if we have to.
