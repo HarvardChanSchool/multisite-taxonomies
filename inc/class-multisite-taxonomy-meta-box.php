@@ -57,7 +57,7 @@ class Multisite_Taxonomy_Meta_Box {
 			return;
 		}
 
-		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
+		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), '1', 1 );
 		wp_localize_script(
 			'multisite-taxonomy-suggest',
 			'multiTaxL10n',
@@ -70,7 +70,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), '1', 1 );
 		wp_localize_script(
 			'multisite-taxonomy-box',
 			'mtaxsecurity',
@@ -80,9 +80,9 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), '1', 1 );
 
-		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css' );
+		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css', array(), '1' );
 	}
 
 	/**
@@ -404,7 +404,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		echo join( $results, "\n" ); // WPCS: XSS ok.
+		echo join( $results, "\n" ); // phpcs:ignore WordPress.Security.EscapeOutput
 		wp_die();
 	}
 
@@ -466,7 +466,7 @@ class Multisite_Taxonomy_Meta_Box {
 			wp_die( 0 );
 		}
 
-		echo $return; // WPCS: XSS ok.
+		echo $return; // phpcs:ignore WordPress.Security.EscapeOutput
 
 		wp_die();
 	}
@@ -510,7 +510,7 @@ class Multisite_Taxonomy_Meta_Box {
 		}
 
 		if ( isset( $_POST['multi_tax_input'] ) ) { // WPCS: Input var OK.
-			$multi_tax_input = sanitize_multisite_taxonomy_save_data( wp_unslash( $_POST['multi_tax_input'] ) ); // WPCS: Input var OK.
+			$multi_tax_input = sanitize_multisite_taxonomy_save_data( wp_unslash( $_POST['multi_tax_input'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		}
 
 		/* OK, its safe for us to save the data now. */

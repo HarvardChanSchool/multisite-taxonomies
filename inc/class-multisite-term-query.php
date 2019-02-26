@@ -192,9 +192,9 @@ class Multisite_Term_Query {
 			'childless'                            => false,
 			'cache_domain'                         => 'core',
 			'update_term_meta_cache'               => true,
-			'meta_query'                           => '', // WPCS: slow query ok.
-			'meta_key'                             => '', // WPCS: slow query ok.
-			'meta_value'                           => '', // WPCS: slow query ok.
+			'meta_query'                           => '', // phpcs:ignore WordPress.DB.SlowDBQuery
+			'meta_key'                             => '', // phpcs:ignore WordPress.DB.SlowDBQuery
+			'meta_value'                           => '', // phpcs:ignore WordPress.DB.SlowDBQuery
 			'meta_type'                            => '',
 			'meta_compare'                         => '',
 		);
@@ -542,7 +542,7 @@ class Multisite_Term_Query {
 
 		if ( ! empty( $meta_clauses ) ) {
 			$join                                    .= $mq_sql['join'];
-			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] ); // WPCS: slow query ok.
+			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $mq_sql['where'] ); // phpcs:ignore WordPress.DB.SlowDBQuery
 			$distinct                                .= 'DISTINCT';
 		}
 
@@ -646,12 +646,12 @@ class Multisite_Term_Query {
 		}
 
 		if ( 'count' === $_fields ) {
-			$count = $wpdb->get_var( $this->request ); // WPCS: unprepared SQL ok.
+			$count = $wpdb->get_var( $this->request ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			wp_cache_set( $cache_key, $count, 'multisite_terms' );
 			return $count;
 		}
 
-		$multisite_terms = $wpdb->get_results( $this->request ); // WPCS: unprepared SQL ok.
+		$multisite_terms = $wpdb->get_results( $this->request ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		if ( 'all' === $_fields || 'all_with_object_id' === $_fields ) {
 			update_multisite_term_cache( $multisite_terms );
 		}

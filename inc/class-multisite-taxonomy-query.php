@@ -626,7 +626,7 @@ class Multisite_Taxonomy_Query {
 					$multisite_term = "'" . esc_sql( sanitize_multisite_term_field( $query['field'], $multisite_term, 0, $query['multisite_taxonomy'], 'db' ) ) . "'";
 				}
 
-				$multisite_terms = $wpdb->get_col(
+				$multisite_terms = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 					$wpdb->prepare(
 						"
 					SELECT %s
@@ -642,7 +642,7 @@ class Multisite_Taxonomy_Query {
 				);
 				break;
 			case 'multisite_term_multisite_taxonomy_id':
-				$multisite_terms = $wpdb->get_col(
+				$multisite_terms = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 					// @codingStandardsIgnoreStart
 					$wpdb->prepare(
 						"
@@ -655,7 +655,7 @@ class Multisite_Taxonomy_Query {
 				);
 				break;
 			default:
-				$multisite_terms = $wpdb->get_col(
+				$multisite_terms = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 					$wpdb->prepare(
 						"
 					SELECT %s
