@@ -614,8 +614,10 @@ function multisite_term_cloud( $args = '' ) {
 	$args     = wp_parse_args( $args, $defaults );
 
 	$multisite_terms = get_multisite_terms(
-		$args['taxonomy'], array_merge(
-			$args, array(
+		$args['taxonomy'],
+		array_merge(
+			$args,
+			array(
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)

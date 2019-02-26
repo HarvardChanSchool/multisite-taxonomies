@@ -87,7 +87,9 @@ class Multitaxo_Plugin {
 	public function admin_enqueue_styles_and_scripts() {
 		wp_register_script( 'admin-multisite-tags', MULTITAXO_PLUGIN_URL . '/assets/js/admin-multisite-tags.js', array( 'jquery', 'wp-ajax-response' ), '1', true );
 		wp_localize_script(
-			'admin-multisite-tags', 'tagsl10n', array(
+			'admin-multisite-tags',
+			'tagsl10n',
+			array(
 				'noPerm' => esc_html__( 'Sorry, you are not allowed to do that.', 'multitaxo' ),
 				'broken' => esc_html__( 'An unidentified error has occurred.', 'multitaxo' ),
 			)
@@ -95,7 +97,9 @@ class Multitaxo_Plugin {
 
 		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . '/assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), '1', true );
 		wp_localize_script(
-			'inline-edit-multisite-tax', 'inlineEditL10n', array(
+			'inline-edit-multisite-tax',
+			'inlineEditL10n',
+			array(
 				'error' => esc_html__( 'Error while saving the changes.', 'multitaxo' ),
 				'saved' => esc_html__( 'Changes saved.', 'multitaxo' ),
 			)
@@ -307,7 +311,8 @@ class Multitaxo_Plugin {
 		$title   = $mulsite_taxonomy->labels->name;
 
 		add_screen_option(
-			'per_page', array(
+			'per_page',
+			array(
 				'default' => 20,
 				'option'  => 'edit_multisite_tax_per_page',
 			)
@@ -358,7 +363,8 @@ class Multitaxo_Plugin {
 						array(
 							'error'   => true,
 							'message' => 4,
-						), $referer
+						),
+						$referer
 					);
 				}
 
@@ -454,7 +460,8 @@ class Multitaxo_Plugin {
 						array(
 							'error'   => true,
 							'message' => 5,
-						), $referer
+						),
+						$referer
 					);
 				}
 
@@ -771,12 +778,12 @@ class Multitaxo_Plugin {
 
 		<?php if ( $message ) : ?>
 		<div id="message" class="<?php echo esc_attr( $class ); ?> notice is-dismissible"><p><?php echo esc_html( $message ); ?></p></div>
-		<?php
-		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'message', 'error' ), sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ); // WPCS: input var ok.
-		} else {
-			$_SERVER['REQUEST_URI'] = '/';
-		}
+			<?php
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+				$_SERVER['REQUEST_URI'] = remove_query_arg( array( 'message', 'error' ), sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ); // WPCS: input var ok.
+			} else {
+				$_SERVER['REQUEST_URI'] = '/';
+			}
 		endif;
 		?>
 		<div id="ajax-response"></div>
@@ -806,27 +813,27 @@ class Multitaxo_Plugin {
 			 * @param string $tax->name The taxonomy slug.
 			 */
 			do_action( "{$tax->name}_pre_add_form", $tax->name );
-		?>
+			?>
 
 		<div class="form-wrap">
 		<h2><?php echo esc_html( $tax->labels->add_new_item ); ?></h2>
 		<form id="addtag" method="post" action="admin.php" class="validate"
-		<?php
-		/**
-		 * Fires inside the Add Tag form tag.
-		 *
-		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
-		 *
-		 * @since 3.7.0
-		 */
-		do_action( "{$tax->name}_term_new_form_tag" );
-		?>
+			<?php
+			/**
+			 * Fires inside the Add Tag form tag.
+			 *
+			 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
+			 *
+			 * @since 3.7.0
+			 */
+			do_action( "{$tax->name}_term_new_form_tag" );
+			?>
 		>
 		<input type="hidden" name="action" value="add-multisite-tag" />
 		<input type="hidden" name="page" value="multisite_term_list_<?php echo esc_attr( $tax->name ); ?>" />
 		<input type="hidden" name="screen" value="<?php echo esc_attr( $current_screen->id ); ?>" />
 		<input type="hidden" name="multisite_taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-		<?php wp_nonce_field( 'add-multisite-tag', 'nonce-add-multisite-tag' ); ?>
+			<?php wp_nonce_field( 'add-multisite-tag', 'nonce-add-multisite-tag' ); ?>
 
 		<div class="form-field form-required term-name-wrap">
 			<label for="tag-name"><?php esc_html_x( 'Name', 'term name', 'multitaxo' ); ?></label>
@@ -838,44 +845,44 @@ class Multitaxo_Plugin {
 			<input name="slug" id="tag-slug" type="text" value="" size="40" />
 			<p><?php esc_html_e( 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'multitaxo' ); ?></p>
 		</div>
-		<?php if ( is_multisite_taxonomy_hierarchical( $tax->name ) ) : ?>
+			<?php if ( is_multisite_taxonomy_hierarchical( $tax->name ) ) : ?>
 		<div class="form-field term-parent-wrap">
 			<label for="parent"><?php echo esc_html( $tax->labels->parent_item ); ?></label>
-			<?php
-			$dropdown_args = array(
-				'hide_empty'       => 0,
-				'hide_if_empty'    => false,
-				'taxonomy'         => $tax->name,
-				'name'             => 'parent',
-				'orderby'          => 'name',
-				'hierarchical'     => true,
-				'show_option_none' => esc_html__( 'None', 'multitaxo' ),
-			);
-			/**
-			 * Filters the taxonomy parent drop-down on the Edit Term page.
-			 *
-			 * @since 3.7.0
-			 * @since 4.2.0 Added `$context` parameter.
-			 *
-			 * @param array  $dropdown_args {
-			 *     An array of taxonomy parent drop-down arguments.
-			 *
-			 *     @type int|bool $hide_empty       Whether to hide terms not attached to any posts. Default 0|false.
-			 *     @type bool     $hide_if_empty    Whether to hide the drop-down if no terms exist. Default false.
-			 *     @type string   $tax->name         The taxonomy slug.
-			 *     @type string   $name             Value of the name attribute to use for the drop-down select element.
-			 *                                      Default 'parent'.
-			 *     @type string   $orderby          The field to order by. Default 'name'.
-			 *     @type bool     $hierarchical     Whether the taxonomy is hierarchical. Default true.
-			 *     @type string   $show_option_none Label to display if there are no terms. Default 'None'.
-			 * }
-			 * @param string $tax->name The taxonomy slug.
-			 * @param string $context  Filter context. Accepts 'new' or 'edit'.
-			 */
-			$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $tax->name, 'new' );
-			dropdown_multisite_taxonomy( $dropdown_args );
-			?>
-			<?php if ( 'category' === $tax->name ) : ?>
+				<?php
+				$dropdown_args = array(
+					'hide_empty'       => 0,
+					'hide_if_empty'    => false,
+					'taxonomy'         => $tax->name,
+					'name'             => 'parent',
+					'orderby'          => 'name',
+					'hierarchical'     => true,
+					'show_option_none' => esc_html__( 'None', 'multitaxo' ),
+				);
+				/**
+				 * Filters the taxonomy parent drop-down on the Edit Term page.
+				 *
+				 * @since 3.7.0
+				 * @since 4.2.0 Added `$context` parameter.
+				 *
+				 * @param array  $dropdown_args {
+				 *     An array of taxonomy parent drop-down arguments.
+				 *
+				 *     @type int|bool $hide_empty       Whether to hide terms not attached to any posts. Default 0|false.
+				 *     @type bool     $hide_if_empty    Whether to hide the drop-down if no terms exist. Default false.
+				 *     @type string   $tax->name         The taxonomy slug.
+				 *     @type string   $name             Value of the name attribute to use for the drop-down select element.
+				 *                                      Default 'parent'.
+				 *     @type string   $orderby          The field to order by. Default 'name'.
+				 *     @type bool     $hierarchical     Whether the taxonomy is hierarchical. Default true.
+				 *     @type string   $show_option_none Label to display if there are no terms. Default 'None'.
+				 * }
+				 * @param string $tax->name The taxonomy slug.
+				 * @param string $context  Filter context. Accepts 'new' or 'edit'.
+				 */
+				$dropdown_args = apply_filters( 'taxonomy_parent_dropdown_args', $dropdown_args, $tax->name, 'new' );
+				dropdown_multisite_taxonomy( $dropdown_args );
+				?>
+				<?php if ( 'category' === $tax->name ) : ?>
 				<p><?php esc_html_e( 'Categories, unlike tags, can have a hierarchy. You might have a Jazz category, and under that have children categories for Bebop and Big Band. Totally optional.', 'multitaxo' ); ?></p>
 			<?php else : ?>
 				<p><?php esc_html_e( 'Assign a parent term to create a hierarchy. The term Jazz, for example, would be the parent of Bebop and Big Band.', 'multitaxo' ); ?></p>
@@ -888,40 +895,40 @@ class Multitaxo_Plugin {
 			<p><?php esc_html_e( 'The description is not prominent by default; however, some themes may show it.', 'multitaxo' ); ?></p>
 		</div>
 
-		<?php
-		if ( ! is_multisite_taxonomy_hierarchical( $tax->name ) ) {
+			<?php
+			if ( ! is_multisite_taxonomy_hierarchical( $tax->name ) ) {
+				/**
+				 * Fires after the Add Tag form fields for non-hierarchical taxonomies.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $tax->name The taxonomy slug.
+				 */
+				do_action( 'add_tag_form_fields', $tax->name );
+			}
 			/**
-			 * Fires after the Add Tag form fields for non-hierarchical taxonomies.
+			 * Fires after the Add Term form fields.
+			 *
+			 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
 			 *
 			 * @since 3.0.0
 			 *
 			 * @param string $tax->name The taxonomy slug.
 			 */
-			do_action( 'add_tag_form_fields', $tax->name );
-		}
-		/**
-		 * Fires after the Add Term form fields.
-		 *
-		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $tax->name The taxonomy slug.
-		 */
-		do_action( "{$tax->name}_add_form_fields", $tax->name );
-		submit_button( $tax->labels->add_new_item );
+			do_action( "{$tax->name}_add_form_fields", $tax->name );
+			submit_button( $tax->labels->add_new_item );
 
-		/**
-		 * Fires at the end of the Add Term form for all taxonomies.
-		 *
-		 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $tax->name The taxonomy slug.
-		 */
-		do_action( "{$tax->name}_add_form", $tax->name );
-		?>
+			/**
+			 * Fires at the end of the Add Term form for all taxonomies.
+			 *
+			 * The dynamic portion of the hook name, `$tax->name`, refers to the taxonomy slug.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string $tax->name The taxonomy slug.
+			 */
+			do_action( "{$tax->name}_add_form", $tax->name );
+			?>
 		</form></div>
 		<?php } ?>
 
@@ -963,7 +970,7 @@ class Multitaxo_Plugin {
 		<script type="text/javascript">
 		try{document.forms.addtag['tag-name'].focus();}catch(e){}
 		</script>
-		<?php
+			<?php
 		endif;
 
 		$this->list_table->inline_edit();
@@ -1232,7 +1239,8 @@ class Multitaxo_Plugin {
 									'multisite_term_id'  => $term->multisite_term_id,
 								),
 								'admin.php'
-							), 'delete-multisite_term_' . $term->multisite_term_id
+							),
+							'delete-multisite_term_' . $term->multisite_term_id
 						)
 					);
 					?>
@@ -1249,7 +1257,7 @@ class Multitaxo_Plugin {
 		<script type="text/javascript">
 		try{document.forms.edittag.name.focus();}catch(e){}
 		</script>
-		<?php
+			<?php
 		endif;
 	}
 

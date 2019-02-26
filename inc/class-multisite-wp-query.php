@@ -362,11 +362,13 @@ class Multisite_WP_Query {
 				$blogs_ids[] = absint( $blog_id );
 			}
 			// Get the sites/blogs info, we limit to the required blogs for the current query.
-			$network_sites = get_sites( array(
-				'site__in' => $blogs_ids,
-				'deleted'  => 0,
-				'archived' => 0,
-			) );
+			$network_sites = get_sites(
+				array(
+					'site__in' => $blogs_ids,
+					'deleted'  => 0,
+					'archived' => 0,
+				)
+			);
 			// For convenience we sort the data in an asociative array using the blog_id as a key for easy access.
 			if ( is_array( $network_sites ) && ! empty( $network_sites ) ) {
 				foreach ( $network_sites as $blog ) {

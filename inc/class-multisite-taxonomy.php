@@ -247,7 +247,8 @@ class Multisite_Taxonomy {
 
 		if ( false !== $args['rewrite'] && ( is_admin() || '' !== get_option( 'permalink_structure' ) ) ) {
 			$args['rewrite'] = wp_parse_args(
-				$args['rewrite'], array(
+				$args['rewrite'],
+				array(
 					// With Front needs to be false to avoid prefixing it with blog/.
 					'with_front'   => false,
 					'hierarchical' => false,

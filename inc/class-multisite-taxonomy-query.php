@@ -483,7 +483,10 @@ class Multisite_Taxonomy_Query {
 				ON $wpdb->multisite_term_multisite_taxonomy.multisite_term_multisite_taxonomy_id = $wpdb->multisite_term_relationships.multisite_term_multisite_taxonomy_id
 				WHERE $wpdb->multisite_term_multisite_taxonomy.multisite_taxonomy = %s
 				AND $wpdb->multisite_term_relationships.object_id = %d
-			)", $operator, $clause['multisite_taxonomy'], $this->primary_table . $this->primary_id_column
+			)",
+				$operator,
+				$clause['multisite_taxonomy'],
+				$this->primary_table . $this->primary_id_column
 			);
 
 		}
@@ -633,7 +636,11 @@ class Multisite_Taxonomy_Query {
 					INNER JOIN $wpdb->multisite_terms USING (multisite_term_id)
 					WHERE multisite_taxonomy = '{%s}'
 					AND $wpdb->multisite_terms.{%s} IN (%s)
-				", $wpdb->multisite_term_multisite_taxonomy . $resulting_field, $query['multisite_taxonomy'], $query['field'], $multisite_terms
+				",
+						$wpdb->multisite_term_multisite_taxonomy . $resulting_field,
+						$query['multisite_taxonomy'],
+						$query['field'],
+						$multisite_terms
 					)
 				);
 				break;
@@ -660,7 +667,10 @@ class Multisite_Taxonomy_Query {
 					FROM $wpdb->multisite_term_multisite_taxonomy
 					WHERE multisite_taxonomy = '{%s}'
 					AND multisite_term_id IN (%s)
-				", $resulting_field, $query['multisite_taxonomy'], $multisite_terms
+				",
+						$resulting_field,
+						$query['multisite_taxonomy'],
+						$multisite_terms
 					)
 				);
 		}
