@@ -26,6 +26,10 @@ define( 'MULTITAXO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MULTITAXO_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'MULTITAXO_ASSETS_URL', plugins_url( '/assets', __FILE__ ) );
 
+$multitaxo_data = get_file_data( __FILE__, array( 'Version' => 'Version' ), 'plugin' );
+
+define( 'MULTITAXO_VERSION', $multitaxo_data['Version'] );
+
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }

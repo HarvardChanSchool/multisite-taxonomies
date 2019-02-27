@@ -57,7 +57,7 @@ class Multisite_Taxonomy_Meta_Box {
 			return;
 		}
 
-		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), '1', 1 );
+		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), MULTITAXO_VERSION, 1 );
 		wp_localize_script(
 			'multisite-taxonomy-suggest',
 			'multiTaxL10n',
@@ -70,7 +70,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), '1', 1 );
+		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), MULTITAXO_VERSION, 1 );
 		wp_localize_script(
 			'multisite-taxonomy-box',
 			'mtaxsecurity',
@@ -80,9 +80,9 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), '1', 1 );
+		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), MULTITAXO_VERSION, 1 );
 
-		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css', array(), '1' );
+		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css', array(), MULTITAXO_VERSION );
 	}
 
 	/**

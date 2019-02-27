@@ -85,7 +85,7 @@ class Multitaxo_Plugin {
 	 * @return void
 	 */
 	public function admin_enqueue_styles_and_scripts() {
-		wp_register_script( 'admin-multisite-tags', MULTITAXO_PLUGIN_URL . '/assets/js/admin-multisite-tags.js', array( 'jquery', 'wp-ajax-response' ), '1', true );
+		wp_register_script( 'admin-multisite-tags', MULTITAXO_PLUGIN_URL . '/assets/js/admin-multisite-tags.js', array( 'jquery', 'wp-ajax-response' ), MULTITAXO_VERSION, true );
 		wp_localize_script(
 			'admin-multisite-tags',
 			'tagsl10n',
@@ -95,7 +95,7 @@ class Multitaxo_Plugin {
 			)
 		);
 
-		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . '/assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), '1', true );
+		wp_register_script( 'inline-edit-multisite-tax', MULTITAXO_PLUGIN_URL . '/assets/js/inline-edit-multisite-tax.js', array( 'jquery', 'wp-a11y' ), MULTITAXO_VERSION, true );
 		wp_localize_script(
 			'inline-edit-multisite-tax',
 			'inlineEditL10n',
