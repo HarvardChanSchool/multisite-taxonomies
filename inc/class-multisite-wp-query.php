@@ -179,9 +179,9 @@ class Multisite_WP_Query {
 			$this->posts = array();
 
 			// First we get the posts associated to the multisite_term_ids received in the query.
-			// parse_query() has already checked that we have received some multisite_term_ids.
-			$term_ids = implode( ',', $this->query_vars['multisite_term_ids'] );
-			$results  = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->multisite_term_relationships . ' WHERE multisite_term_multisite_taxonomy_id IN ( %s )', $term_ids ) );
+			// $wpdb->prepare() will not work here because as documentation says: "One example is preparing an array for use in an IN clause".
+			// so we have to use esc_sql instead.
+			$results = $wpdb->get_results( 'SELECT * FROM ' . $wpdb->multisite_term_relationships . " WHERE multisite_term_multisite_taxonomy_id IN ( '" . join( "', '", esc_sql( $this->query_vars['multisite_term_ids'] ) ) . "' )" );
 
 			// If the multisite term is associated with some posts.
 			if ( is_array( $results ) && ! empty( $results ) ) {
@@ -213,7 +213,7 @@ class Multisite_WP_Query {
 						$db_posts_query = implode( ' UNION ', $query_per_blogs );
 					}
 					$db_posts_query = 'SELECT * FROM (' . $db_posts_query . ') AS multisite_query ' . $this->get_query_order() . ' ' . $this->get_query_limit();
-					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) ); // WPCS: unprepared SQL ok.
+					$this->posts    = $this->process_posts( $wpdb->get_results( $db_posts_query ) );
 				}
 			}
 			// We set the cache if we have to.
@@ -362,11 +362,13 @@ class Multisite_WP_Query {
 				$blogs_ids[] = absint( $blog_id );
 			}
 			// Get the sites/blogs info, we limit to the required blogs for the current query.
-			$network_sites = get_sites( array(
-				'site__in' => $blogs_ids,
-				'deleted'  => 0,
-				'archived' => 0,
-			) );
+			$network_sites = get_sites(
+				array(
+					'site__in' => $blogs_ids,
+					'deleted'  => 0,
+					'archived' => 0,
+				)
+			);
 			// For convenience we sort the data in an asociative array using the blog_id as a key for easy access.
 			if ( is_array( $network_sites ) && ! empty( $network_sites ) ) {
 				foreach ( $network_sites as $blog ) {

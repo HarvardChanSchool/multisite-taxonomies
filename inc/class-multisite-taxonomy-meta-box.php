@@ -57,9 +57,11 @@ class Multisite_Taxonomy_Meta_Box {
 			return;
 		}
 
-		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), false, 1 );
+		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), MULTITAXO_VERSION, 1 );
 		wp_localize_script(
-			'multisite-taxonomy-suggest', 'multiTaxL10n', array(
+			'multisite-taxonomy-suggest',
+			'multiTaxL10n',
+			array(
 				'tagDelimiter' => _x( ',', 'tag delimiter', 'multitaxo' ),
 				'removeTerm'   => __( 'Remove term:', 'multitaxo' ),
 				'termSelected' => __( 'Term selected.', 'multitaxo' ),
@@ -68,17 +70,19 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-box.js', array( 'multisite-taxonomy-suggest', 'jquery-ui-tabs' ), MULTITAXO_VERSION, 1 );
 		wp_localize_script(
-			'multisite-taxonomy-box', 'mtaxsecurity', array(
+			'multisite-taxonomy-box',
+			'mtaxsecurity',
+			array(
 				'noncesearch' => wp_create_nonce( 'nonce-multisite-terms-search' ),
 				'noncecloud'  => wp_create_nonce( 'nonce-multisite-term-cloud' ),
 			)
 		);
 
-		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), false, 1 );
+		wp_enqueue_script( 'hierarchical-multisite-taxonomy-box', MULTITAXO_ASSETS_URL . '/js/multisite-hierarchical-term-box.js', array( 'jquery-ui-tabs' ), MULTITAXO_VERSION, 1 );
 
-		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css' );
+		wp_enqueue_style( 'multisite-taxonomy-meta-box', MULTITAXO_ASSETS_URL . '/css/admin.css', array(), MULTITAXO_VERSION );
 	}
 
 	/**
@@ -187,7 +191,7 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// Add an nonce field so we can check for it later.
 		wp_nonce_field( 'multisite_taxonomy_meta_box', 'multisite_taxonomy_meta_box_nonce' );
-	?>
+		?>
 	<div class="multitaxonomydiv" id="multi-taxonomy-<?php echo esc_attr( $tax_name ); ?>">
 		<div class="ajaxtaxonomy">
 		<div class="nojs-taxonomy hide-if-js">
@@ -207,10 +211,10 @@ class Multisite_Taxonomy_Meta_Box {
 		</div>
 		<ul class="multitaxonomychecklist" role="list"></ul>
 	</div>
-	<?php if ( $user_can_assign_terms ) : ?>
+		<?php if ( $user_can_assign_terms ) : ?>
 	<p class="hide-if-no-js"><button type="button" class="button-link multitaxonomycloud-link" id="link-<?php echo esc_attr( $tax_name ); ?>" aria-expanded="false"><?php echo esc_html( $taxonomy->labels->choose_from_most_used ); ?></button></p>
 	<?php endif; ?>
-	<?php
+		<?php
 	}
 
 	/**
@@ -263,12 +267,13 @@ class Multisite_Taxonomy_Meta_Box {
 				<ul id="<?php echo esc_attr( $tax_name ); ?>checklist" data-wp-lists="list:<?php echo esc_attr( $tax_name ); ?>" class="hierarchical-term-checklist form-no-clear">
 					<?php
 					multisite_terms_checklist(
-						$post->ID, array(
+						$post->ID,
+						array(
 							'taxonomy'      => $tax_name,
 							'popular_terms' => $popular_ids,
 						)
 					);
-	?>
+					?>
 				</ul>
 			</div>
 		<?php if ( current_user_can( $taxonomy->cap->edit_multisite_terms ) ) : ?>
@@ -399,7 +404,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		echo join( $results, "\n" ); // WPCS: XSS ok.
+		echo join( $results, "\n" ); // phpcs:ignore WordPress.Security.EscapeOutput
 		wp_die();
 	}
 
@@ -450,7 +455,8 @@ class Multisite_Taxonomy_Meta_Box {
 
 		// We need raw tag names here, so don't filter the output.
 		$return = generate_multisite_term_cloud(
-			$terms, array(
+			$terms,
+			array(
 				'filter' => 0,
 				'format' => 'list',
 			)
@@ -460,7 +466,7 @@ class Multisite_Taxonomy_Meta_Box {
 			wp_die( 0 );
 		}
 
-		echo $return; // WPCS: XSS ok.
+		echo $return; // phpcs:ignore WordPress.Security.EscapeOutput
 
 		wp_die();
 	}
@@ -504,7 +510,7 @@ class Multisite_Taxonomy_Meta_Box {
 		}
 
 		if ( isset( $_POST['multi_tax_input'] ) ) { // WPCS: Input var OK.
-			$multi_tax_input = sanitize_multisite_taxonomy_save_data( wp_unslash( $_POST['multi_tax_input'] ) ); // WPCS: Input var OK.
+			$multi_tax_input = sanitize_multisite_taxonomy_save_data( wp_unslash( $_POST['multi_tax_input'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		}
 
 		/* OK, its safe for us to save the data now. */
