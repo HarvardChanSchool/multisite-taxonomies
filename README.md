@@ -17,9 +17,10 @@ To test localy simply run:
 ### How to get started?
 - Start by copying the plugin to your website's WordPress plugin directory.
 - Activate the plugin. A Multisite Taxonomy menu will appear in the admin but it will be blank. 
-- Add taxonomies to the website by using register_multisite_taxonomy called on the init hook.
+- Add taxonomies to the website by using register_multisite_taxonomy called on the `init` hook. We would recommend doing this in a separate plugin of your creation. 
+- Multisite tags can then be added to posts through the post edit screen on any site on the network.
 
-Example:
+### Register Taxonomy Example:
 
 ```php
 add_action( 'init', 'register_multisite_taxonomies', 0 );
