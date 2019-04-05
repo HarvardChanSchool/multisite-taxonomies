@@ -11,17 +11,54 @@ To test localy simply run:
 - `$ composer install` (if you haven't already)
 - `$ ./vendor/bin/phpcs ./`
 
-## Local dev environement
-The plugin comes with a "ready to code in 5 minutes" local dev environement. This is totally optional and you can use you own environement.
-
 ### Dependencies:
-- [Docker](https://docs.docker.com/engine/installation/) (with Docker Compose)
 - [Composer](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx) (globally installed)
 
 ### How to get started?
-- `$ git clone git@github.com:HarvardChanSchool/multisite-taxonomies.git`
-- `$ cd multisite-taxonomies`
-- `$ docker-compose up -d`
-- Wait 15/30 seconds for Docker to finish initialising in the backgound
-- If this is the very first time you launch the project you will also need: `$ chmod +x install.sh && ./install.sh`.
-- You can now access your dev environment at http://localhost:8080 and admin at http://localhost:8080/wp-admin/ (user: admin password: admin).
+- Start by copying the plugin to your website's WordPress plugin directory.
+- Activate the plugin. A Multisite Taxonomy menu will appear in the admin but it will be blank. 
+- Add taxonomies to the website by using register_multisite_taxonomy called on the init hook.
+
+Example:
+
+```php
+add_action( 'init', 'register_multisite_taxonomies', 0 );
+
+/**
+ * Load in all taxonomies.
+ *
+ * @return void
+ */
+function register_multisite_taxonomies() {
+    /**
+     * Load taxonomy for Tags
+     */
+    $labels     = array(
+        'name'                       => __( 'Tags', 'hsph-plugin-tagging' ),
+        'singular_name'              => __( 'Tag', 'hsph-plugin-tagging' ),
+        'menu_name'                  => __( 'Tags', 'hsph-plugin-tagging' ),
+        'all_items'                  => __( 'All Tags', 'hsph-plugin-tagging' ),
+        'new_item_name'              => __( 'New Tag Name', 'hsph-plugin-tagging' ),
+        'add_new_item'               => __( 'Add New Tag', 'hsph-plugin-tagging' ),
+        'edit_item'                  => __( 'Edit Tag', 'hsph-plugin-tagging' ),
+        'update_item'                => __( 'Update Tag', 'hsph-plugin-tagging' ),
+        'view_item'                  => __( 'View Tag', 'hsph-plugin-tagging' ),
+        'separate_items_with_commas' => __( 'Separate tags with commas', 'hsph-plugin-tagging' ),
+        'add_or_remove_items'        => __( 'Add or remove tags', 'hsph-plugin-tagging' ),
+        'choose_from_most_used'      => __( 'Choose from the most used tags', 'hsph-plugin-tagging' ),
+        'popular_items'              => __( 'Popular Tags', 'hsph-plugin-tagging' ),
+        'search_items'               => __( 'Search Tags', 'hsph-plugin-tagging' ),
+        'not_found'                  => __( 'No Tags Found', 'hsph-plugin-tagging' ),
+        'no_terms'                   => __( 'No tags for this category', 'hsph-plugin-tagging' ),
+        'most_used'                  => __( 'Most Used', 'hsph-plugin-tagging' ),
+        'items_list'                 => __( 'Tags list', 'hsph-plugin-tagging' ),
+        'items_list_navigation'      => __( 'Tags list navigation', 'hsph-plugin-tagging' ),
+    );
+    $args       = array(
+        'labels'       => $labels,
+        'hierarchical' => false,
+    );
+    $post_types = apply_filters( 'multisite_taxonomy_tags_post_types', array( 'post' ) );
+    register_multisite_taxonomy( 'tag', $post_types, $args );
+}
+```
