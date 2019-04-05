@@ -55,10 +55,12 @@ function register_multisite_taxonomies() {
         'items_list'                 => __( 'Tags list', 'hsph-plugin-tagging' ),
         'items_list_navigation'      => __( 'Tags list navigation', 'hsph-plugin-tagging' ),
     );
+
     $args       = array(
         'labels'       => $labels,
         'hierarchical' => false,
     );
+    
     $post_types = apply_filters( 'multisite_taxonomy_tags_post_types', array( 'post' ) );
     register_multisite_taxonomy( 'tag', $post_types, $args );
 }
