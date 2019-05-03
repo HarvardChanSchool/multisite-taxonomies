@@ -112,7 +112,7 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 			 * @param string $description hierarchical multisite taxonomy description.
 			 * @param object $multisite_taxonomy    Hierarchical multisite taxonomy object.
 			 */
-			$link .= 'title="' . esc_attr( strip_tags( apply_filters( 'category_description', $multisite_taxonomy->description, $multisite_taxonomy ) ) ) . '"';
+			$link .= 'title="' . esc_attr( wp_strip_all_tags( apply_filters( 'category_description', $multisite_taxonomy->description, $multisite_taxonomy ) ) ) . '"';
 		}
 
 		$link .= '>';
@@ -163,7 +163,8 @@ class Walker_Hierarchical_Multisite_Taxonomy extends Walker {
 			if ( ! empty( $args['current_multisite_taxonomy'] ) ) {
 				// 'current_multisite_taxonomy' can be an array, so we use `get_multisite_terms()`.
 				$_current_terms = get_multisite_terms(
-					$multisite_taxonomy->taxonomy, array(
+					$multisite_taxonomy->taxonomy,
+					array(
 						'include'    => $args['current_multisite_taxonomy'],
 						'hide_empty' => false,
 					)

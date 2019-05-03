@@ -5,16 +5,10 @@
     <exclude-pattern>*/assets/*</exclude-pattern>
     <arg name="extensions" value="php"/>
     <!-- Include the WordPress ruleset, with exclusions. -->
-    <rule ref="WordPress"></rule>
-    <rule ref="WordPress.VIP">
-        <exclude name="WordPress.VIP.PostsPerPage" />
-        <exclude name="WordPress.VIP.RestrictedFunctions" />
-        <exclude name="WordPress.VIP.DirectDatabaseQuery" /> <!-- We need to do a lot of DB queries in this plugin. -->
-    </rule>
-    <rule ref="WordPress.VIP.ValidatedSanitizedInput">
-        <properties>
-            <property name="customSanitizingFunctions" value="sanitize_multisite_taxonomy_save_data" type="array" />
-        </properties>
+    <rule ref="WordPress">
+        <!-- This plugin heavily relies on direct DB calls because of custom tables. -->
+        <exclude name="WordPress.DB.DirectDatabaseQuery"/>
+        <exclude name="WordPress.DB.PreparedSQL"/>
     </rule>
     <rule ref="WordPress.WP.I18n">
         <properties>

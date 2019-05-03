@@ -126,7 +126,7 @@ function multisite_terms_checklist( $post_id = 0, $args = array() ) {
 	$output .= call_user_func_array( array( $walker, 'walk' ), array( $multisite_terms, 0, $args ) );
 
 	if ( $r['echo'] ) {
-		echo $output; // WPCS: XSS ok.
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 
 	return $output;
@@ -353,7 +353,7 @@ function popular_multisite_terms_checklist( $multisite_taxonomy, $default = 0, $
 
 		<li id="<?php echo esc_attr( $id ); ?>" class="popular-multisite-taxonomy">
 			<label class="selectit">
-				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // WPCS: XSS ok. ?> value="<?php echo (int) $term->id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_multisite_terms ) ); ?> />
+				<input id="in-<?php echo esc_attr( $id ); ?>" type="checkbox" <?php echo $checked; // phpcs:ignore WordPress.Security.EscapeOutput ?> value="<?php echo (int) $term->id; ?>" <?php disabled( ! current_user_can( $tax->cap->assign_multisite_terms ) ); ?> />
 				<?php
 				/** This filter is documented in wp-includes/category-template.php */
 				echo esc_html( apply_filters( 'the_multisite_taxonomy', $term->name ) );
@@ -552,7 +552,7 @@ function list_multisite_taxonomies( $args = '' ) {
 	$html = apply_filters( 'list_multisite_taxonomies', $output, $args );
 
 	if ( $r['echo'] ) {
-		echo $html; // WPCS: XSS ok.
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput
 	} else {
 		return $html;
 	}
@@ -614,8 +614,10 @@ function multisite_term_cloud( $args = '' ) {
 	$args     = wp_parse_args( $args, $defaults );
 
 	$multisite_terms = get_multisite_terms(
-		$args['taxonomy'], array_merge(
-			$args, array(
+		$args['taxonomy'],
+		array_merge(
+			$args,
+			array(
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
@@ -656,7 +658,7 @@ function multisite_term_cloud( $args = '' ) {
 		return $return;
 	}
 
-	echo $return; // WPCS: XSS ok.
+	echo $return; // phpcs:ignore WordPress.Security.EscapeOutput
 }
 
 /**
@@ -1144,7 +1146,7 @@ function the_multisite_terms( $id, $multisite_taxonomy, $before = '', $sep = ', 
 	 * @param string $sep       String to use between the multisite terms.
 	 * @param string $after     String to use after the multisite terms.
 	 */
-	echo apply_filters( 'the_multisite_terms', $multisite_term_list, $multisite_taxonomy, $before, $sep, $after ); // WPCS: XSS ok.
+	echo apply_filters( 'the_multisite_terms', $multisite_term_list, $multisite_taxonomy, $before, $sep, $after ); // phpcs:ignore WordPress.Security.EscapeOutput
 }
 
 /**

@@ -52,15 +52,15 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 			)
 		);
 
-		$action             = $this->screen->action; // WPCS: override ok.
-		$post_type          = $this->screen->post_type; // WPCS: override ok.
+		$action             = $this->screen->action; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+		$post_type          = $this->screen->post_type; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 		$multisite_taxonomy = $this->screen->taxonomy;
 
 		if ( empty( $multisite_taxonomy ) || ! multisite_taxonomy_exists( $multisite_taxonomy ) ) {
 			wp_die( esc_html__( 'Invalid multisite taxonomy.', 'multitaxo' ) );
 		}
 
-		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // WPCS: override ok.
+		$mu_tax = get_multisite_taxonomy( $multisite_taxonomy ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 	}
 
 	/**
@@ -80,8 +80,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		$tags_per_page = $this->get_items_per_page( 'edit_multisite_tax_per_page' );
 
-		if ( ! empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
-			$search = trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ); // WPCS: CSRF ok. input var okay.
+		if ( ! empty( $_REQUEST['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$search = trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		} else {
 			$search = '';
 		}
@@ -103,12 +103,12 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		// Convert it to table rows.
 		$count = 0;
 
-		if ( ! empty( $_REQUEST['orderby'] ) ) { // WPCS: CSRF ok. input var okay.
-			$args['orderby'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) ); // WPCS: CSRF ok. input var okay.
+		if ( ! empty( $_REQUEST['orderby'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$args['orderby'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		}
 
-		if ( ! empty( $_REQUEST['order'] ) ) { // WPCS: CSRF ok. input var okay.
-			$args['order'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // WPCS: CSRF ok. input var okay.
+		if ( ! empty( $_REQUEST['order'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$args['order'] = trim( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		}
 
 		if ( is_multisite_taxonomy_hierarchical( $this->screen->taxonomy ) && ! isset( $args['orderby'] ) ) {
@@ -117,7 +117,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		}
 
 		$args = wp_parse_args(
-			$args, array(
+			$args,
+			array(
 				'page'       => 1,
 				'number'     => 20,
 				'search'     => '',
@@ -133,7 +134,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$this->set_pagination_args(
 			array(
 				'total_items' => count_multisite_terms(
-					$this->screen->taxonomy, array(
+					$this->screen->taxonomy,
+					array(
 						'search' => $search,
 					)
 				),
@@ -172,7 +174,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 	 * @return string
 	 */
 	public function current_action() {
-		if ( isset( $_REQUEST['action'] ) && isset( $_REQUEST['delete_multisite_terms'] ) && ( 'delete' === $_REQUEST['action'] || ( isset( $_REQUEST['action2'] ) && 'delete' === $_REQUEST['action2'] ) ) ) { // WPCS: CSRF ok. input var okay.
+		if ( isset( $_REQUEST['action'] ) && isset( $_REQUEST['delete_multisite_terms'] ) && ( 'delete' === $_REQUEST['action'] || ( isset( $_REQUEST['action2'] ) && 'delete' === $_REQUEST['action2'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return 'bulk-delete';
 		}
 		return parent::current_action();
@@ -224,7 +226,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		$multisite_taxonomy = $this->screen->taxonomy;
 
 		$args = wp_parse_args(
-			$this->callback_args, array(
+			$this->callback_args,
+			array(
 				'page'       => 1,
 				'number'     => 20,
 				'search'     => '',
@@ -295,12 +298,12 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 				break;
 			}
 
-			if ( $multisite_term->parent !== $parent && empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
+			if ( $multisite_term->parent !== $parent && empty( $_REQUEST['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 				continue;
 			}
 
 			// If the page starts in a subtree, print the parents.
-			if ( (int) $count === (int) $start && $multisite_term->parent > 0 && empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
+			if ( (int) $count === (int) $start && $multisite_term->parent > 0 && empty( $_REQUEST['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 				$my_parents = array();
 				$parent_ids = array();
 				$p          = $multisite_term->parent;
@@ -333,7 +336,7 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 
 			unset( $multisite_terms[ $key ] );
 
-			if ( isset( $children[ $multisite_term->multisite_term_id ] ) && empty( $_REQUEST['s'] ) ) { // WPCS: CSRF ok. input var okay.
+			if ( isset( $children[ $multisite_term->multisite_term_id ] ) && empty( $_REQUEST['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 				$this->_rows( $multisite_taxonomy, $multisite_terms, $children, $start, $per_page, $count, $multisite_term->multisite_term_id, $level + 1 );
 			}
 		}
@@ -402,8 +405,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		if ( wp_doing_ajax() ) {
 			$uri = wp_get_referer();
 		} else {
-			if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: CSRF ok. input var okay.
-				$uri = $_SERVER['REQUEST_URI']; // WPCS: sanitization ok. input var okay.
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				$uri = $_SERVER['REQUEST_URI']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			}
 		}
 
@@ -462,8 +465,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		if ( wp_doing_ajax() ) {
 			$uri = wp_get_referer();
 		} else {
-			if ( isset( $_SERVER['REQUEST_URI'] ) ) { // WPCS: CSRF ok. input var okay.
-				$uri = $_SERVER['REQUEST_URI']; // WPCS: sanitization ok. input var okay.
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				$uri = $_SERVER['REQUEST_URI']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			}
 		}
 
@@ -499,7 +502,8 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 							'action'            => 'delete',
 							'multisite_term_id' => $multisite_term->multisite_term_id,
 						)
-					), 'delete-multisite_term_' . $multisite_term->multisite_term_id
+					),
+					'delete-multisite_term_' . $multisite_term->multisite_term_id
 				),
 				/* translators: %s: multisite term name */
 				esc_attr( sprintf( __( 'Delete &#8220;%s&#8221;', 'multitaxo' ), $multisite_term->name ) ),
@@ -663,6 +667,6 @@ class Multisite_Terms_List_Table extends WP_List_Table {
 		</p>
 		</td></tr>
 		</tbody></table></form>
-	<?php
+		<?php
 	}
 }
