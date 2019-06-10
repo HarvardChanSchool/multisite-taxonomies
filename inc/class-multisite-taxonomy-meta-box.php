@@ -433,7 +433,7 @@ class Multisite_Taxonomy_Meta_Box {
 		$terms = get_multisite_terms(
 			array(
 				'taxonomy'   => $taxonomy,
-				'number'     => 45,
+				'number'     => 300,
 				'orderby'    => 'count',
 				'order'      => 'DESC',
 				'hide_empty' => false,
