@@ -430,15 +430,19 @@ class Multisite_Taxonomy_Meta_Box {
 			wp_die( -1 );
 		}
 
-		$terms = get_multisite_terms(
-			array(
-				'taxonomy'   => $taxonomy,
-				'number'     => 300,
-				'orderby'    => 'count',
-				'order'      => 'DESC',
-				'hide_empty' => false,
-			)
+		$term_args = array(
+			'taxonomy'   => $taxonomy,
+			'number'     => 45,
+			'orderby'    => 'count',
+			'order'      => 'DESC',
+			'hide_empty' => false,
 		);
+
+		// Make the multisite term cloud defaults editable.
+		$term_args = apply_filters( 'multisite_taxonomy_term_cloud_args', $term_args );
+
+		// Get the terms for the clould.
+		$terms = get_multisite_terms( $term_args );
 
 		if ( empty( $terms ) ) {
 			wp_die( esc_html( $tax->labels->not_found ) );
