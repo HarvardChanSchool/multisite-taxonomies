@@ -407,7 +407,7 @@ class Multitaxo_Plugin {
 					);
 				}
 
-				if ( isset( $_REQUEST['delete_multisite_terms'] ) && is_array( wp_unslash( $_REQUEST['delete_multisite_terms'] ) ) ) {
+				if ( isset( $_REQUEST['delete_multisite_terms'] ) && is_array( wp_unslash( $_REQUEST['delete_multisite_terms'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 					$multisite_terms = array_map( 'absint', wp_unslash( $_REQUEST['delete_multisite_terms'] ) );
 					foreach ( $multisite_terms as $multisite_terms_id ) {
 						delete_multisite_term( $multisite_terms_id, $mulsite_taxonomy->name );
@@ -422,7 +422,7 @@ class Multitaxo_Plugin {
 					break;
 				}
 
-				$multisite_term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) );
+				$multisite_term_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 				$term              = get_multisite_term( $multisite_term_id );
 
 				if ( ! $term instanceof WP_Term ) {
@@ -433,7 +433,11 @@ class Multitaxo_Plugin {
 
 				exit;
 			case 'editedtag':
-				$tag_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) );
+				if ( ! isset( $_REQUEST['multisite_term_id'] ) ) {
+					break;
+				}
+
+				$tag_id = (int) absint( wp_unslash( $_POST['multisite_term_id'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
 				check_admin_referer( 'update-multisite-term_' . $tag_id );
 
