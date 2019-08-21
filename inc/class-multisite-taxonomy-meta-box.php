@@ -57,7 +57,7 @@ class Multisite_Taxonomy_Meta_Box {
 			return;
 		}
 
-		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y' ), MULTITAXO_VERSION, 1 );
+		wp_enqueue_script( 'multisite-taxonomy-suggest', MULTITAXO_ASSETS_URL . '/js/multisite-taxonomy-suggest.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-autocomplete', 'wp-a11y', 'tags-suggest' ), MULTITAXO_VERSION, 1 );
 		wp_localize_script(
 			'multisite-taxonomy-suggest',
 			'multiTaxL10n',
