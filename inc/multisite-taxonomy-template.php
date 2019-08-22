@@ -24,6 +24,7 @@
  *                                        the top of the list. Default true.
  *     @type bool   $echo                 Whether to echo the generated markup. False to return the markup instead
  *                                        of echoing it. Default true.
+ * @return string   $output               Unordered list of checkboxes.
  * }
  */
 function multisite_terms_checklist( $post_id = 0, $args = array() ) {
