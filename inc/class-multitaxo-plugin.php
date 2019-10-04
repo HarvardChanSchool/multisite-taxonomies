@@ -67,6 +67,10 @@ class Multitaxo_Plugin {
 		$wpdb->multisite_terms                   = $wpdb->base_prefix . 'multisite_terms';
 		$wpdb->multisite_term_relationships      = $wpdb->base_prefix . 'multisite_term_relationships';
 		$wpdb->multisite_term_multisite_taxonomy = $wpdb->base_prefix . 'multisite_term_multisite_taxonomy';
+
+		if ( false === get_site_option( 'multitaxo_tables_created' ) ) {
+			$this->create_database_tables();
+		}
 	}
 
 	/**
@@ -114,7 +118,6 @@ class Multitaxo_Plugin {
 	 */
 	public function activation_hook() {
 		$this->register_database_tables();
-		$this->create_database_tables();
 	}
 
 	/**
@@ -162,7 +165,8 @@ class Multitaxo_Plugin {
 			KEY meta_key (meta_key(' . $max_index_length . '))
 		) ' . $charset_collate . ';';
 
-		dbDelta( $multisite_termmeta_sql );
+		//dbDelta( $multisite_termmeta_sql );
+		$wpdb->query( $multisite_termmeta_sql );
 
 		// Table structure for table `wp_multisite_terms`.
 		$multisite_terms_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_terms . '` (
@@ -175,7 +179,8 @@ class Multitaxo_Plugin {
 			KEY name (name(' . $max_index_length . '))
 		) ' . $charset_collate . ';';
 
-		dbDelta( $multisite_terms_sql );
+		//dbDelta( $multisite_terms_sql );
+		$wpdb->query( $multisite_terms_sql );
 
 		// Table structure for table `wp_multisite_term_relationships`.
 		$multisite_term_relationships_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_term_relationships . '` (
@@ -183,11 +188,12 @@ class Multitaxo_Plugin {
 			object_id bigint(20) unsigned NOT NULL default 0,
 			multisite_term_multisite_taxonomy_id bigint(20) unsigned NOT NULL default 0,
 			multisite_term_order int(11) NOT NULL default 0,
-			PRIMARY KEY (blog_id,object_id,multisite_term_multisite_taxonomy_id),
+			PRIMARY KEY  (blog_id,object_id,multisite_term_multisite_taxonomy_id),
 			KEY multisite_term_multisite_taxonomy_id (multisite_term_multisite_taxonomy_id)
 		) ' . $charset_collate . ';';
 
-		dbDelta( $multisite_term_relationships_sql );
+		//dbDelta( $multisite_term_relationships_sql );
+		$wpdb->query( $multisite_term_relationships_sql );
 
 		// Table structure for table `wp_multisite_term_multisite_taxonomy`.
 		$multisite_term_multisite_taxonomy_sql = 'CREATE TABLE IF NOT EXISTS `' . $wpdb->multisite_term_multisite_taxonomy . '` (
@@ -202,7 +208,11 @@ class Multitaxo_Plugin {
 			KEY multisite_taxonomy (multisite_taxonomy)
 		) ' . $charset_collate . ';';
 
-		dbDelta( $multisite_term_multisite_taxonomy_sql );
+		//dbDelta( $multisite_term_multisite_taxonomy_sql );
+		$wpdb->query( $multisite_term_multisite_taxonomy_sql );
+
+		update_site_option( 'multitaxo_tables_created', 1 );
+
 	}
 
 	/**
