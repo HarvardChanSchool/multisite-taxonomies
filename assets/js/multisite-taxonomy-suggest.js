@@ -2,12 +2,12 @@
  * Default settings for jQuery UI Autocomplete for use with non-hierarchical taxonomies.
  */
 ( function( $ ) {
-	if ( typeof window.tagsSuggestL10n === 'undefined' || typeof window.uiAutocompleteL10n === 'undefined' ) {
+	if ( typeof window.multiTaxL10n === 'undefined' || typeof window.uiAutocompleteL10n === 'undefined' ) {
 		return;
 	}
 
 	var tempID = 0;
-	var separator = window.tagsSuggestL10n.tagDelimiter || ',';
+	var separator = window.multiTaxL10n.tagDelimiter || ',';
 
 	function split( val ) {
 		return val.split( new RegExp( separator + '\\s*' ) );
@@ -103,7 +103,7 @@
 
 				if ( $.ui.keyCode.TAB === event.keyCode ) {
 					// Audible confirmation message when a tag has been selected.
-					window.wp.a11y.speak( window.tagsSuggestL10n.termSelected, 'assertive' );
+					window.wp.a11y.speak( window.multiTaxL10n.termSelected, 'assertive' );
 					event.preventDefault();
 				} else if ( $.ui.keyCode.ENTER === event.keyCode ) {
 					// Do not close Quick Edit / Bulk Edit

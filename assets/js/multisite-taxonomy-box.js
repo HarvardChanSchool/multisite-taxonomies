@@ -4,7 +4,7 @@
 var multiTagBox, array_multi_unique_noempty;
 
 ( function( $ ) {
-	var tagDelimiter = ( window.tagsSuggestL10n && window.tagsSuggestL10n.tagDelimiter ) || ',';
+	var tagDelimiter = ( window.multiTaxL10n && window.multiTaxL10n.tagDelimiter ) || ',';
 
 	// Return an array with any duplicate, whitespace or empty values removed
 	array_multi_unique_noempty = function( array ) {
@@ -96,7 +96,7 @@ var multiTagBox, array_multi_unique_noempty;
 					 */
 					xbutton = $( '<button type="button" id="' + id + '-check-num-' + key + '" class="ntmultidelbutton">' +
 						'<span class="remove-multi-tag-icon" aria-hidden="true"></span>' +
-						'<span class="screen-reader-text">' + window.tagsSuggestL10n.removeTerm + ' ' + listItem.html() + '</span>' +
+						'<span class="screen-reader-text">' + window.multiTaxL10n.removeTerm + ' ' + listItem.html() + '</span>' +
 						'</button>' );
 
 					xbutton.on( 'click keypress', function( e ) {
@@ -199,11 +199,11 @@ var multiTagBox, array_multi_unique_noempty;
 
 			switch ( this.userAction ) {
 				case 'remove':
-					message = window.tagsSuggestL10n.termRemoved;
+					message = window.multiTaxL10n.termRemoved;
 					break;
 
 				case 'add':
-					message = window.tagsSuggestL10n.termAdded;
+                    message = window.multiTaxL10n.termAdded;
 					break;
 
 				default:
