@@ -404,7 +404,7 @@ class Multisite_Taxonomy_Meta_Box {
 			)
 		);
 
-		echo join( $results, "\n" ); // phpcs:ignore WordPress.Security.EscapeOutput
+		echo implode( "\n", $results ); // phpcs:ignore WordPress.Security.EscapeOutput
 		wp_die();
 	}
 
