@@ -200,7 +200,7 @@ function is_multisite_taxonomy_hierarchical( $multisite_taxonomy ) {
  *     @type callable      $update_count_callback Works much like a hook, in that it will be called when the count is
  *                                                updated. Default update_multisite_term_count().
  * }
- * @return WP_Error|void WP_Error, if errors.
+ * @return Multisite_Taxonomy|WP_Error The registered multisite taxonomy object on success, WP_Error object on failure.
  */
 function register_multisite_taxonomy( $multisite_taxonomy, $object_type, $args = array() ) {
 	global $multisite_taxonomies;
@@ -230,6 +230,8 @@ function register_multisite_taxonomy( $multisite_taxonomy, $object_type, $args =
 	 * @param array        $args        Array of multisite taxonomy registration arguments.
 	 */
 	do_action( 'registered_multisite_taxonomy', $multisite_taxonomy, $object_type, (array) $multisite_taxonomy_object );
+
+	return $multisite_taxonomy_object;
 }
 
 /**
